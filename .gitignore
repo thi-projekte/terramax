@@ -1,0 +1,5 @@
+
+# Lokale IDE-Einstellungen
+.idea/
+*.iml
+.DS_Store
