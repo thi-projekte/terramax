@@ -480,6 +480,26 @@
   },
   "clients": [
     {
+      "clientId": "terramax-dev-ui",
+      "name": "Lokale Quarkus Dev UI",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/q/dev-ui/quarkus-oidc/keycloak-provider"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "email"
+      ]
+    },
+    {
       "id": "010951e6-19d0-469c-b5ad-071575709ba5",
       "clientId": "account",
       "name": "${client_account}",
