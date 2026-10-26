@@ -1,0 +1,41 @@
+
+name: Hello Service CI
+
+on:
+  push:
+    paths:
+      - "hello-service/**"
+      - ".github/workflows/hello-service.yml"
+  pull_request:
+    paths:
+      - "hello-service/**"
+      - ".github/workflows/hello-service.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: hello-service
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+          cache-dependency-path: hello-service/pom.xml
+
+      - name: Build and test
+        run: |
+          chmod +x mvnw
+          ./mvnw -B verify
