@@ -14,7 +14,7 @@ on:
 
 permissions:
   contents: read
-  Packages: write
+  packages: write
 
 jobs:
   build-and-test:
