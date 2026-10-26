@@ -39,3 +39,11 @@ jobs:
         run: |
           chmod +x mvnw
           ./mvnw -B verify
+      
+      - name: Build Docker image
+        run: |
+          docker build \
+            -f src/main/docker/Dockerfile.jvm \
+            -t terramax-hello-service:test \
+            .
+
