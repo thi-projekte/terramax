@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  Packages: write
 
 jobs:
   build-and-test:
@@ -40,10 +41,33 @@ jobs:
           chmod +x mvnw
           ./mvnw -B verify
       
+      
+      - name: Login to GitHub Container Registry
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      
       - name: Build Docker image
         run: |
           docker build \
             -f src/main/docker/Dockerfile.jvm \
-            -t terramax-hello-service:test \
+            -t ghcr.io/thi-projekte/terramax-hello-service:sha-${GITHUB_SHA::7} \
             .
+
+      - name: Push Docker image to GHCR
+        if: github.event_name == 'push'
+        run: |
+          docker push ghcr.io/thi-projekte/terramax-hello-service:sha-${GITHUB_SHA::7}
+
+      - name: Tag and push main image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          docker tag \
+            ghcr.io/thi-projekte/terramax-hello-service:sha-${GITHUB_SHA::7} \
+            ghcr.io/thi-projekte/terramax-hello-service:main
+          docker push ghcr.io/thi-projekte/terramax-hello-service:main
 
