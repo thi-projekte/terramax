@@ -1,0 +1,18 @@
+# Installierte Pakete
+node_modules/
+dist/
+
+# Passwörter und Zugangsdaten
+.env
+.env.*
+!.env.example
+
+# macOS-Dateien
+.DS_Store
+
+# Sicherungskopien
+*.backup.txt
+*.backup.tsx
+
+# Logdateien
+*.log
