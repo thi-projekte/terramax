@@ -1,32 +1,88 @@
-# React + TypeScript + Vite
+# TerraMax – Interaktive H3-Agrarmarktkarte
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Projektbeschreibung
 
-Currently, two official plugins are available:
+Im Rahmen von GitHub-Ticket #17 wurde eine interaktive Agrarmarktkarte für Österreich entwickelt.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Die Anwendung visualisiert Weizen- und Sojabohnenflächen auf Basis offener Agrardaten in einem H3-Raster mit Auflösung 6.
 
-## React Compiler
+## Funktionen
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Interaktive Karte mit Mapbox GL JS
+- 3D-Globus mit automatischem Kameraflug nach Österreich
+- H3-Raster für Österreich mit Auflösung 6
+- Fünf Farbklassen zur Darstellung der Anbauflächen in Hektar
+- Legende zur Erklärung der Farbklassen
+- Anklickbare H3-Zellen mit Flächenwert, H3-ID und Datenquelle
+- Kennzeichnung fehlender Flächenwerte als „unbekannt“
 
-## Expanding the Oxlint configuration
+## Verwendete Technologien
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- React und TypeScript
+- Vite
+- Mapbox GL JS
+- H3
+- QGIS zur Geodatenverarbeitung
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Installation und Start
+
+Voraussetzung: Node.js und npm sind installiert.
+
+**1. Repository klonen und Frontend-Ordner öffnen**
+
+```bash
+git clone https://github.com/thi-projekte/terramax.git
+cd terramax/frontend
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Hinweis: Solange der Pull Request nicht in `main` übernommen wurde, muss der Branch `feature/17-h3-market-map` ausgewählt werden.
+
+**2. Abhängigkeiten installieren**
+
+```bash
+npm install
+```
+
+**3. Mapbox-Token konfigurieren**
+
+Im Ordner `frontend` eine Datei namens `.env` erstellen:
+
+```env
+VITE_MAPBOX_TOKEN=DEIN_MAPBOX_ACCESS_TOKEN
+```
+
+Ein gültiger Mapbox-Access-Token wird benötigt. Die `.env`-Datei wird nicht auf GitHub hochgeladen.
+
+**4. Entwicklungsserver starten**
+
+```bash
+npm run dev
+```
+
+Anschließend die im Terminal angezeigte lokale Adresse öffnen, normalerweise `http://localhost:5173/`.
+
+## Datengrundlage und Berechnung
+
+- **Quelle:** INVEKOS Österreich 2024
+- **Kulturarten:** Winter- und Sommerweizen einschließlich Durumweizen sowie Sojabohnen
+- **Geografisches Gebiet:** Österreich
+- **H3-Auflösung:** 6
+- **Verarbeitung:** QGIS
+
+Die landwirtschaftlichen Polygone wurden nach Kulturarten gefiltert, geometrisch verarbeitet und mit dem H3-Raster verschnitten. Anschließend wurden die Flächen in Hektar berechnet und nach H3-Zelle aggregiert.
+
+Die aufbereiteten Daten liegen im Verzeichnis `frontend/public/` als GeoJSON- und CSV-Dateien vor.
+
+## Einschränkungen
+
+Die Karte stellt derzeit ausschließlich Weizen- und Sojabohnenflächen dar, nicht die gesamte landwirtschaftliche Ackerfläche Österreichs.
+
+Zellen ohne zugeordneten Flächenwert werden als „unbekannt“ angezeigt. Diese Darstellung darf nicht automatisch als 0 ha interpretiert werden.
+
+Die Auswertung ist vorläufig und dient als MVP für die geografische Visualisierung landwirtschaftlicher Marktpotenziale.
+
+## GitHub
+
+- **Ticket:** #17
+- **Pull Request:** #30
+- **Branch:** `feature/17-h3-market-map`
