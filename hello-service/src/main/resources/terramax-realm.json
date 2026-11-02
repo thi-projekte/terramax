@@ -85,6 +85,22 @@
         "clientRole": false,
         "containerId": "8b1bb181-6898-4b8e-b189-60ce32d83a36",
         "attributes": {}
+      },
+      {
+        "name": "sales_professional",
+        "description": "TerraMax: Sales Professional (Außendienst)",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "8b1bb181-6898-4b8e-b189-60ce32d83a36",
+        "attributes": {}
+      },
+      {
+        "name": "dealer_principal",
+        "description": "TerraMax: Dealer Principal (Händler-Geschäftsführung)",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "8b1bb181-6898-4b8e-b189-60ce32d83a36",
+        "attributes": {}
       }
     ],
     "client": {
@@ -488,15 +504,19 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
       "redirectUris": [
-        "http://localhost:8080/q/dev-ui/quarkus-oidc/keycloak-provider"
+        "http://localhost:8080/q/dev-ui/quarkus-oidc/keycloak-provider",
+        "http://localhost:8090/q/dev-ui/quarkus-oidc/keycloak-provider"
       ],
       "webOrigins": [
-        "http://localhost:8080"
+        "http://localhost:8080",
+        "http://localhost:8090"
       ],
       "defaultClientScopes": [
         "web-origins",
         "profile",
-        "email"
+        "email",
+        "roles",
+        "basic"
       ]
     },
     {
@@ -2561,6 +2581,44 @@
           "value": "test",
           "temporary": false
         }
+      ]
+    },
+    {
+      "username": "sales",
+      "enabled": true,
+      "email": "sales@example.com",
+      "emailVerified": true,
+      "firstName": "Sam",
+      "lastName": "Sales",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "sales",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-terramax",
+        "sales_professional"
+      ]
+    },
+    {
+      "username": "dealer",
+      "enabled": true,
+      "email": "dealer@example.com",
+      "emailVerified": true,
+      "firstName": "Dana",
+      "lastName": "Dealer",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dealer",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-terramax",
+        "dealer_principal"
       ]
     }
   ]
