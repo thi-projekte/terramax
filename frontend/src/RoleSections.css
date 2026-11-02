@@ -1,0 +1,92 @@
+/* Mobile first: Sales Professionals nutzen die App überwiegend auf dem Smartphone */
+.role-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.role-badges {
+  margin: 0;
+}
+
+.role-badge {
+  display: inline-block;
+  margin: 0 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--text-h);
+  font-size: 0.9em;
+}
+
+.role-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.role-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.15em;
+  color: var(--text-h);
+}
+
+.role-card.notice {
+  border-color: var(--accent-border);
+}
+
+.role-sections button {
+  min-height: 44px; /* gut mit dem Finger treffbar */
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
+
+.role-result {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--code-bg);
+  font-family: var(--mono);
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-left: 4px solid;
+}
+
+.role-result.ok {
+  border-left-color: #22a06b;
+}
+
+.role-result.error {
+  border-left-color: #e5484d;
+}
+
+.backend-check summary {
+  cursor: pointer;
+  color: var(--text-h);
+}
+
+.backend-check-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (min-width: 768px) {
+  .role-sections {
+    padding: 0;
+  }
+}
