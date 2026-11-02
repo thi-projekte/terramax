@@ -27,9 +27,12 @@ class RoleAccessTest {
     }
 
     @Test
-    @TestSecurity(user = "dealer", roles = Roles.DEALER_PRINCIPAL)
-    void dealerPrincipalIsForbiddenOnSales() {
-        given().when().get("/sales").then().statusCode(403);
+    @TestSecurity(user = "dealer", roles = {Roles.DEALER_PRINCIPAL, Roles.SALES_PROFESSIONAL})
+    void dealerPrincipalCanAccessSalesViaRoleHierarchy() {
+        // dealer_principal ist in Keycloak eine composite role, die sales_professional
+        // einschliesst (Rechte werden hierarchisch als Teil-Ganze-Beziehung vererbt).
+        // Keycloak loest das im echten Token auf; hier simulieren wir das mit beiden Rollen.
+        given().when().get("/sales").then().statusCode(200);
     }
 
     @Test
