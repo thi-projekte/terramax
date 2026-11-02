@@ -97,10 +97,15 @@
       {
         "name": "dealer_principal",
         "description": "TerraMax: Dealer Principal (Händler-Geschäftsführung)",
-        "composite": false,
+        "composite": true,
         "clientRole": false,
         "containerId": "8b1bb181-6898-4b8e-b189-60ce32d83a36",
-        "attributes": {}
+        "attributes": {},
+        "composites": {
+          "realm": [
+            "sales_professional"
+          ]
+        }
       }
     ],
     "client": {
@@ -1581,6 +1586,21 @@
             "claim.name": "auth_time",
             "jsonType.label": "long"
           }
+        },
+        {
+          "id": "4a2f9e0e-23-dealer-id-mapper",
+          "name": "dealer_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "dealer_id",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "dealer_id",
+            "jsonType.label": "String"
+          }
         }
       ]
     },
@@ -2597,6 +2617,9 @@
           "temporary": false
         }
       ],
+      "attributes": {
+        "dealer_id": ["D-100"]
+      },
       "realmRoles": [
         "default-roles-terramax",
         "sales_professional"
@@ -2616,6 +2639,9 @@
           "temporary": false
         }
       ],
+      "attributes": {
+        "dealer_id": ["D-100"]
+      },
       "realmRoles": [
         "default-roles-terramax",
         "dealer_principal"
