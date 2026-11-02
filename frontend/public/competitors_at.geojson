@@ -1,0 +1,5260 @@
+{
+ "type": "FeatureCollection",
+ "attribution": "Teilweise © OpenStreetMap-Mitwirkende (ODbL); Web-Recherche 2026-11-02",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.1016403,
+     48.6291475
+    ]
+   },
+   "properties": {
+    "id": "res-0",
+    "name": "Landtechnik Schuster – Hauptsitz Grund",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Grund 160",
+    "postcode": "2041",
+    "city": "Grund",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.landtechnik-schuster.at/",
+    "more_sources": "https://www.openstreetmap.org/node/1271988852",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "CLAAS firmenweit genannt",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.7669988,
+     48.7641756
+    ]
+   },
+   "properties": {
+    "id": "res-1",
+    "name": "ACA Partner Wingelhofer",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Starrein 55 - Hahnweg",
+    "postcode": "2084",
+    "city": "Starrein",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "nur Service",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.6358422,
+     48.5689576
+    ]
+   },
+   "properties": {
+    "id": "res-3",
+    "name": "Landtechnik Schuster Niederlassung Mistelbach",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Wirtschaftspark 13",
+    "postcode": "2130",
+    "city": "Mistelbach",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.landwirt.com/en/dealer/info/landtechnik-schuster-niederlassung-mistelbach-6447",
+    "more_sources": "https://www.openstreetmap.org/way/507287140",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Seite: CLAAS-Vertragspartner",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.4616779,
+     48.7015462
+    ]
+   },
+   "properties": {
+    "id": "res-4",
+    "name": "ACA Partner Rieder",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Kottingneusiedl 30",
+    "postcode": "2135",
+    "city": "Kottingneusiedl",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.4705299,
+     48.3387033
+    ]
+   },
+   "properties": {
+    "id": "res-5",
+    "name": "ACA Center Janu",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Haidfeldgasse 5",
+    "postcode": "2201",
+    "city": "Gerasdorf",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.5894726,
+     48.280423
+    ]
+   },
+   "properties": {
+    "id": "res-6",
+    "name": "Katzler GmbH & Co. KG",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Parbasdorf 17",
+    "postcode": "2232",
+    "city": "Parbasdorf",
+    "source_type": "web_research+osm",
+    "source_url": "https://katzler.at/kontakt/",
+    "more_sources": "https://katzler.at/ https://www.openstreetmap.org/way/150674869",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Fendt/Valtra Premium-Partner",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.3207045,
+     48.0779429
+    ]
+   },
+   "properties": {
+    "id": "res-7",
+    "name": "Austro LBK Gruppe / DF Austria GmbH",
+    "category": "competitor",
+    "brands": "Deutz-Fahr",
+    "street": "Gewerbestraße 14",
+    "postcode": "2351",
+    "city": "Wiener Neudorf",
+    "source_type": "web_research",
+    "source_url": "https://austro-lbk.at/",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Importeur/Zentrale, Objekt M32, Adresse ab 1.10.2026",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.794902,
+     48.033841
+    ]
+   },
+   "properties": {
+    "id": "res-8",
+    "name": "AXIAL Landtechnik GmbH",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Industriestrasse 3",
+    "postcode": "2460",
+    "city": "Bruck an der Leitha",
+    "source_type": "web_research",
+    "source_url": "https://www.claas.com/de-at/presse/pressemitteilungen/2025-04-24-de-at-axial-landtechnik",
+    "more_sources": "https://www.landwirt.com/en/used-farm-machinery/dealers,10516,AXIAL-Landtechnik-GmbH.html",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "CLAAS-Vertrieb Industrieviertel/Burgenland seit 2025 laut CLAAS-Pressemitteilung, Adresse aus landwirt.com",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.2771624,
+     47.9656378
+    ]
+   },
+   "properties": {
+    "id": "res-9",
+    "name": "ACA Center NÖ-Süd",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Gewerbepark B17/I Objekt A",
+    "postcode": "2524",
+    "city": "Teesdorf",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.9022844,
+     48.0255523
+    ]
+   },
+   "properties": {
+    "id": "res-10",
+    "name": "ACA Partner Lunzer",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Markt 23a",
+    "postcode": "2572",
+    "city": "Kaumberg",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.8974955,
+     47.8767199
+    ]
+   },
+   "properties": {
+    "id": "res-11",
+    "name": "ACA Partner Ofner",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Hauptstraße 37",
+    "postcode": "2770",
+    "city": "Gutenstein",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.2455445,
+     47.7566333
+    ]
+   },
+   "properties": {
+    "id": "res-12",
+    "name": "Altmann GmbH",
+    "category": "competitor",
+    "brands": "Massey Ferguson",
+    "street": "Gewerbepark A 19",
+    "postcode": "2821",
+    "city": "Lanzenkirchen",
+    "source_type": "web_research",
+    "source_url": "https://www.landwirt.com/en/dealer/info/altmann-gmbh-3456",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.9040598,
+     47.6093668
+    ]
+   },
+   "properties": {
+    "id": "res-13",
+    "name": "ACA Partner Wurmbrand",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Anger 229",
+    "postcode": "2881",
+    "city": "Trattenbach",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.1358433,
+     48.1175673
+    ]
+   },
+   "properties": {
+    "id": "res-14",
+    "name": "ACA Center Roher",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Gewerbepark Haag 1",
+    "postcode": "3250",
+    "city": "Wieselburg",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/way/423227953",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.8947868,
+     48.0829208
+    ]
+   },
+   "properties": {
+    "id": "res-15",
+    "name": "PAUMANN Landtechnik GmbH & Co KG",
+    "category": "competitor",
+    "brands": "Steyr, Case IH",
+    "street": "Ober-Schönbichl 25",
+    "postcode": "3300",
+    "city": "Amstetten",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.paumann.at/",
+    "more_sources": "https://www.openstreetmap.org/way/583624794",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7842836,
+     48.1566717
+    ]
+   },
+   "properties": {
+    "id": "res-16",
+    "name": "Christoph Heindl Landtechnik GmbH – Hauptstandort Stephanshart",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Albersberg 5",
+    "postcode": "3321",
+    "city": "Stephanshart",
+    "source_type": "web_research",
+    "source_url": "https://www.landtechnik-heindl.at/kontakt/",
+    "more_sources": "https://www.landtechnik-heindl.at/",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.8902338,
+     47.9475525
+    ]
+   },
+   "properties": {
+    "id": "res-17",
+    "name": "PAUMANN Landtechnik GmbH & Co KG – Filiale Ybbsitz",
+    "category": "competitor",
+    "brands": "Steyr, Case IH",
+    "street": "Schwemmau 30",
+    "postcode": "3341",
+    "city": "Ybbsitz",
+    "source_type": "web_research",
+    "source_url": "https://www.paumann.at/",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.3932997,
+     48.1595694
+    ]
+   },
+   "properties": {
+    "id": "res-20",
+    "name": "ACA Partner Bugl",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Harmersdorf 34",
+    "postcode": "3383",
+    "city": "Hürm",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.410884,
+     48.183382
+    ]
+   },
+   "properties": {
+    "id": "res-21",
+    "name": "Christoph Heindl Landtechnik GmbH – Filiale Inning",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Betriebsgebiet Inning 1/6",
+    "postcode": "3383",
+    "city": "Hürm",
+    "source_type": "web_research",
+    "source_url": "https://www.landtechnik-heindl.at/kontakt/",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Koordinate manuell auf OSM ermittelt",
+    "needs_geocoding": false,
+    "geocoded_by": "manuell (OSM)"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.1997676,
+     48.3311352
+    ]
+   },
+   "properties": {
+    "id": "res-22",
+    "name": "ACA Partner Tobias",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Eduard Klingerstrasse 15",
+    "postcode": "3423",
+    "city": "St. Andrä-Wördern",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/way/315772735",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.8850155,
+     48.3217204
+    ]
+   },
+   "properties": {
+    "id": "res-23",
+    "name": "ACA Partner Landtechnik Tullnerfeld",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Gewerbepark West 2/4",
+    "postcode": "3452",
+    "city": "Trasdorf",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/node/7657325092",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.241672,
+     48.568653
+    ]
+   },
+   "properties": {
+    "id": "res-24",
+    "name": "ACA Partner Böhm-Vrana",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Oberwaltenreith 1",
+    "postcode": "3533",
+    "city": "Friedersbach",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Koordinate manuell auf OSM ermittelt",
+    "needs_geocoding": false,
+    "geocoded_by": "manuell (OSM)"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.6166045,
+     48.5196787
+    ]
+   },
+   "properties": {
+    "id": "res-25",
+    "name": "ACA Partner Beranek",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Obere Str. 42",
+    "postcode": "3553",
+    "city": "Schiltern",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.2876352,
+     48.3467631
+    ]
+   },
+   "properties": {
+    "id": "res-26",
+    "name": "ACA Partner Binder",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Lehsdorf 2",
+    "postcode": "3654",
+    "city": "Raxendorf",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.3986057,
+     48.7251739
+    ]
+   },
+   "properties": {
+    "id": "res-27",
+    "name": "Widhalm Landtechnik GmbH",
+    "category": "competitor",
+    "brands": "Valtra, New Holland",
+    "street": "Hauptstraße 77",
+    "postcode": "3800",
+    "city": "Göpfritz an der Wild",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.widhalm-landtechnik.at/kontakt",
+    "more_sources": "https://www.openstreetmap.org/way/311664038",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.283556,
+     48.8527579
+    ]
+   },
+   "properties": {
+    "id": "res-28",
+    "name": "ACA Partner Zuwach",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Großgerhartser Straße 6",
+    "postcode": "3842",
+    "city": "Thaya",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.1631492,
+     48.6734211
+    ]
+   },
+   "properties": {
+    "id": "res-29",
+    "name": "Christoph Heindl Landtechnik GmbH – Filiale Waldviertel",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Großglobnitz 47",
+    "postcode": "3910",
+    "city": "Zwettl",
+    "source_type": "web_research",
+    "source_url": "https://www.landtechnik-heindl.at/kontakt/",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.9600854,
+     48.5726761
+    ]
+   },
+   "properties": {
+    "id": "res-30",
+    "name": "ACA Partner Winter",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Schulgasse 161",
+    "postcode": "3920",
+    "city": "Groß Gerungs",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/node/3457475605",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.1310487,
+     48.5376011
+    ]
+   },
+   "properties": {
+    "id": "res-31",
+    "name": "Hofbauer Landtechnik GmbH",
+    "category": "competitor",
+    "brands": "New Holland",
+    "street": "Rohrbacher Straße 37",
+    "postcode": "4184",
+    "city": "Helfenberg",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.w-hofbauer.at/kontakt-anreise/",
+    "more_sources": "https://www.w-hofbauer.at/traktoren/new-holland/ https://www.openstreetmap.org/way/314811999",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7791689,
+     48.4399104
+    ]
+   },
+   "properties": {
+    "id": "res-32",
+    "name": "Haider Felix Landtechnik-Fachbetrieb e.U.",
+    "category": "competitor",
+    "brands": "CLAAS, Lindner",
+    "street": "Obermühl 16",
+    "postcode": "4273",
+    "city": "Unterweißenbach",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.landwirt.com/en/used-farm-machinery/dealers,3194,Haider-Felix-Landtechnik-Fachbetrieb-eU.html",
+    "more_sources": "https://www.openstreetmap.org/way/208535133",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.8336625,
+     48.1497413
+    ]
+   },
+   "properties": {
+    "id": "res-33",
+    "name": "Söllinger – Landtechnik GmbH",
+    "category": "competitor",
+    "brands": "Steyr, Case IH",
+    "street": "Würting 7",
+    "postcode": "4625",
+    "city": "Offenhausen",
+    "source_type": "web_research",
+    "source_url": "https://www.landwirt.com/en/dealer/info/soellinger-landtechnik-gmbh-3575",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Gebietshändler laut Firmentext",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.9509652,
+     47.8996799
+    ]
+   },
+   "properties": {
+    "id": "res-34",
+    "name": "Weingartner Ges.m.b.H. – Scharnstein",
+    "category": "competitor",
+    "brands": "Deutz-Fahr",
+    "street": "Kalkofen 11a",
+    "postcode": "4644",
+    "city": "Scharnstein",
+    "source_type": "web_research",
+    "source_url": "https://deutz-fahr.at/unsere-deutz-fahr-vertriebspartner-in-deiner-naehe/",
+    "more_sources": "https://www.salzkammergut.at/oesterreich-poi/detail/101027/weingartner-ges-m-b-h.html",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Marke laut Deutz-Fahr-Partnerliste (Eberstalzell & Scharnstein), Adresse aus Tourismus-POI; Standort Eberstalzell ohne Adresse",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.6347545,
+     48.1537733
+    ]
+   },
+   "properties": {
+    "id": "res-35",
+    "name": "Jedinger Landtechnik GmbH",
+    "category": "competitor",
+    "brands": "Deutz-Fahr, Valtra",
+    "street": "Leithen 15",
+    "postcode": "4682",
+    "city": "Geboltskirchen",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.jedinger-landtechnik.at/traktoren-lader/deutz-fahr-traktoren/",
+    "more_sources": "https://www.openstreetmap.org/way/405272240",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Valtra nur aus Seitennavigation",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.592032,
+     48.3134482
+    ]
+   },
+   "properties": {
+    "id": "res-36",
+    "name": "Wölfleder Bernhard GmbH",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Wiesing 6",
+    "postcode": "4755",
+    "city": "Zell an der Pram",
+    "source_type": "web_research",
+    "source_url": "https://woelfleder-bernhard.at/kontakt/",
+    "more_sources": "https://woelfleder-bernhard.at/unternehmen/",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.5692457,
+     48.3725097
+    ]
+   },
+   "properties": {
+    "id": "res-37",
+    "name": "Schauer Land- und Gartentechnik GmbH",
+    "category": "competitor",
+    "brands": "Deutz-Fahr",
+    "street": "Eggerdinger Straße 8",
+    "postcode": "4770",
+    "city": "Andorf",
+    "source_type": "web_research",
+    "source_url": "https://deutz-fahr.at/unsere-deutz-fahr-vertriebspartner-in-deiner-naehe/",
+    "more_sources": "https://firmen.wko.at/schauer-land-und-gartentechnik-gmbh/ober%c3%b6sterreich/",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Marke laut Deutz-Fahr-Partnerliste, Adresse aus WKO-Firmen-A-Z",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.5613845,
+     48.0019106
+    ]
+   },
+   "properties": {
+    "id": "res-38",
+    "name": "Schwarzmayr Landtechnik GmbH – Landtechnikzentrum Gampern",
+    "category": "competitor",
+    "brands": "Steyr",
+    "street": "Gewerbepark 2",
+    "postcode": "4851",
+    "city": "Gampern",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.schwarzmayr.at/kontakt/",
+    "more_sources": "https://www.schwarzmayr.at/einziger-steyr-master-haendler-oesterreichs/ https://www.openstreetmap.org/way/638529811",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Steyr-Master-Händler (Marke laut Firmenartikel, nicht je Standort)",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.4818589,
+     48.2376659
+    ]
+   },
+   "properties": {
+    "id": "res-39",
+    "name": "Schwarzmayr Landtechnik GmbH – Landtechnikzentrum Aurolzmünster",
+    "category": "competitor",
+    "brands": "Steyr",
+    "street": "Kochreith 10",
+    "postcode": "4971",
+    "city": "Aurolzmünster",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.schwarzmayr.at/kontakt/",
+    "more_sources": "https://www.schwarzmayr.at/einziger-steyr-master-haendler-oesterreichs/ https://www.openstreetmap.org/way/347411785",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Steyr-Master-Händler (Marke laut Firmenartikel, nicht je Standort)",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.7982573,
+     48.0862195
+    ]
+   },
+   "properties": {
+    "id": "res-40",
+    "name": "Amselgruber Landtechnik GmbH",
+    "category": "competitor",
+    "brands": "Lindner, Steyr",
+    "street": "Eichbichl 10",
+    "postcode": "5121",
+    "city": "Tarsdorf",
+    "source_type": "web_research",
+    "source_url": "https://www.landwirt.com/en/dealer/info/amselgruber-landtechnik-gmbh-3322",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Regionalvertrieb laut Firmentext",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.0765186,
+     47.8669546
+    ]
+   },
+   "properties": {
+    "id": "res-41",
+    "name": "Pongruber Landtechnik",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Fahrenzaglstr. 8",
+    "postcode": "5161",
+    "city": "Elixhausen",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.landwirt.com/en/dealer/info/pongruber-landtechnik-3628",
+    "more_sources": "https://www.openstreetmap.org/way/157211689",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "exklusiver CLAAS-Vertriebspartner Salzburg",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.2116148,
+     47.9611131
+    ]
+   },
+   "properties": {
+    "id": "res-42",
+    "name": "Landtechnik Prossinger GmbH",
+    "category": "competitor",
+    "brands": "Deutz-Fahr",
+    "street": "Gramling 10",
+    "postcode": "5203",
+    "city": "Köstendorf",
+    "source_type": "web_research+osm",
+    "source_url": "https://deutz-fahr.at/unsere-deutz-fahr-vertriebspartner-in-deiner-naehe/",
+    "more_sources": "https://landwirt.com/en/used-farm-machinery/dealers,4079,Landtechnik-Prossinger-GmbH.html https://www.openstreetmap.org/node/5150856016",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Marke laut Deutz-Fahr-Partnerliste, Adresse aus landwirt.com",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.0514665,
+     48.1089019
+    ]
+   },
+   "properties": {
+    "id": "res-43",
+    "name": "Hatheuer Landtechnik GmbH & Co KG",
+    "category": "competitor",
+    "brands": "Deutz-Fahr",
+    "street": "Gschwendt 9",
+    "postcode": "5233",
+    "city": "Pischelsdorf am Engelbach",
+    "source_type": "web_research",
+    "source_url": "https://deutz-fahr.at/unsere-deutz-fahr-vertriebspartner-in-deiner-naehe/",
+    "more_sources": "https://www.agritrader.nl/dealer/at/47547/hatheuer-landtechnik-gmbh-co-kg-pischelsdorf",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Marke laut Deutz-Fahr-Partnerliste, Adresse aus Händlerverzeichnis",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.1016299,
+     48.2020596
+    ]
+   },
+   "properties": {
+    "id": "res-44",
+    "name": "MAUCH Gesellschaft m.b.H. & Co.KG",
+    "category": "competitor",
+    "brands": "Fendt, Valtra, Massey Ferguson",
+    "street": "Mattighofnerstrasse 7",
+    "postcode": "5274",
+    "city": "Burgkirchen",
+    "source_type": "web_research",
+    "source_url": "https://www.landwirt.com/it/dealer/info/mauch-gesellschaft-m-b-h-co-kg-3379",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Importeur Fendt/Valtra laut Firmentext",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.3607974,
+     47.4207186
+    ]
+   },
+   "properties": {
+    "id": "res-45",
+    "name": "MAUCH Gesellschaft m.b.H. & Co.KG",
+    "category": "competitor",
+    "brands": "Fendt, Valtra, Massey Ferguson",
+    "street": "Niedernfritzer Straße 161",
+    "postcode": "5531",
+    "city": "Eben im Pongau",
+    "source_type": "web_research",
+    "source_url": "https://www.landwirt.com/en/dealer/info/mauch-gesellschaft-m-b-h-co-kg-eben-3944",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Importeur Fendt/Valtra laut Firmentext",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.5112267,
+     47.250981
+    ]
+   },
+   "properties": {
+    "id": "res-46",
+    "name": "ACA Partner Graßmair",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Am Lavierenbach 3",
+    "postcode": "6074",
+    "city": "Rinn",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.7294524,
+     47.3632523
+    ]
+   },
+   "properties": {
+    "id": "res-47",
+    "name": "Oberhofer Landtechnik GmbH",
+    "category": "competitor",
+    "brands": "Massey Ferguson",
+    "street": "Hermine-Berghofer-Straße 60",
+    "postcode": "6130",
+    "city": "Schwaz",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.landwirt.com/en/dealer/info/oberhofer-landtechnik-gmbh-4742",
+    "more_sources": "https://www.openstreetmap.org/way/176376563",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Exklusivhändler Massey Ferguson",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.4530232,
+     47.1232843
+    ]
+   },
+   "properties": {
+    "id": "res-48",
+    "name": "Auer GmbH",
+    "category": "competitor",
+    "brands": "Steyr, Case IH",
+    "street": "Ausserweg 62",
+    "postcode": "6145",
+    "city": "Navis",
+    "source_type": "web_research",
+    "source_url": "https://www.landwirt.com/en/dealer/info/auer-gmbh-4060",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.3248493,
+     47.2554029
+    ]
+   },
+   "properties": {
+    "id": "res-49",
+    "name": "ACA Center Huber - Völs",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Landesstraße 4",
+    "postcode": "6176",
+    "city": "Völs",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.979589,
+     47.475405
+    ]
+   },
+   "properties": {
+    "id": "res-50",
+    "name": "ACA Center Huber - Kundl",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Schmelzerweg 7",
+    "postcode": "6250",
+    "city": "Kundl",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/node/8648556279",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.848167,
+     47.374044
+    ]
+   },
+   "properties": {
+    "id": "res-51",
+    "name": "Schwarzmayr Landtechnik GmbH – Landtechnikzentrum Schlitters",
+    "category": "competitor",
+    "brands": "Steyr",
+    "street": "Gewerbegebiet Süd 2",
+    "postcode": "6262",
+    "city": "Schlitters",
+    "source_type": "web_research",
+    "source_url": "https://www.schwarzmayr.at/kontakt/",
+    "more_sources": "https://www.schwarzmayr.at/einziger-steyr-master-haendler-oesterreichs/",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Steyr-Master-Händler (Marke laut Firmenartikel, nicht je Standort); Koordinate manuell auf OSM ermittelt",
+    "needs_geocoding": false,
+    "geocoded_by": "manuell (OSM)"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.0327462,
+     47.4183369
+    ]
+   },
+   "properties": {
+    "id": "res-53",
+    "name": "ACA Partner Loinger",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Auffach 245",
+    "postcode": "6313",
+    "city": "Wildschönau",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/way/133301121",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "nur Service",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.3467341,
+     47.4835412
+    ]
+   },
+   "properties": {
+    "id": "res-54",
+    "name": "ACA Partner Gasteiger",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Kaiserstraße 30",
+    "postcode": "6370",
+    "city": "Reith bei Kitzbühel",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.38053,
+     47.4953634
+    ]
+   },
+   "properties": {
+    "id": "res-55",
+    "name": "ACA Partner Widmoser",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Am Rain 21",
+    "postcode": "6372",
+    "city": "Oberndorf in Tirol",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "nur Service",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.9426517,
+     47.2713096
+    ]
+   },
+   "properties": {
+    "id": "res-56",
+    "name": "ACA Partner Agerer",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Franz-Xaver-Renn-Weg 3",
+    "postcode": "6424",
+    "city": "Silz",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/way/981212174",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.332856,
+     47.039583
+    ]
+   },
+   "properties": {
+    "id": "res-57",
+    "name": "ACA Partner RA-Technik",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Gewerbepark Ulmich 692",
+    "postcode": "6555",
+    "city": "Kappl",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Koordinate manuell auf OSM ermittelt",
+    "needs_geocoding": false,
+    "geocoded_by": "manuell (OSM)"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.8668668,
+     47.5142327
+    ]
+   },
+   "properties": {
+    "id": "res-58",
+    "name": "Wohllaib Karl GesmbH, Landmaschinen und Schlosserei",
+    "category": "competitor",
+    "brands": "Steyr, Case IH",
+    "street": "Fahl 66",
+    "postcode": "6934",
+    "city": "Sulzberg",
+    "source_type": "web_research",
+    "source_url": "https://wohllaib.at/impressum/",
+    "more_sources": "https://wohllaib.at/marken/steyr/",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Marken laut Markenseiten Steyr und Case",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.5370556,
+     47.8473413
+    ]
+   },
+   "properties": {
+    "id": "res-59",
+    "name": "ACA Partner Rainprecht",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Neusiedler Str. 59",
+    "postcode": "7000",
+    "city": "Eisenstadt",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.9551718,
+     47.8879917
+    ]
+   },
+   "properties": {
+    "id": "res-60",
+    "name": "ACA Partner Huber",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Betriebsgebiet Nord 3",
+    "postcode": "7123",
+    "city": "Mönchhof",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/way/107361534",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.940341,
+     47.788441
+    ]
+   },
+   "properties": {
+    "id": "res-61",
+    "name": "AGXOR Vertriebsgesellschaft Ost GmbH – Zicksee",
+    "category": "competitor",
+    "brands": "Steyr, Case IH",
+    "street": "Wienerstraße 27",
+    "postcode": "7161",
+    "city": "St. Andrä am Zicksee",
+    "source_type": "web_research",
+    "source_url": "https://www.landwirt.com/en/dealer/info/agxor-vertriebsgesellschaft-ost-gmbh-zicksee-9122",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Stützpunkthändler laut Firmentext; Koordinate manuell auf OSM ermittelt",
+    "needs_geocoding": false,
+    "geocoded_by": "manuell (OSM)"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.2651797,
+     47.2569818
+    ]
+   },
+   "properties": {
+    "id": "res-62",
+    "name": "ACA Partner Bierbauer Rotenturm",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "1. Gewerbestraße 5",
+    "postcode": "7501",
+    "city": "Siget in der Wart",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.8337418,
+     47.3917174
+    ]
+   },
+   "properties": {
+    "id": "res-63",
+    "name": "ACA Partner Gaugl",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Vornholz 118",
+    "postcode": "8250",
+    "city": "Vorau",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/node/7054461853",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.8401309,
+     47.0548692
+    ]
+   },
+   "properties": {
+    "id": "res-64",
+    "name": "ACA Center Bierbauer",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Hauptstrasse 178",
+    "postcode": "8311",
+    "city": "Markt Hartmannsdorf",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.7820959,
+     46.8947761
+    ]
+   },
+   "properties": {
+    "id": "res-65",
+    "name": "Wohlmuth GmbH (New Holland Wohlmuth)",
+    "category": "competitor",
+    "brands": "New Holland",
+    "street": "Obergnas 38",
+    "postcode": "8342",
+    "city": "Gnas",
+    "source_type": "web_research",
+    "source_url": "https://newholland.at/produkte/new-holland/",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.83753,
+     46.7892075
+    ]
+   },
+   "properties": {
+    "id": "res-66",
+    "name": "ACA Partner Fischer",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Nägelsdorf 22",
+    "postcode": "8345",
+    "city": "Straden",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.5823424,
+     46.9147586
+    ]
+   },
+   "properties": {
+    "id": "res-67",
+    "name": "ACA Partner Stradner",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Siebing 36",
+    "postcode": "8412",
+    "city": "Allerheiligen bei Wildon",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/node/4343845190",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.4115556,
+     46.8526892
+    ]
+   },
+   "properties": {
+    "id": "res-68",
+    "name": "ACA Partner Erhart",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Gewerbepark Süd 1",
+    "postcode": "8504",
+    "city": "Preding",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/way/227662125",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "nur Service",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.3786702,
+     47.4771307
+    ]
+   },
+   "properties": {
+    "id": "res-69",
+    "name": "ACA Partner MEPID",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Gewerbepark 1",
+    "postcode": "8641",
+    "city": "St. Marein im Mürztal",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.8818867,
+     47.254852
+    ]
+   },
+   "properties": {
+    "id": "res-70",
+    "name": "Steyr Center Murtal GmbH",
+    "category": "competitor",
+    "brands": "Steyr, Case IH",
+    "street": "Sauerbrunn 2",
+    "postcode": "8733",
+    "city": "St. Marein-Feistritz",
+    "source_type": "web_research",
+    "source_url": "https://www.steyrcentermurtal.at/",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7000746,
+     47.1634935
+    ]
+   },
+   "properties": {
+    "id": "res-71",
+    "name": "ACA Center Perchtold",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Wöllmerdorf 13",
+    "postcode": "8750",
+    "city": "Weißkirchen in Steiermark",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.4843899,
+     47.4889482
+    ]
+   },
+   "properties": {
+    "id": "res-72",
+    "name": "ACA Partner Ebner",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Schoberpass-Bundesstrasse 33",
+    "postcode": "8784",
+    "city": "Trieben",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.374888,
+     47.1524789
+    ]
+   },
+   "properties": {
+    "id": "res-73",
+    "name": "ACA Partner Gady-Steiner",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Niederwölz 130",
+    "postcode": "8831",
+    "city": "Niederwölz",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.9159526,
+     47.0724257
+    ]
+   },
+   "properties": {
+    "id": "res-74",
+    "name": "ACA Partner Prodinger",
+    "category": "competitor",
+    "brands": "Fendt",
+    "street": "Pirning 124",
+    "postcode": "8863",
+    "city": "Stadl-Predlitz",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.8412976,
+     47.7201833
+    ]
+   },
+   "properties": {
+    "id": "res-75",
+    "name": "ACA Partner Hirtenlehner",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Palfau 47",
+    "postcode": "8923",
+    "city": "Landl",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.8122009,
+     46.6605852
+    ]
+   },
+   "properties": {
+    "id": "res-76",
+    "name": "ACA Partner Lobnig",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Ruden 11",
+    "postcode": "9113",
+    "city": "Ruden",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "nur Service",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.458557,
+     46.6201368
+    ]
+   },
+   "properties": {
+    "id": "res-77",
+    "name": "ACA Center Stumpf",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Hauptstraße 26",
+    "postcode": "9131",
+    "city": "Grafenstein",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.380469,
+     46.7513178
+    ]
+   },
+   "properties": {
+    "id": "res-78",
+    "name": "Esch-Technik Maschinenhandels GmbH",
+    "category": "competitor",
+    "brands": "Kubota",
+    "street": "Klagenfurter Straße 129",
+    "postcode": "9300",
+    "city": "St. Veit an der Glan",
+    "source_type": "web_research",
+    "source_url": "https://esch-technik.kubotahaendler.at/",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "autorisierter Kubota-Händler, von kubota-eu.com verlinkt",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.1878681,
+     46.8521799
+    ]
+   },
+   "properties": {
+    "id": "res-79",
+    "name": "ACA Partner Reinsberger",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Waldkapellenweg 6",
+    "postcode": "9344",
+    "city": "Weitensfeld im Gurktal",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "nur Service",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.1180474,
+     46.7231196
+    ]
+   },
+   "properties": {
+    "id": "res-80",
+    "name": "Schwarzmayr Landtechnik GmbH – Landtechnikzentrum Feldkirchen",
+    "category": "competitor",
+    "brands": "Steyr",
+    "street": "Glan 17",
+    "postcode": "9560",
+    "city": "Feldkirchen in Kärnten",
+    "source_type": "web_research",
+    "source_url": "https://www.schwarzmayr.at/kontakt/",
+    "more_sources": "https://www.schwarzmayr.at/einziger-steyr-master-haendler-oesterreichs/",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Steyr-Master-Händler (Marke laut Firmenartikel, nicht je Standort)",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.9953043,
+     46.7504332
+    ]
+   },
+   "properties": {
+    "id": "res-81",
+    "name": "ACA Partner Einetter und Simoner",
+    "category": "competitor",
+    "brands": "Valtra",
+    "street": "Simmerlach 25",
+    "postcode": "9773",
+    "city": "Simmerlach",
+    "source_type": "web_research",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "nur Service",
+    "needs_geocoding": false,
+    "geocoded_by": "nominatim"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4459812,
+     46.7493148
+    ]
+   },
+   "properties": {
+    "id": "res-82",
+    "name": "ACA Partner Wiedemayr",
+    "category": "competitor",
+    "brands": "Fendt, Valtra",
+    "street": "Panzendorf 194",
+    "postcode": "9919",
+    "city": "Heinfels",
+    "source_type": "web_research+osm",
+    "source_url": "https://www.aca-group.at/aca-standorte",
+    "more_sources": "https://www.openstreetmap.org/way/116741550",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.8285908,
+     46.6300859
+    ]
+   },
+   "properties": {
+    "id": "osm-way-58499573",
+    "name": "Landtechnik Villach GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Badstubenweg 63",
+    "postcode": "9500",
+    "city": "Villach",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/58499573",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.4738013,
+     47.3784984
+    ]
+   },
+   "properties": {
+    "id": "osm-way-68678199",
+    "name": "Landtechnik Neumayr",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Tauernstraße 29",
+    "postcode": "5550",
+    "city": "Radstadt",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/68678199",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.7201641,
+     47.7688299
+    ]
+   },
+   "properties": {
+    "id": "osm-way-95244531",
+    "name": "Autohaus & Landtechnik Lahnsteiner",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/95244531",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.1479658,
+     47.3190237
+    ]
+   },
+   "properties": {
+    "id": "osm-way-108778716",
+    "name": "Landtechnik Mussbacher",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Kraftwerkstraße 16",
+    "postcode": "5620",
+    "city": "Schwarzach im Pongau",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/108778716",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.0177441,
+     47.845912
+    ]
+   },
+   "properties": {
+    "id": "osm-way-115441100",
+    "name": "Binder Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Metzgerstraße 60",
+    "postcode": "5020",
+    "city": "Salzburg",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/115441100",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.1690657,
+     47.3252772
+    ]
+   },
+   "properties": {
+    "id": "osm-way-116128926",
+    "name": "Landtechnik Peter Eidenhammer GmbH & Co KG",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Gewerbepark 1",
+    "postcode": "5621",
+    "city": "Sankt Veit im Pongau",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/116128926",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.859217,
+     46.8180053
+    ]
+   },
+   "properties": {
+    "id": "osm-way-122569761",
+    "name": "Bürger Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Wiedweg 31",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/122569761",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.8111404,
+     48.7802277
+    ]
+   },
+   "properties": {
+    "id": "osm-way-123521943",
+    "name": "Harrer",
+    "category": "competitor",
+    "brands": "New Holland",
+    "street": "Weitersfeld 94",
+    "postcode": "2084",
+    "city": "Weitersfeld",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/123521943",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.5808613,
+     48.483747
+    ]
+   },
+   "properties": {
+    "id": "osm-way-127553069",
+    "name": "Landtechnik Zechmeister",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Sauwaldstraße 33",
+    "postcode": "4792",
+    "city": "Münzkirchen",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/127553069",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.3066263,
+     48.1626109
+    ]
+   },
+   "properties": {
+    "id": "osm-way-138424524",
+    "name": "Landmaschinen Holli",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Obereglsee 17",
+    "postcode": "4491",
+    "city": "Niederneukirchen",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/138424524",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.0860917,
+     47.8267618
+    ]
+   },
+   "properties": {
+    "id": "osm-way-141550156",
+    "name": "Landtechnik Sederl",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/141550156",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.2760662,
+     48.8130009
+    ]
+   },
+   "properties": {
+    "id": "osm-way-145345972",
+    "name": "Landmaschinen Werkstätte",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Raiffeisenstraße 12",
+    "postcode": "3830",
+    "city": "Waidhofen an der Thaya",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/145345972",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.4543421,
+     47.1240353
+    ]
+   },
+   "properties": {
+    "id": "osm-way-153628307",
+    "name": "Landtechnik Jenewein",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Außerweg 61f",
+    "postcode": "6145",
+    "city": "Navis",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/153628307",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.6562791,
+     47.0554341
+    ]
+   },
+   "properties": {
+    "id": "osm-way-158295687",
+    "name": "Landtechnik Rietzler",
+    "category": "competitor",
+    "brands": "Case IH, Steyr, Lindner",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/158295687",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.4134266,
+     48.0294863
+    ]
+   },
+   "properties": {
+    "id": "osm-way-160569112",
+    "name": "Landmaschinen Eberhard",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Schwerbachgegend 104",
+    "postcode": "3204",
+    "city": "Kirchberg an der Pielach",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/160569112",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.1382788,
+     48.1959441
+    ]
+   },
+   "properties": {
+    "id": "osm-way-163243919",
+    "name": "Landtechnik Eidenhammer GmbH",
+    "category": "competitor",
+    "brands": "New Holland",
+    "street": "Gewerbestraße 15",
+    "postcode": "4614",
+    "city": "Marchtrenk",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/163243919",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.3374467,
+     47.6495902
+    ]
+   },
+   "properties": {
+    "id": "osm-way-166813883",
+    "name": "KFZ u. Landtechnik Holli",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Pyhrn 1",
+    "postcode": "4582",
+    "city": "Spital am Pyhrn",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/166813883",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.3014879,
+     48.4299946
+    ]
+   },
+   "properties": {
+    "id": "osm-way-169540044",
+    "name": "Auer Landmaschinen GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Hofstätte 14",
+    "postcode": "4202",
+    "city": "Hellmonsödt",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/169540044",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.067066,
+     47.7483778
+    ]
+   },
+   "properties": {
+    "id": "osm-way-171632686",
+    "name": "Ginzinger Landmaschinen GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Hellbrunnerstraße 4",
+    "postcode": "5081",
+    "city": "Anif",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/171632686",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.4798473,
+     48.358717
+    ]
+   },
+   "properties": {
+    "id": "osm-way-180302784",
+    "name": "Hochrather Landtechnik GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Betriebsstraße 16",
+    "postcode": "4213",
+    "city": "Unterweitersdorf",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/180302784",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.9574788,
+     47.0913413
+    ]
+   },
+   "properties": {
+    "id": "osm-way-182693154",
+    "name": "Landmaschinen Holzknecht",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Dorf 236",
+    "postcode": "6444",
+    "city": "Längenfeld",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/182693154",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.2675175,
+     48.4576545
+    ]
+   },
+   "properties": {
+    "id": "osm-way-187166148",
+    "name": "Kneidinger Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Linzerstraße 20",
+    "postcode": "4180",
+    "city": "Zwettl an der Rodl",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/187166148",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.8477599,
+     48.1745925
+    ]
+   },
+   "properties": {
+    "id": "osm-way-190549949",
+    "name": "Landmaschinen Wimmer",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Grübl 8",
+    "postcode": "4633",
+    "city": "Kematen am Innbach",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/190549949",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.5610023,
+     47.1659975
+    ]
+   },
+   "properties": {
+    "id": "osm-way-205487139",
+    "name": "Landtechnik Gottmann",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Gschwendter Straße 1",
+    "postcode": "8062",
+    "city": "Kumberg",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/205487139",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.3811434,
+     48.3923494
+    ]
+   },
+   "properties": {
+    "id": "osm-way-207993871",
+    "name": "Romann Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Am Platzgraben 10",
+    "postcode": "2111",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/207993871",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.7009718,
+     47.5826893
+    ]
+   },
+   "properties": {
+    "id": "osm-way-218899950",
+    "name": "Landmaschinen Hohenwarter",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/218899950",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.8459867,
+     47.9741998
+    ]
+   },
+   "properties": {
+    "id": "osm-way-223544204",
+    "name": "Landmaschinen Aschauer GMT",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/223544204",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.1627994,
+     48.7454767
+    ]
+   },
+   "properties": {
+    "id": "osm-way-227046277",
+    "name": "Landmaschinen Trisko",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Kleingloms 19",
+    "postcode": "3902",
+    "city": "Vitis",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/227046277",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.2293338,
+     46.8666659
+    ]
+   },
+   "properties": {
+    "id": "osm-way-230323039",
+    "name": "HORVATH.ST Landmaschinenhandel & Traktorcafe",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Bad Gams 13",
+    "postcode": "8524",
+    "city": "Deutschlandsberg",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/230323039",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.3146692,
+     48.0766461
+    ]
+   },
+   "properties": {
+    "id": "osm-way-238030853",
+    "name": "Grossauer Landmaschinen GesmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Oberbrunnernstraße 2",
+    "postcode": "4522",
+    "city": "Sierning",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/238030853",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.417237,
+     48.2640188
+    ]
+   },
+   "properties": {
+    "id": "osm-way-238809193",
+    "name": "Landtechnik Deschberger",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Furth 7",
+    "postcode": "4973",
+    "city": "Senftenbach",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/238809193",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7545386,
+     48.5279474
+    ]
+   },
+   "properties": {
+    "id": "osm-way-262258302",
+    "name": "Leutgeb GmbH, Landmaschinen & Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Monegg 2",
+    "postcode": "4252",
+    "city": "Liebenau",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/262258302",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.1772014,
+     48.3157341
+    ]
+   },
+   "properties": {
+    "id": "osm-way-288102133",
+    "name": "Alois Jungwirth Landmaschinen- und Eisenhandel",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Würnsdorf 1",
+    "postcode": "3650",
+    "city": "Pöggstall",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/288102133",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.817022,
+     48.3204245
+    ]
+   },
+   "properties": {
+    "id": "osm-way-303743539",
+    "name": "Landtechnik-Tankstelle-Metalltechnik Josef Pilz",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Markt 11",
+    "postcode": "4363",
+    "city": "Pabneukirchen",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/303743539",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.3656284,
+     46.7217182
+    ]
+   },
+   "properties": {
+    "id": "osm-way-308484434",
+    "name": "Winkler Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Untergreith 54",
+    "postcode": "8453",
+    "city": "Sankt Johann im Saggautal",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/308484434",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.7969235,
+     48.3327694
+    ]
+   },
+   "properties": {
+    "id": "osm-node-309486428",
+    "name": "Gramer KFZ und Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/309486428",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.3251783,
+     48.0496893
+    ]
+   },
+   "properties": {
+    "id": "osm-way-313589354",
+    "name": "Auto/Landmaschinen-Werkstatt Greul",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Texing 20",
+    "postcode": "3242",
+    "city": "Texingtal",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/313589354",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.6343651,
+     46.9127259
+    ]
+   },
+   "properties": {
+    "id": "osm-way-317350123",
+    "name": "H. Fruhwirt Stahl und Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Frannach 76",
+    "postcode": "8081",
+    "city": "Pirching am Traubenberg",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/317350123",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.0818188,
+     47.5095255
+    ]
+   },
+   "properties": {
+    "id": "osm-way-318240835",
+    "name": "Landtechnik Embacher",
+    "category": "competitor",
+    "brands": "CLAAS",
+    "street": "Bauhofstraße 6",
+    "postcode": "6322",
+    "city": "Kirchbichl",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/318240835",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.8034853,
+     47.4002689
+    ]
+   },
+   "properties": {
+    "id": "osm-way-321979510",
+    "name": "Landmaschinen Otto Gruber",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Harham 53",
+    "postcode": "5760",
+    "city": "Saalfelden am Steinernen Meer",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/321979510",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.0021033,
+     46.6820649
+    ]
+   },
+   "properties": {
+    "id": "osm-way-384975039",
+    "name": "Landmaschinen Gailer",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/384975039",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.5179858,
+     48.1658217
+    ]
+   },
+   "properties": {
+    "id": "osm-way-398915798",
+    "name": "Flixeder Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/398915798",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.7860591,
+     47.1746622
+    ]
+   },
+   "properties": {
+    "id": "osm-way-402633658",
+    "name": "LMB Landmaschinen Burtscher",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Walgaustraße 77",
+    "postcode": "6714",
+    "city": "Nüziders",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/402633658",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.0303028,
+     47.4978144
+    ]
+   },
+   "properties": {
+    "id": "osm-way-403460556",
+    "name": "Markus Danglmaier",
+    "category": "competitor",
+    "brands": "Steyr",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/403460556",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.1485699,
+     47.3780072
+    ]
+   },
+   "properties": {
+    "id": "osm-way-403650105",
+    "name": "Johann Wilhelm Ulreich Landmaschinen-Metallbau",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "7425",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/403650105",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.3661113,
+     48.4521307
+    ]
+   },
+   "properties": {
+    "id": "osm-node-406191767",
+    "name": "Manfred Geyer KFZ-Landtechnik-Schlosserei",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/406191767",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.1940554,
+     48.1715122
+    ]
+   },
+   "properties": {
+    "id": "osm-way-437499384",
+    "name": "Stadler Land–Forst–Gartentechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Teiseneck 8",
+    "postcode": "5272",
+    "city": "Treubach",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/437499384",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.2097711,
+     48.4472506
+    ]
+   },
+   "properties": {
+    "id": "osm-way-438440616",
+    "name": "Pehn Leopold KFZ & Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/438440616",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.287503,
+     47.43998
+    ]
+   },
+   "properties": {
+    "id": "osm-way-448779767",
+    "name": "Landtechnik Horvath René",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Redlschlager Straße 29",
+    "postcode": "7434",
+    "city": "Redlschlag",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/448779767",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.6968801,
+     47.1012901
+    ]
+   },
+   "properties": {
+    "id": "osm-way-455679815",
+    "name": "Steinkellner Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Kathal-Mühldorf 14",
+    "postcode": "8742",
+    "city": "Obdach",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/455679815",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.3497042,
+     47.5630905
+    ]
+   },
+   "properties": {
+    "id": "osm-way-461697615",
+    "name": "Josef Schnitzhofer Autohaus Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/461697615",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.1100461,
+     48.0641988
+    ]
+   },
+   "properties": {
+    "id": "osm-way-463099642",
+    "name": "Landtechnik Mühlbacher Franz",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/463099642",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.2352072,
+     46.9480714
+    ]
+   },
+   "properties": {
+    "id": "osm-way-481205738",
+    "name": "Landmaschinenhandel Gerencser",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Mogersdorf 218",
+    "postcode": "8382",
+    "city": "Mogersdorf",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/481205738",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.5843165,
+     47.4614183
+    ]
+   },
+   "properties": {
+    "id": "osm-way-536282439",
+    "name": "Robert Fleckl Landmaschinentechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/536282439",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7796625,
+     48.0691875
+    ]
+   },
+   "properties": {
+    "id": "osm-way-620551745",
+    "name": "Hochrather Landtechnik - Aschbach",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Heide 3",
+    "postcode": "3361",
+    "city": "Aschbach-Markt",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/620551745",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7883871,
+     48.206159
+    ]
+   },
+   "properties": {
+    "id": "osm-way-640582904",
+    "name": "Ginthör Landtechnik GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Gewerbepark 2",
+    "postcode": "4351",
+    "city": "Saxen",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/640582904",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.1771046,
+     48.3157716
+    ]
+   },
+   "properties": {
+    "id": "osm-node-847923516",
+    "name": "Landmaschinen- und Eisenhandel",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/847923516",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.6096147,
+     47.2689123
+    ]
+   },
+   "properties": {
+    "id": "osm-way-906332891",
+    "name": "LMTM",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Räterweg 9b",
+    "postcode": "6800",
+    "city": "Feldkirch",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/906332891",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.5142304,
+     48.1512985
+    ]
+   },
+   "properties": {
+    "id": "osm-way-1016080447",
+    "name": "Landtechnik Scherndl-Figl",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/1016080447",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.5924401,
+     48.2892745
+    ]
+   },
+   "properties": {
+    "id": "osm-way-1037157131",
+    "name": "Pamberger Landmaschinentechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/1037157131",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.739678,
+     48.271851
+    ]
+   },
+   "properties": {
+    "id": "osm-way-1064501348",
+    "name": "Kraftfahrzeuge & Landmaschinen GesmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Am Weitenfeld 9",
+    "postcode": "4720",
+    "city": "Neumarkt im Hausruckkreis",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/1064501348",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.3620867,
+     48.5000672
+    ]
+   },
+   "properties": {
+    "id": "osm-node-1284492770",
+    "name": "Landmaschinen Elmecker",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/1284492770",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7029261,
+     48.1374271
+    ]
+   },
+   "properties": {
+    "id": "osm-way-1454224276",
+    "name": "Dobesberger Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/way/1454224276",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.8118248,
+     48.1257383
+    ]
+   },
+   "properties": {
+    "id": "osm-node-1595322981",
+    "name": "Fischer Landtechnik und KFZ e.U.",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Stössing 1",
+    "postcode": "3073",
+    "city": "Stössing",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/1595322981",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.3352032,
+     48.0063934
+    ]
+   },
+   "properties": {
+    "id": "osm-node-2698591315",
+    "name": "Landtechnik Schmidhuber",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Schulstraße 31",
+    "postcode": "4421",
+    "city": "Aschach an der Steyr",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/2698591315",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.4147726,
+     47.4460463
+    ]
+   },
+   "properties": {
+    "id": "osm-node-3520239286",
+    "name": "Auto- u. Landmaschinenwerkstatt Josef Böhm",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Mühlbachstraße 1",
+    "postcode": "7373",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/3520239286",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.9567712,
+     48.4969758
+    ]
+   },
+   "properties": {
+    "id": "osm-node-3686925373",
+    "name": "Landmaschinen Fichtinger Johannes",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Arbesbach 188",
+    "postcode": "3925",
+    "city": "Arbesbach",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/3686925373",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.9522684,
+     48.4934593
+    ]
+   },
+   "properties": {
+    "id": "osm-node-3686954161",
+    "name": "Wallner Thomas Autohandel, Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/3686954161",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.2469624,
+     47.0008232
+    ]
+   },
+   "properties": {
+    "id": "osm-node-4025918702",
+    "name": "HUSSLER KFZ - Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Hallersdorf 52",
+    "postcode": "8561",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/4025918702",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.2659092,
+     47.4499848
+    ]
+   },
+   "properties": {
+    "id": "osm-node-4271154389",
+    "name": "Landtechnik Metallbau Fuchs",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/4271154389",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.9563708,
+     48.2060733
+    ]
+   },
+   "properties": {
+    "id": "osm-node-4293535682",
+    "name": "Karl J. Mayr Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Ziegeleistraße 5",
+    "postcode": "4631",
+    "city": "Krenglbach",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/4293535682",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.2193889,
+     48.0245403
+    ]
+   },
+   "properties": {
+    "id": "osm-node-4422691018",
+    "name": "Schwaighofer Fahrzeug- und Landmaschinenbau GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/4422691018",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.3462432,
+     48.4587997
+    ]
+   },
+   "properties": {
+    "id": "osm-node-4557574037",
+    "name": "Watzinger-Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Oberer Markt 16",
+    "postcode": "4204",
+    "city": "Reichenau im Mühlkreis",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/4557574037",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.6338085,
+     47.9606399
+    ]
+   },
+   "properties": {
+    "id": "osm-node-4907731310",
+    "name": "Landtechnik Scharmüller",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Reibersdorf 13",
+    "postcode": "4860",
+    "city": "Lenzing",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/4907731310",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.9875376,
+     48.7634806
+    ]
+   },
+   "properties": {
+    "id": "osm-node-5312460489",
+    "name": "Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/5312460489",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.6203006,
+     48.4157165
+    ]
+   },
+   "properties": {
+    "id": "osm-node-5372211750",
+    "name": "Landtechnik Steurer",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Hafenstraße 4",
+    "postcode": "3500",
+    "city": "Krems an der Donau",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/5372211750",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.8739649,
+     47.4068019
+    ]
+   },
+   "properties": {
+    "id": "osm-node-5485432047",
+    "name": "Josef Hirschbichler Landtechnik & Krananlagen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Almdorf 12",
+    "postcode": "5760",
+    "city": "Saalfelden am Steinernen Meer",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/5485432047",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.0256131,
+     48.6401557
+    ]
+   },
+   "properties": {
+    "id": "osm-node-5711166677",
+    "name": "Landmaschinen Huber",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/5711166677",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.4881881,
+     48.1429722
+    ]
+   },
+   "properties": {
+    "id": "osm-node-6237432028",
+    "name": "Landmaschinen Doblinger",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/6237432028",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.0038695,
+     47.8780819
+    ]
+   },
+   "properties": {
+    "id": "osm-node-6943773846",
+    "name": "Kfz- & Landtechnik Heher",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/6943773846",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.6149895,
+     47.6465129
+    ]
+   },
+   "properties": {
+    "id": "osm-node-7160722163",
+    "name": "Landmaschinen Grundbichler",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/7160722163",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.393327,
+     48.7440165
+    ]
+   },
+   "properties": {
+    "id": "osm-node-7328852981",
+    "name": "Karl Schindl Landtechnik GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/7328852981",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.9576474,
+     47.9025065
+    ]
+   },
+   "properties": {
+    "id": "osm-node-7616810766",
+    "name": "Almtaler Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/7616810766",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.5391583,
+     47.1404332
+    ]
+   },
+   "properties": {
+    "id": "osm-node-7734029488",
+    "name": "Staggl Konrad - Landtechnik Oberland",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/7734029488",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.1601806,
+     48.2154987
+    ]
+   },
+   "properties": {
+    "id": "osm-node-7881083371",
+    "name": "Landmaschinen Medl",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Donaustraße 55",
+    "postcode": "3671",
+    "city": "Krummnußbaum an der Donauuferbahn",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/7881083371",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.2735105,
+     48.4857132
+    ]
+   },
+   "properties": {
+    "id": "osm-node-7976346267",
+    "name": "Auto- und Landmaschinenhandel, Josef Futterknecht",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/7976346267",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.1374602,
+     47.6893827
+    ]
+   },
+   "properties": {
+    "id": "osm-node-8037348546",
+    "name": "Landmaschinen Rettenbacher",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/8037348546",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.0722393,
+     47.2999511
+    ]
+   },
+   "properties": {
+    "id": "osm-node-8170241497",
+    "name": "Landmaschinen Stöckl Johann",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Gewerbepark 4",
+    "postcode": "6405",
+    "city": "Pfaffenhofen",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/8170241497",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.9396815,
+     47.3947135
+    ]
+   },
+   "properties": {
+    "id": "osm-node-8251729323",
+    "name": "Landmaschinen Gruber",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/8251729323",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.0811695,
+     47.5231583
+    ]
+   },
+   "properties": {
+    "id": "osm-node-8501470412",
+    "name": "New Holland",
+    "category": "competitor",
+    "brands": "New Holland",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/8501470412",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.2031501,
+     47.4326541
+    ]
+   },
+   "properties": {
+    "id": "osm-node-8667126251",
+    "name": "Landmaschinen Stöckl",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/8667126251",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7828164,
+     46.9720961
+    ]
+   },
+   "properties": {
+    "id": "osm-node-8935266959",
+    "name": "KFZ-Landmaschinen Tripolt",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/8935266959",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.5738114,
+     47.5121645
+    ]
+   },
+   "properties": {
+    "id": "osm-node-9245166086",
+    "name": "Ing. Valentin Ratasich e.U.",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Nebersdorfer Hauptstraße - Šuševska glavna cesta 115",
+    "postcode": "7304",
+    "city": "Großwarasdorf",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/9245166086",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.251475,
+     47.7666523
+    ]
+   },
+   "properties": {
+    "id": "osm-node-9319545031",
+    "name": "KFZ- & Landmaschinentechnik Stöllinger",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/9319545031",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.5919734,
+     48.2895065
+    ]
+   },
+   "properties": {
+    "id": "osm-node-9560053930",
+    "name": "Pamberger Landmaschinentechnik GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Werkgasse 1",
+    "postcode": "3123",
+    "city": "Obritzberg",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/9560053930",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.465784,
+     48.143316
+    ]
+   },
+   "properties": {
+    "id": "osm-node-9893824317",
+    "name": "Hochrather Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/9893824317",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.1945586,
+     47.9057096
+    ]
+   },
+   "properties": {
+    "id": "osm-node-9981009781",
+    "name": "RMH Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Lichtentannstraße 4",
+    "postcode": "5302",
+    "city": "Henndorf am Wallersee",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/9981009781",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.1950118,
+     48.7567695
+    ]
+   },
+   "properties": {
+    "id": "osm-node-10265001848",
+    "name": "Landmaschinen Kfz Höbart e.U.",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/10265001848",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.6864326,
+     48.4821791
+    ]
+   },
+   "properties": {
+    "id": "osm-node-10921667119",
+    "name": "Prinz Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Kamptalstraße 93",
+    "postcode": "3550",
+    "city": "Langenlois",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/10921667119",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.2942247,
+     48.4612172
+    ]
+   },
+   "properties": {
+    "id": "osm-node-11049591271",
+    "name": "Penner Landmaschinen- & KFZ-Technik GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Alte Landesstraße 2",
+    "postcode": "2004",
+    "city": "Niederhollabrunn",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/11049591271",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.7543962,
+     47.2135712
+    ]
+   },
+   "properties": {
+    "id": "osm-node-11413858970",
+    "name": "Staggl Konrad - Landtechnik Oberland",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Gewerbepark Pitztal 1",
+    "postcode": "6471",
+    "city": "Arzl im Pitztal",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/11413858970",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.8356228,
+     48.407059
+    ]
+   },
+   "properties": {
+    "id": "osm-node-11419908237",
+    "name": "Landtechnik - Pilz e.U.",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/11419908237",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.842078,
+     48.4182872
+    ]
+   },
+   "properties": {
+    "id": "osm-node-11419919475",
+    "name": "Jungwirth Metallbau - Landtechnik GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/11419919475",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.9199577,
+     48.3172299
+    ]
+   },
+   "properties": {
+    "id": "osm-node-11622041435",
+    "name": "Landtechnik Karl Deschberger",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Unterbruck 19",
+    "postcode": "4731",
+    "city": "Prambachkirchen",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/11622041435",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.983474,
+     48.0738651
+    ]
+   },
+   "properties": {
+    "id": "osm-node-11693532176",
+    "name": "Glack Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/11693532176",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.3093309,
+     48.9486971
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12167602327",
+    "name": "Franz Zuwach KFZ und Landtechnik,",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12167602327",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.3240328,
+     48.9147294
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12167602330",
+    "name": "MIKSCHE KEG KFZ u.LANDTECHNIK",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12167602330",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.2370559,
+     46.6676141
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12250650086",
+    "name": "Jonas Kröll Forst- & Kommunalservice",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Stammeregg 21",
+    "postcode": "8552",
+    "city": "Eibiswald",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12250650086",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.0646544,
+     48.3669913
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12347753404",
+    "name": "KFZ & Landtechnik Mayerhofer",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Bad Mühllacken 68",
+    "postcode": "4101",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12347753404",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.5209597,
+     48.8831452
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12385268848",
+    "name": "KFZ & Landtechnik Rainer Lindner",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12385268848",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.3712608,
+     47.69097
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12469672395",
+    "name": "Antensteiner Landtechnik",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12469672395",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.053982,
+     46.6627918
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12579419623",
+    "name": "Petra Zameter Landmaschinentechnk",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "St. Daniel 9",
+    "postcode": "9635",
+    "city": "Dellach im Gailtal",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12579419623",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.1539299,
+     47.5702267
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12786076278",
+    "name": "Forsttechnik Huber",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Endach 1",
+    "postcode": "6330",
+    "city": "Kufstein",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12786076278",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.486977,
+     48.7705637
+    ]
+   },
+   "properties": {
+    "id": "osm-node-12860991302",
+    "name": "Landmaschinenmechaniker Reiss Erich",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "21",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/12860991302",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.645814,
+     48.4701916
+    ]
+   },
+   "properties": {
+    "id": "osm-node-13058410218",
+    "name": "Landtechnik Steiner GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Gewerbestraße 1",
+    "postcode": "2223",
+    "city": "Hohenruppersdorf",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/13058410218",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.659064,
+     48.3940912
+    ]
+   },
+   "properties": {
+    "id": "osm-node-13063013500",
+    "name": "AGROM KG",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Hauptstraße 22",
+    "postcode": "2215",
+    "city": "Raggendorf",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/13063013500",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.1499677,
+     48.9074368
+    ]
+   },
+   "properties": {
+    "id": "osm-node-13437504930",
+    "name": "Der Landmaschinen Mayr",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/13437504930",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.5148201,
+     48.1513009
+    ]
+   },
+   "properties": {
+    "id": "osm-node-13551337215",
+    "name": "Landtechnik Scherndl-Figl GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Wilhersdorf 11",
+    "postcode": "3231",
+    "city": "St. Margarethen an der Sierning",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/13551337215",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.6172052,
+     48.4109346
+    ]
+   },
+   "properties": {
+    "id": "osm-node-13556510132",
+    "name": "Weber Landmaschinen",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Weinzierl 4",
+    "postcode": "3500",
+    "city": "Krems an der Donau",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/13556510132",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.4789035,
+     48.0851486
+    ]
+   },
+   "properties": {
+    "id": "osm-node-13816804000",
+    "name": "Huemer Landmaschinentechnik GmbH",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "",
+    "postcode": "",
+    "city": "",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/13816804000",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.2996884,
+     48.3172956
+    ]
+   },
+   "properties": {
+    "id": "osm-node-14324324064",
+    "name": "VA Intertrading Aktiengesellschaft",
+    "category": "unknown_brand",
+    "brands": "",
+    "street": "Straßerau 6",
+    "postcode": "4020",
+    "city": "Linz",
+    "source_type": "osm",
+    "source_url": "https://www.openstreetmap.org/node/14324324064",
+    "more_sources": "",
+    "retrieved_at": "2026-11-02",
+    "verified": false,
+    "note": "Landtechnik-Betrieb, Marke in OSM nicht angegeben",
+    "needs_geocoding": false
+   }
+  }
+ ]
+}
