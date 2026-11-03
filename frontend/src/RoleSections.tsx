@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { apiGet, type ApiResult } from './api'
 import { ROLES, ROLE_LABELS, currentRoles, hasRole } from './roles'
 import './RoleSections.css'
+import VoiceNoteRecorder from './speech/VoiceNoteRecorder'
 
 const STATUS_TEXT: Record<number, string> = {
   200: 'OK',
@@ -28,6 +29,19 @@ function FeatureCard({ title, description, path }: { title: string; description:
       <p>{description}</p>
       <button onClick={async () => setResult(await apiGet(path))}>Laden</button>
       <ResultBox result={result} />
+    </section>
+  )
+}
+
+// Vorläufig mit fester Besuchs-ID, bis der Besuchsschritt der Tour existiert.
+function VoiceNoteCard() {
+  const [transcript, setTranscript] = useState<string | null>(null)
+  return (
+    <section className="role-card">
+      <h2>Sprachnotiz</h2>
+      <p>Besuch per Sprachnotiz protokollieren (max. 2 Minuten).</p>
+      <VoiceNoteRecorder visitId="demo-visit" onTranscribed={(result) => setTranscript(result.transcript)} />
+      {transcript && <p>{transcript}</p>}
     </section>
   )
 }
@@ -95,6 +109,8 @@ export default function RoleSections() {
           path="/sales"
         />
       )}
+
+      {hasRole(ROLES.SALES_PROFESSIONAL) && <VoiceNoteCard />}
 
       {hasRole(ROLES.DEALER_PRINCIPAL) && (
         <FeatureCard
