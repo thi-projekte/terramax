@@ -156,9 +156,10 @@ Repo-Root. Dort stehen zwei Container für die Spracherkennung:
 | `speech-service` (Port 8080) | `nginx-proxy-manager`, `speech-intern` | über den Nginx Proxy Manager |
 | `whisper` | nur `speech-intern` | nein |
 
-Keycloak läuft im selben Stack. Der Service prüft Tokens gegen dessen öffentliche
-Adresse, weil sie als Aussteller in den Tokens steht, und wartet beim Start bis zu
-3 Minuten, bis Keycloak erreichbar ist (`QUARKUS_OIDC_CONNECTION_DELAY`).
+Keycloak läuft in einem eigenen Stack. Der Service prüft Tokens gegen dessen
+öffentliche Adresse, weil sie als Aussteller in den Tokens steht, und wartet beim
+Start bis zu 3 Minuten, falls Keycloak gerade nicht erreichbar ist
+(`QUARKUS_OIDC_CONNECTION_DELAY`).
 
 Optionale Variable in Portainer: `SPEECH_SERVICE_TAG` (Standard `main`, z. B. `sha-abc1234`).
 
