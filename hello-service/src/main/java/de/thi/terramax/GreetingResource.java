@@ -22,7 +22,6 @@ public class GreetingResource {
     public Map<String, String> hello() {
         return Map.of(
                 "message",
-                "Hello " + identity.getPrincipal().getName()
-        );
+                "Hello " + identity.getPrincipal().getName());
     }
 }
