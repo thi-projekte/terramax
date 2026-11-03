@@ -91,7 +91,7 @@
                 <artifactId>formatter-maven-plugin</artifactId>
                 <version>${formatter-plugin.version}</version>
                 <configuration>
-                    <configFile>${project.basedir}/formatter.xml</configFile>
+                    <configFile>${project.basedir}/../config/formatter/eclipse-java.xml</configFile>
                 </configuration>
                 <executions>
                     <execution>
