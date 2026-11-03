@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository }}/hello-service
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/terramax-hello-service
 
 jobs:
   build:
