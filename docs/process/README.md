@@ -1,0 +1,21 @@
+# BPMN-Prozess: Besuchstour
+
+Ergebnis zu Issue #29. Das Modell [besuchstour.bpmn](besuchstour.bpmn) beschreibt die geführte Besuchstour des Sales Professional mit Sprachprotokoll. Es ist für die Engine Operaton ausführbar (Prozess-Key `Besuchstour`).
+
+Das Modell läuft auf Operaton 2.2.0 (Deployment und Durchläufe mit Test-Delegates): Tour mit und ohne Sprachnotiz, Überspringen, beide Fehlerpfade, Abbruch und Plan mit weniger als zwei Kunden.
+
+## Schnittstellen für die Umsetzung
+
+| Art | Namen |
+|---|---|
+| Rolle für den Start | `sales_professional` |
+| Java-Delegates | `besuchsplanErzeugen`, `besuchUeberspringenSpeichern`, `protokollZuordnen`, `touruebersichtErstellen` |
+| External-Task-Topics | `sprachnotiz-transkribieren`, `protokollentwurf-erstellen` |
+| BPMN-Fehler | `TRANSKRIPTION_FEHLGESCHLAGEN`, `PROTOKOLLENTWURF_FEHLGESCHLAGEN` |
+| Message | `TourAbbrechen` |
+| Formulare | `terramax:tour-starten`, `terramax:besuchsplan-pruefen`, `terramax:besuch-vorbereiten`, `terramax:besuch-durchfuehren`, `terramax:sprachnotiz`, `terramax:protokoll-pruefen`, `terramax:tour-uebersicht` |
+
+## Offene Punkte
+
+- **Daten laufen in den nächsten Besuch über:** Nur `besuchUeberspringen` und `sprachnotizVorhanden` sind je Besuch lokal. `protokollEntwurf`, `transkript`, `protokoll`, `sprachnotizId` und `ueberspringenGrund` bleiben auf Prozessebene. Im Test sah Kunde B ohne Sprachnotiz den Entwurf von Kunde A. Vor der Umsetzung im Modell beheben.
+- **Abweichung zum `speech-service`:** Das Modell erwartet eine gespeicherte Audiodatei (`sprachnotizId`) und transkribiert per External Task. Der `speech-service` auf `feature/speech-to-text` arbeitet synchron und speichert kein Audio.
