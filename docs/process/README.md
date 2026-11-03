@@ -1,8 +1,8 @@
 # BPMN-Prozess: Besuchstour
 
-Ergebnis zu Issue #29. Das Modell [besuchstour.bpmn](besuchstour.bpmn) beschreibt die geführte Besuchstour des Sales Professional mit Sprachprotokoll. Es ist für die Engine Operaton ausführbar (Prozess-Key `Besuchstour`).
+Ergebnis zu Issue #29. Das Modell [besuchstour.bpmn](besuchstour.bpmn) beschreibt die geführte Besuchstour des Sales Professional mit Sprachprotokoll. Es ist für die Engine CIB seven ausführbar (Prozess-Key `Besuchstour`).
 
-Das Modell läuft auf Operaton 2.2.0 (Deployment und Durchläufe mit Test-Delegates): Tour mit und ohne Sprachnotiz, Überspringen, beide Fehlerpfade, Abbruch und Plan mit weniger als zwei Kunden.
+Das Modell läuft auf CIB seven 2.2.0 (Deployment und Durchläufe mit Test-Delegates): Tour mit und ohne Sprachnotiz, Überspringen, beide Fehlerpfade, Abbruch und Plan mit weniger als zwei Kunden.
 
 ## Schnittstellen für die Umsetzung
 
