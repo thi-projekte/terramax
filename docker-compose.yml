@@ -1,55 +1,13 @@
 # Gemeinsamer Portainer-Stack für das gesamte TerraMax-Projekt.
 # Jeder Service bekommt hier einen Eintrag. Für die lokale Entwicklung gilt die
 # Konfiguration im jeweiligen Service-Ordner (z. B. speech-service/compose-devservices.yml).
+# Keycloak läuft in einem eigenen Stack (eigenes Repo) und ist über
+# https://terramax-keycloak.winfprojekt.de erreichbar.
 #
 # Variablen in Portainer (Geheimnisse nie in diese Datei schreiben):
-#   KC_DB_PASSWORD            Pflicht, Passwort der Keycloak-Datenbank
-#   KEYCLOAK_ADMIN_PASSWORD   Pflicht beim ersten Start, initialer Keycloak-Admin
 #   SPEECH_SERVICE_TAG        optional, Standard main, z. B. sha-abc1234
 
 services:
-  # --- Identity: Keycloak mit PostgreSQL ---
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.2
-    command: start
-    environment:
-      # Datenbankanbindung
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
-      # Öffentlicher Hostname (muss zur Subdomain im Nginx PM passen)
-      KC_HOSTNAME: terramax-keycloak.winfprojekt.de
-      # TLS wird am Nginx PM terminiert, Keycloak läuft intern per HTTP
-      KC_HTTP_ENABLED: "true"
-      KC_PROXY_HEADERS: xforwarded
-      # Initialer Admin-Account (nur beim ersten Start ausgewertet)
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
-      - intern                # erreichbar für PostgreSQL
-
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - intern                # nur intern, kein Zugriff von außen
-
   # --- Spracherkennung (speech-service/README.md) ---
 
   speech-service:
@@ -59,7 +17,7 @@ services:
     environment:
       # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
       QUARKUS_OIDC_AUTH_SERVER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
-      # Keycloak startet im selben Stack und ist anfangs noch nicht erreichbar
+      # Falls Keycloak beim Start dieses Stacks gerade nicht erreichbar ist
       QUARKUS_OIDC_CONNECTION_DELAY: 3M
       QUARKUS_REST_CLIENT_WHISPER_URL: http://whisper:8000
       # Modell beim Start laden; bis dahin antwortet /transcriptions mit 503
@@ -69,7 +27,6 @@ services:
       # QUARKUS_HTTP_CORS_ORIGINS: https://terramax.winfprojekt.de
     depends_on:
       - whisper
-      - keycloak
     networks:
       - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
       - speech-intern         # erreicht Whisper
@@ -86,11 +43,8 @@ services:
 networks:
   nginx-proxy-manager:
     external: true            # existiert bereits auf dem Host
-  intern:
-    driver: bridge            # vom Stack verwaltet
   speech-intern:
-    driver: bridge            # getrennt von intern, damit Whisper die Datenbank nicht sieht
+    driver: bridge            # vom Stack verwaltet, Whisper ist von außen nicht erreichbar
 
 volumes:
-  postgres_data:              # Daten überleben Container-Neustarts
   whisper_models:             # heruntergeladene Whisper-Modelle
