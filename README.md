@@ -3,6 +3,11 @@
 Monorepo für TerraMax. Die einzelnen Projekte liegen in eigenen Ordnern,
 z. B. `frontend/` und `hello-service/`, und haben jeweils ein eigenes README.
 
+## Zusammenarbeit
+
+Wie wir mit Branches, Pull Requests, Reviews, Dependabot und GitHub Actions
+arbeiten, steht in [docs/dev-workflow.md](docs/dev-workflow.md).
+
 ## Java-Microservices
 
 Die Java-Microservices basieren auf Quarkus und liegen jeweils in einem
