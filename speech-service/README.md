@@ -141,6 +141,41 @@ neue Implementierung des Interfaces.
 Vor einer Cloud-Anbindung muss geklärt sein, ob Audio die Infrastruktur
 verlassen darf (offene Frage in der Story).
 
+## Deployment (Portainer)
+
+Bei jedem Push mit Änderungen in `speech-service/` baut
+`.github/workflows/speech-service.yml` den Service, führt die Tests aus und lädt
+das Image nach `ghcr.io/thi-projekte/terramax-speech-service` hoch
+(Tag `sha-<commit>`, auf `main` zusätzlich `main`).
+
+Der Service läuft im gemeinsamen Projekt-Stack aus `docker-compose.yml` im
+Repo-Root. Dort stehen zwei Container für die Spracherkennung:
+
+| Container | Netzwerke | Von außen erreichbar |
+|---|---|---|
+| `speech-service` (Port 8080) | `nginx-proxy-manager`, `speech-intern` | über den Nginx Proxy Manager |
+| `whisper` | nur `speech-intern` | nein |
+
+Keycloak läuft im selben Stack. Der Service prüft Tokens gegen dessen öffentliche
+Adresse, weil sie als Aussteller in den Tokens steht, und wartet beim Start bis zu
+3 Minuten, bis Keycloak erreichbar ist (`QUARKUS_OIDC_CONNECTION_DELAY`).
+
+Optionale Variable in Portainer: `SPEECH_SERVICE_TAG` (Standard `main`, z. B. `sha-abc1234`).
+
+Der Service lädt das Modell beim Start und versucht es bis zu 5 Minuten lang
+erneut, falls Whisper noch nicht bereit ist.
+
+Im Nginx Proxy Manager nötig, z. B. unter *Advanced* beim Proxy-Host (Standardwerte reichen nicht):
+
+```nginx
+client_max_body_size 10m;    # Standard 1m – längere Aufnahmen würden abgelehnt
+proxy_read_timeout 120s;     # Standard 60s – eine 2-Minuten-Notiz braucht ca. 45 s
+```
+
+Das Frontend muss mit der öffentlichen Adresse gebaut werden
+(`VITE_SPEECH_API_URL`). Laufen Frontend und Service auf verschiedenen Domains,
+die CORS-Zeilen beim `speech-service` in `docker-compose.yml` aktivieren.
+
 ## Datenschutz
 
 - Audio wird nur als temporäre Upload-Datei verarbeitet und nach der Anfrage gelöscht.
