@@ -35,7 +35,9 @@ export async function transcribe(audio: Blob, visitId: string): Promise<Transcri
     })
 
     if (!response.ok) {
-        throw new Error(`Transkription fehlgeschlagen (Status ${response.status})`)
+        // Der speech-service liefert bei Fehlern { message }, z. B. wenn das Modell noch lädt
+        const error = await response.json().catch(() => null)
+        throw new Error(error?.message ?? `Transkription fehlgeschlagen (Status ${response.status})`)
     }
     return response.json()
 }
