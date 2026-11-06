@@ -7,8 +7,8 @@ import jakarta.enterprise.inject.Alternative;
 import java.nio.file.Path;
 
 /**
- * Ersetzt Whisper in den Tests. Merkt sich den letzten Aufruf und kann Fehler simulieren.
- * Zugriff nur über Methoden, weil Tests einen Proxy der Bean injiziert bekommen.
+ * Ersetzt Whisper in den Tests. Merkt sich den letzten Aufruf und kann Fehler simulieren. Zugriff nur über Methoden,
+ * weil Tests einen Proxy der Bean injiziert bekommen.
  */
 @Alternative
 @Priority(1)

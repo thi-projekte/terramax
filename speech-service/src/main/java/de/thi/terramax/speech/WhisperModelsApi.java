@@ -7,8 +7,8 @@ import jakarta.ws.rs.PathParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 /**
- * Modellverwaltung von Speaches. Eigener Client, weil ein Download mehrere Minuten dauern kann
- * und deshalb einen längeren Timeout braucht als die Transkription.
+ * Modellverwaltung von Speaches. Eigener Client, weil ein Download mehrere Minuten dauern kann und deshalb einen
+ * längeren Timeout braucht als die Transkription.
  */
 @RegisterRestClient(configKey = "whisper-models")
 public interface WhisperModelsApi {

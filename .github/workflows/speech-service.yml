@@ -5,10 +5,12 @@ on:
     paths:
       - "speech-service/**"
       - ".github/workflows/speech-service.yml"
+      - "config/formatter/**"
   pull_request:
     paths:
       - "speech-service/**"
       - ".github/workflows/speech-service.yml"
+      - "config/formatter/**"
   workflow_dispatch:
 
 permissions:

@@ -10,9 +10,8 @@ import org.jboss.logging.Logger;
 import java.time.Duration;
 
 /**
- * Lädt beim Start das Whisper-Modell, damit niemand es von Hand installieren muss.
- * Läuft im Hintergrund, weil der erste Download mehrere Minuten dauert.
- * Bis dahin antwortet der Endpunkt mit 503.
+ * Lädt beim Start das Whisper-Modell, damit niemand es von Hand installieren muss. Läuft im Hintergrund, weil der erste
+ * Download mehrere Minuten dauert. Bis dahin antwortet der Endpunkt mit 503.
  */
 @ApplicationScoped
 public class WhisperModelPreloader {
