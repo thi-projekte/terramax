@@ -14,13 +14,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Prüft den Endpunkt mit simulierter Anmeldung (@TestSecurity) und simuliertem Whisper.
- * 200 = Sales Professional, 403 = angemeldet ohne Rolle, 401 = nicht angemeldet.
+ * Prüft den Endpunkt mit simulierter Anmeldung (@TestSecurity) und simuliertem Whisper. 200 = Sales Professional, 403 =
+ * angemeldet ohne Rolle, 401 = nicht angemeldet.
  */
 @QuarkusTest
 class TranscriptionResourceTest {
 
-    private static final byte[] AUDIO = {1, 2, 3, 4};
+    private static final byte[] AUDIO = { 1, 2, 3, 4 };
 
     @Inject
     FakeSpeechToTextClient speechToText;
