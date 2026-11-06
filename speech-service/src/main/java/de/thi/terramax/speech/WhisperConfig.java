@@ -6,8 +6,8 @@ import io.smallrye.config.WithDefault;
 import java.util.Optional;
 
 /**
- * Einstellungen für die Spracherkennung mit Whisper (whisper.* in application.properties).
- * Die Adresse des Dienstes steht unter quarkus.rest-client.whisper.url.
+ * Einstellungen für die Spracherkennung mit Whisper (whisper.* in application.properties). Die Adresse des Dienstes
+ * steht unter quarkus.rest-client.whisper.url.
  */
 @ConfigMapping(prefix = "whisper")
 public interface WhisperConfig {

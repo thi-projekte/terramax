@@ -12,8 +12,8 @@ import org.jboss.resteasy.reactive.client.api.ClientMultipartForm;
 import java.nio.file.Path;
 
 /**
- * Spracherkennung über Speaches (Whisper) mit der OpenAI-kompatiblen Schnittstelle.
- * Ein anderer OpenAI-kompatibler Dienst lässt sich allein über die Konfiguration anbinden.
+ * Spracherkennung über Speaches (Whisper) mit der OpenAI-kompatiblen Schnittstelle. Ein anderer OpenAI-kompatibler
+ * Dienst lässt sich allein über die Konfiguration anbinden.
  */
 @ApplicationScoped
 public class WhisperClient implements SpeechToTextClient {

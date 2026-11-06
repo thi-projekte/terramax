@@ -90,3 +90,57 @@
     padding: 0;
   }
 }
+
+/* Besuchsprotokoll: Felder untereinander, gut auf dem Smartphone bedienbar */
+.protocol-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.protocol-form label {
+  margin-top: 8px;
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.protocol-form input,
+.protocol-form textarea {
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.protocol-hint {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+}
+
+.protocol-transcript {
+  white-space: pre-wrap;
+}
+
+.protocol-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.protocol-summary dt {
+  margin-top: 8px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.protocol-summary dd {
+  margin: 0;
+}

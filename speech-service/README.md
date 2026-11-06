@@ -1,215 +1,165 @@
 # Speech Service
 
-Quarkus-Microservice für TerraMax, der Sprachnotizen von Kundenbesuchen in Text
-umwandelt. Teil der Story „Besuchstour“: Der Sales Professional nimmt nach einem
-Besuch eine Sprachnotiz auf (max. ca. 2 Minuten), der Service liefert das
-Transkript. Das strukturierte Protokoll erstellt anschließend ein LLM (eigener Task).
+Quarkus-Service für die Story „Besuchstour“: Der Sales Professional nimmt nach
+einem Kundenbesuch eine Sprachnotiz auf (max. ca. 2 Minuten). Der Service
+transkribiert sie und erstellt daraus einen Protokollentwurf mit festen Feldern,
+den der Nutzer im Frontend bearbeitet und bestätigt.
 
-Die Spracherkennung übernimmt Whisper über [Speaches](https://github.com/speaches-ai/speaches)
-mit einer OpenAI-kompatiblen Schnittstelle. Das Audio verlässt die eigene
-Infrastruktur nicht.
+- Spracherkennung: Whisper über [Speaches](https://github.com/speaches-ai/speaches),
+  läuft im eigenen Stack. Das Audio verlässt die eigene Infrastruktur nicht.
+- Protokoll: OpenAI über [LangChain4j](https://docs.quarkiverse.io/quarkus-langchain4j/dev/)
+  (`quarkus-langchain4j-openai`). Dafür wird das Transkript an OpenAI gesendet.
 
 ```text
-Frontend ──POST /transcriptions──► speech-service ──/v1/audio/transcriptions──► Whisper (Speaches)
- (5173)      Audio + Token            (8082)                                      (8000)
+Frontend ──POST /transcriptions──► speech-service ──► Whisper (im Stack)
+         ──POST /protocols───────►                ──► OpenAI (LangChain4j)
 ```
 
-## Voraussetzungen
-
-- JDK 25
-- Laufende Docker-Umgebung, beispielsweise Docker Desktop
-- Internetverbindung für die Downloads beim ersten Start
-- Port 8000 frei (ein von Hand gestarteter Whisper-Container muss vorher gestoppt werden)
-
 ## Lokal starten
+
+Voraussetzungen: JDK 25, Docker, Port 8000 frei.
 
 ```bash
 cd speech-service
 ./mvnw quarkus:dev
 ```
 
-Quarkus Dev Services startet dabei automatisch:
+Quarkus Dev Services starten dabei Whisper (`compose-devservices.yml`, Port 8000)
+und Keycloak mit dem TerraMax-Realm (Port 8180). Beim ersten Start lädt der
+Service das Whisper-Modell herunter; bis im Log `Whisper-Modell ... ist bereit`
+steht, antwortet `/transcriptions` mit 503. Das Modell bleibt im Docker-Volume
+`whisper-models`.
 
-| Container | Quelle | Port |
-|---|---|---|
-| Whisper (Speaches) | `compose-devservices.yml` | 8000 |
-| Keycloak mit TerraMax-Realm | Realm-Datei aus `hello-service` | 8180 |
+Für Protokolle wird ein OpenAI-Key gebraucht. Dafür `speech-service/.env`
+anlegen (ist in `.gitignore`):
 
-Beide Services nutzen Keycloak-Port 8180. Ob sich `hello-service` und
-`speech-service` einen laufenden Keycloak teilen, ist noch nicht geprüft.
+```text
+OPENAI_API_KEY=sk-...
+```
 
-Beim ersten Start lädt der Service das Whisper-Modell herunter (einige Minuten).
-Bis im Log `Whisper-Modell ... ist bereit` steht, antwortet der Endpunkt mit 503.
-Das Modell bleibt im Docker-Volume `whisper-models`
-(`quarkus.compose.devservices.remove-volumes=false`) und muss danach nicht erneut
-geladen werden.
+Frontend dazu starten:
 
-Der Service ist unter http://localhost:8082 erreichbar.
+```bash
+cd frontend
+cp .env.local.example .env.local   # einmalig: Frontend gegen lokalen Keycloak
+npm run dev
+```
 
-### Gegen den gemeinsamen Keycloak-Server
+Unter http://localhost:5173 als `sales` / `sales` anmelden und in der Karte
+„Besuchsprotokoll“ eine Notiz aufnehmen.
 
-Ein Backend akzeptiert nur Tokens des Keycloaks, gegen den es konfiguriert ist.
-Meldet sich das Frontend am Server an (Standard ohne `.env.local`), muss auch der
-Service gegen den Server prüfen. Dann startet kein lokaler Keycloak:
+**Gegen den Keycloak-Server testen:** Frontend und Backend müssen denselben
+Keycloak verwenden, sonst antwortet der Service mit 401. Zeigt `.env.local` auf
+den Server, den Service so starten (dann startet kein lokaler Keycloak):
 
 ```powershell
 $env:QUARKUS_OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/terramax"
 ./mvnw quarkus:dev
 ```
 
-Der Benutzer braucht dort die Realm-Rolle `sales_professional`.
+## Endpunkte
 
-### Zusammen mit dem Frontend (lokaler Keycloak)
+Beide nur mit Realm-Rolle `sales_professional` (sonst 401 bzw. 403). Fehler
+liefern eine Meldung für die Oberfläche: `{"message": "..."}`.
 
-```bash
-# Terminal 1
-cd speech-service
-./mvnw quarkus:dev
+### `POST /transcriptions`
 
-# Terminal 2
-cd frontend
-cp .env.local.example .env.local   # einmalig: Frontend gegen lokalen Keycloak
-npm run dev
-```
-
-http://localhost:5173 öffnen, als `sales` / `sales` anmelden und in der Karte
-„Sprachnotiz“ aufnehmen und transkribieren.
-
-## Endpunkt
-
-`POST /transcriptions` als `multipart/form-data`, nur mit Rolle `sales_professional`.
-
-| Feld | Inhalt |
-|---|---|
-| `audio` | Aufnahme, z. B. `audio/webm` (Chrome), `audio/mp4` (Safari), `audio/wav` |
-| `visitId` | ID des Kundenbesuchs |
-
-Antwort:
+`multipart/form-data` mit `audio` (z. B. `audio/webm`, `audio/mp4`, `audio/wav`,
+max. 10 MB) und `visitId`.
 
 ```json
-{
-  "visitId": "visit-1",
-  "transcript": "Besuch beim Hof Maier in Ingolstadt. ...",
-  "language": "de",
-  "durationSeconds": 20.4
-}
+{ "visitId": "visit-1", "transcript": "Besuch beim Hof Maier ...", "language": "de", "durationSeconds": 20.4 }
 ```
 
 | Status | Bedeutung |
 |---|---|
-| 200 | Transkript erstellt |
 | 400 | Audiodatei oder `visitId` fehlt |
-| 401 | Nicht angemeldet oder Token ungültig |
-| 403 | Angemeldet, aber ohne Rolle `sales_professional` |
 | 413 | Upload größer als 10 MB |
 | 415 | Keine Audiodatei oder Audio nicht lesbar |
-| 502 | Whisper nicht erreichbar oder fehlerhaft |
+| 502 | Whisper nicht erreichbar |
 | 503 | Whisper-Modell noch nicht geladen |
 
-Fehler enthalten eine Meldung für die Oberfläche: `{"message": "..."}`
-(nicht bei 401, 403 und 413, die Quarkus selbst beantwortet).
+### `POST /protocols`
+
+JSON `{"visitId": "visit-1", "transcript": "..."}`. Der Entwurf wird nicht
+gespeichert; dem Kunden zugeordnet wird erst das bestätigte Protokoll
+(Tour-Prozess).
+
+```json
+{
+  "visitId": "visit-1",
+  "protocol": {
+    "contactPerson": "Herr Maier (Betriebsleiter)",
+    "topics": ["8R 410", "Finanzierung"],
+    "outcome": "Interesse an einer Vorführung.",
+    "nextSteps": ["Angebot schicken"],
+    "followUpDate": "2026-11-28"
+  }
+}
+```
+
+Fehlende Angaben sind `null` bzw. eine leere Liste. Relative Angaben wie
+„nächsten Dienstag“ werden anhand des heutigen Datums (Europe/Berlin) aufgelöst.
+
+| Status | Bedeutung |
+|---|---|
+| 400 | `visitId` fehlt, Transkript leer oder länger als 5 000 Zeichen |
+| 502 | OpenAI nicht erreichbar, Key fehlt oder Antwort unbrauchbar |
+| 503 | Anfragelimit bei OpenAI erreicht |
+
+Der Prompt steht in `VisitProtocolAssistant`. LangChain4j erzeugt aus dem Record
+`VisitProtocol` ein JSON-Schema, an das sich die Antwort halten muss
+(OpenAI Structured Outputs).
 
 ## Konfiguration
 
-Alle Werte stehen in `src/main/resources/application.properties` und lassen sich
-per Umgebungsvariable überschreiben.
+In `src/main/resources/application.properties`, per Umgebungsvariable
+überschreibbar:
 
-| Eigenschaft | Standard | Zweck |
-|---|---|---|
-| `quarkus.rest-client.whisper.url` | `http://localhost:8000` | Adresse von Whisper |
-| `quarkus.rest-client.whisper.read-timeout` | `120000` | Timeout in ms |
-| `whisper.model` | `Systran/faster-whisper-small` | Whisper-Modell |
-| `whisper.language` | `de` | Sprache der Aufnahmen |
-| `whisper.prompt` | John-Deere-Begriffe | Hinweis für Fachbegriffe |
-| `whisper.preload-model` | `true` nur im Dev-Modus | Modell beim Start laden |
-| `quarkus.http.limits.max-body-size` | `10M` | Maximale Uploadgröße |
+| Eigenschaft | Standard |
+|---|---|
+| `quarkus.rest-client.whisper.url` | `http://localhost:8000` |
+| `whisper.model` | `Systran/faster-whisper-small` |
+| `whisper.prompt` | Fachbegriffe als Hilfe für die Erkennung |
+| `whisper.preload-model` | `true` im Dev-Modus |
+| `OPENAI_API_KEY` | – (ohne Key antwortet `/protocols` mit 502) |
+| `quarkus.langchain4j.openai.chat-model.model-name` | `gpt-4o-mini` |
 
-Auf dem Server zum Beispiel:
+## Deployment
 
-```text
-QUARKUS_REST_CLIENT_WHISPER_URL=http://whisper:8000
-QUARKUS_OIDC_AUTH_SERVER_URL=https://<keycloak-host>/realms/terramax
-```
+`.github/workflows/speech-service.yml` baut und testet den Service bei jedem
+Push und lädt das Image nach `ghcr.io/thi-projekte/terramax-speech-service`.
+Er läuft im Projekt-Stack aus `docker-compose.yml` im Repo-Root, zusammen mit
+Whisper. Whisper hängt nur im internen Netz `speech-intern`.
 
-### Austauschbarer Dienst
+In Portainer zu setzen: `OPENAI_API_KEY`.
 
-Die Resource kennt nur das Interface `SpeechToTextClient`. `WhisperClient`
-spricht die OpenAI-kompatible Schnittstelle. Ein anderer kompatibler Dienst lässt
-sich allein über URL und Modell anbinden; für einen anderen Anbieter genügt eine
-neue Implementierung des Interfaces.
-
-Vor einer Cloud-Anbindung muss geklärt sein, ob Audio die Infrastruktur
-verlassen darf (offene Frage in der Story).
-
-## Deployment (Portainer)
-
-Bei jedem Push mit Änderungen in `speech-service/` baut
-`.github/workflows/speech-service.yml` den Service, führt die Tests aus und lädt
-das Image nach `ghcr.io/thi-projekte/terramax-speech-service` hoch
-(Tag `sha-<commit>`, auf `main` zusätzlich `main`).
-
-Der Service läuft im gemeinsamen Projekt-Stack aus `docker-compose.yml` im
-Repo-Root. Dort stehen zwei Container für die Spracherkennung:
-
-| Container | Netzwerke | Von außen erreichbar |
-|---|---|---|
-| `speech-service` (Port 8080) | `nginx-proxy-manager`, `speech-intern` | über den Nginx Proxy Manager |
-| `whisper` | nur `speech-intern` | nein |
-
-Keycloak läuft in einem eigenen Stack. Der Service prüft Tokens gegen dessen
-öffentliche Adresse, weil sie als Aussteller in den Tokens steht, und wartet beim
-Start bis zu 3 Minuten, falls Keycloak gerade nicht erreichbar ist
-(`QUARKUS_OIDC_CONNECTION_DELAY`).
-
-Optionale Variable in Portainer: `SPEECH_SERVICE_TAG` (Standard `main`, z. B. `sha-abc1234`).
-
-Der Service lädt das Modell beim Start und versucht es bis zu 5 Minuten lang
-erneut, falls Whisper noch nicht bereit ist.
-
-Im Nginx Proxy Manager nötig, z. B. unter *Advanced* beim Proxy-Host (Standardwerte reichen nicht):
+Im Nginx Proxy Manager beim Proxy-Host unter *Advanced* (die Standardwerte
+reichen für 2-Minuten-Notizen nicht):
 
 ```nginx
-client_max_body_size 10m;    # Standard 1m – längere Aufnahmen würden abgelehnt
-proxy_read_timeout 120s;     # Standard 60s – eine 2-Minuten-Notiz braucht ca. 45 s
+client_max_body_size 10m;
+proxy_read_timeout 120s;
 ```
 
-Das Frontend muss mit der öffentlichen Adresse gebaut werden
-(`VITE_SPEECH_API_URL`). Laufen Frontend und Service auf verschiedenen Domains,
-die CORS-Zeilen beim `speech-service` in `docker-compose.yml` aktivieren.
+Das Frontend wird mit der öffentlichen Adresse gebaut (`VITE_SPEECH_API_URL`).
+Laufen Frontend und Service auf verschiedenen Domains, die CORS-Zeilen in
+`docker-compose.yml` aktivieren.
 
 ## Datenschutz
 
-- Audio wird nur als temporäre Upload-Datei verarbeitet und nach der Anfrage gelöscht.
-- Transkripte werden weder gespeichert noch geloggt.
-- Gespeichert wird erst das vom Nutzer bestätigte Protokoll (Tour-Prozess, nicht dieser Service).
+- Audio wird nur als temporäre Datei verarbeitet und nach der Anfrage gelöscht.
+- Das Transkript wird zur Protokollerstellung an OpenAI gesendet. Ob das für
+  Kundengespräche zulässig ist, ist eine offene Frage der Story.
+- Transkripte und Protokolle werden im Service weder gespeichert noch geloggt.
 
-## Erkennungsqualität
-
-Ein erster Test mit synthetischen deutschen Notizen (Windows-Sprachausgabe,
-CPU, Modell `small`) ergab:
-
-| Aufnahme | Dauer der Transkription |
-|---|---|
-| 20 Sekunden | ca. 9 Sekunden |
-| 109 Sekunden | ca. 46 Sekunden |
-
-Normaler deutscher Text wird fast fehlerfrei erkannt. Fachbegriffe wie
-„8R 410“ oder „Fendt“ erst mit der Begriffsliste in `whisper.prompt`.
-„Operations Center“, „AutoTrac“ und ein Datum („28. November“ als
-„8. und 20. November“) blieben fehlerhaft. Deshalb muss das Protokoll vor dem
-Speichern vom Nutzer geprüft werden. Mit echten Aufnahmen wiederholen; bleiben
-die Fehler, das Modell `medium` testen (genauer, aber langsamer).
-
-## Automatisierte Tests
+## Tests
 
 ```bash
-./mvnw test
+./mvnw verify
 ```
 
-Die Tests simulieren Anmeldung (`@TestSecurity`) und Whisper
-(`FakeSpeechToTextClient`). Docker, Keycloak und Whisper sind dafür nicht nötig.
-
-Geprüft werden Erfolg, die Rollen (200 / 401 / 403), fehlende Felder (400),
-falsche Dateitypen (415) und Fehler der Spracherkennung (415 / 502 / 503).
-Die Uploadgrenze (413) wurde manuell geprüft, weil der Testclient den
-Verbindungsabbruch von Quarkus nicht sauber auswerten kann.
+Anmeldung (`@TestSecurity`), Whisper (`FakeSpeechToTextClient`) und LLM
+(`FakeProtocolGenerator`) werden simuliert; Docker, Keycloak und ein OpenAI-Key
+sind nicht nötig. Die Uploadgrenze (413) ist nur manuell geprüft, weil der
+Testclient den Verbindungsabbruch nicht auswerten kann.

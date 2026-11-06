@@ -5,6 +5,7 @@
 # https://terramax-keycloak.winfprojekt.de erreichbar.
 #
 # Variablen in Portainer (Geheimnisse nie in diese Datei schreiben):
+#   OPENAI_API_KEY            Pflicht für Besuchsprotokolle (ohne Key antwortet /protocols mit 502)
 #   SPEECH_SERVICE_TAG        optional, Standard main, z. B. sha-abc1234
 
 services:
@@ -22,6 +23,8 @@ services:
       QUARKUS_REST_CLIENT_WHISPER_URL: http://whisper:8000
       # Modell beim Start laden; bis dahin antwortet /transcriptions mit 503
       WHISPER_PRELOAD_MODEL: "true"
+      # Besuchsprotokoll per LLM (LangChain4j mit OpenAI); Wert nur in Portainer setzen
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
       # Nur nötig, wenn Frontend und Service auf verschiedenen Domains laufen:
       # QUARKUS_HTTP_CORS_ENABLED: "true"
       # QUARKUS_HTTP_CORS_ORIGINS: https://terramax.winfprojekt.de
