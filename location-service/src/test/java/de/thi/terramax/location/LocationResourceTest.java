@@ -32,6 +32,12 @@ class LocationResourceTest {
         given().when().get("/locations/res-21").then().statusCode(401);
     }
 
+    /** Läuft gegen den echten OIDC-Mechanismus (Dev-Services-Keycloak), daher ohne @TestSecurity. */
+    @Test
+    void listWithInvalidTokenReturnsUnauthorized() {
+        given().header("Authorization", "Bearer abc.def.ghi").when().get("/locations").then().statusCode(401);
+    }
+
     @Test
     @TestSecurity(user = "alice")
     void listReturnsAllLocationsAsFeatureCollectionSortedByName() {
