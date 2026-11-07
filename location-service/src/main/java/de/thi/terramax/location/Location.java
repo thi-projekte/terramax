@@ -1,6 +1,7 @@
 package de.thi.terramax.location;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import io.quarkus.panache.common.Sort;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -9,6 +10,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Standort eines Händlers (Wettbewerber, gemischter Wettbewerber oder John Deere). Das Schema wird über die
@@ -73,4 +77,24 @@ public class Location extends PanacheEntityBase {
 
     @Column(name = "geocoded_by")
     public String geocodedBy;
+
+    /** Sortierung für Listen: nach Name, bei Gleichstand nach externer ID (stabile Reihenfolge). */
+    private static Sort byName() {
+        return Sort.by("name").and("externalId");
+    }
+
+    /** Alle Standorte, sortiert nach Name. */
+    public static List<Location> listAllSortedByName() {
+        return listAll(byName());
+    }
+
+    /** Standorte der angegebenen Kategorien, sortiert nach Name. Gefiltert wird in der Datenbank. */
+    public static List<Location> listByCategories(Collection<LocationCategory> categories) {
+        return list("category in ?1", byName(), categories);
+    }
+
+    /** Sucht einen Standort über seine externe ID (z. B. {@code res-21}). */
+    public static Optional<Location> findByExternalId(String externalId) {
+        return find("externalId", externalId).firstResultOptional();
+    }
 }
