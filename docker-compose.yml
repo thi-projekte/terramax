@@ -6,14 +6,14 @@
 #
 # Variablen in Portainer (Geheimnisse nie in diese Datei schreiben):
 #   OPENAI_API_KEY            Pflicht für Besuchsprotokolle (ohne Key antwortet /protocols mit 502)
-#   SPEECH_SERVICE_TAG        optional, Standard main, z. B. sha-abc1234
+#   SPEECH_SERVICE_TAG        optional, Standard latest, z. B. sha-abc1234
 
 services:
   # --- Spracherkennung (speech-service/README.md) ---
 
   speech-service:
     # Image aus .github/workflows/speech-service.yml
-    image: ghcr.io/thi-projekte/terramax-speech-service:${SPEECH_SERVICE_TAG:-main}
+    image: ghcr.io/thi-projekte/terramax-speech-service:${SPEECH_SERVICE_TAG:-latest}
     restart: unless-stopped
     environment:
       # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
