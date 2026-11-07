@@ -10,9 +10,12 @@ import java.time.LocalDate;
 
 /**
  * LangChain4j-AI-Service: wandelt das Transkript einer Sprachnotiz in ein Besuchsprotokoll um. Modell und Zugang stehen
- * in application.properties (quarkus.langchain4j.openai.*). Kein Chat-Gedächtnis: Jede Notiz wird für sich ausgewertet.
+ * in application.properties (quarkus.langchain4j.openai.*).
+ * <p>
+ * Ohne Chat-Gedächtnis: Standardmäßig hängt Quarkus-LangChain4j eines an, das sich bei dieser Bean alle Anfragen teilen
+ * würden. Dann gingen Transkripte früherer Kunden bei späteren Anfragen mit an das LLM.
  */
-@RegisterAiService
+@RegisterAiService(chatMemoryProviderSupplier = RegisterAiService.NoChatMemoryProviderSupplier.class)
 @ApplicationScoped
 public interface VisitProtocolAssistant {
 
