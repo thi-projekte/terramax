@@ -3,8 +3,8 @@ package de.thi.terramax;
 import java.util.Set;
 
 /**
- * Fachrollen von TerraMax. Die Namen müssen exakt den Realm-Rollen in Keycloak
- * (bzw. später Okta) entsprechen – sie kommen aus dem Token unter realm_access.roles.
+ * Fachrollen von TerraMax. Die Namen müssen exakt den Realm-Rollen in Keycloak (bzw. später Okta) entsprechen – sie
+ * kommen aus dem Token unter realm_access.roles.
  */
 public final class Roles {
 

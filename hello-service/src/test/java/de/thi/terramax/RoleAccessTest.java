@@ -10,8 +10,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 
 /**
- * Prüft die Rollenregeln
- * 200 = richtige Rolle, 403 = angemeldet aber falsche/keine Rolle, 401 = nicht angemeldet.
+ * Prüft die Rollenregeln 200 = richtige Rolle, 403 = angemeldet aber falsche/keine Rolle, 401 = nicht angemeldet.
  */
 @QuarkusTest
 class RoleAccessTest {
@@ -27,7 +26,7 @@ class RoleAccessTest {
     }
 
     @Test
-    @TestSecurity(user = "dealer", roles = {Roles.DEALER_PRINCIPAL, Roles.SALES_PROFESSIONAL})
+    @TestSecurity(user = "dealer", roles = { Roles.DEALER_PRINCIPAL, Roles.SALES_PROFESSIONAL })
     void dealerPrincipalCanAccessSalesViaRoleHierarchy() {
         // dealer_principal ist in Keycloak eine composite role, die sales_professional
         // einschliesst (Rechte werden hierarchisch als Teil-Ganze-Beziehung vererbt).
@@ -63,7 +62,7 @@ class RoleAccessTest {
     // --- /me ---
 
     @Test
-    @TestSecurity(user = "sales", roles = {Roles.SALES_PROFESSIONAL, "offline_access"})
+    @TestSecurity(user = "sales", roles = { Roles.SALES_PROFESSIONAL, "offline_access" })
     void meReturnsOnlyTerraMaxRoles() {
         given().when().get("/me")
                 .then().statusCode(200)
