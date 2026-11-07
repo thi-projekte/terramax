@@ -10,17 +10,22 @@ import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.util.List;
+import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 /**
- * Importiert beim Start die Standorte aus {@code data/competitors_at_v2.geojson}, sofern die Tabelle {@code location}
- * leer ist. Der Import läuft in einer Transaktion und ist über {@code location.import.enabled=false} abschaltbar.
+ * Importiert beim Start die Standorte aus den in {@code location.import.files} konfigurierten Classpath-Ressourcen. Ein
+ * Standort wird nur angelegt, wenn seine externe ID noch nicht existiert; bestehende Einträge werden nicht
+ * überschrieben. Dadurch kann der Import bei jedem Start laufen und ergänzt nur neue Standorte. Jede Datei wird in
+ * einer eigenen Transaktion importiert. Abschaltbar über {@code location.import.enabled=false}.
  */
 @ApplicationScoped
 public class LocationImporter {
 
-    static final String RESOURCE = "data/competitors_at_v2.geojson";
+    static final String COMPETITORS = "data/competitors_at_v2.geojson";
+    static final String JOHN_DEERE = "data/john_deere_at.geojson";
 
     private static final Logger LOG = Logger.getLogger(LocationImporter.class);
 
@@ -33,40 +38,54 @@ public class LocationImporter {
     @ConfigProperty(name = "location.import.enabled", defaultValue = "true")
     boolean importEnabled;
 
+    @ConfigProperty(name = "location.import.files", defaultValue = COMPETITORS + "," + JOHN_DEERE)
+    List<String> importFiles;
+
+    /** Ergebnis des Imports einer Datei. */
+    record ImportResult(int created, int skipped, int invalid) {
+    }
+
     void onStart(@Observes StartupEvent event) {
         if (!importEnabled) {
             LOG.info("Standort-Import ist deaktiviert (location.import.enabled=false)");
             return;
         }
-        importIfEmpty(RESOURCE);
+        importFiles.forEach(this::importFile);
     }
 
     /**
-     * Importiert alle gültigen Features aus der Classpath-Ressource, sofern die Tabelle leer ist.
+     * Importiert alle gültigen Features der Classpath-Ressource, deren externe ID noch nicht existiert.
      *
-     * @return Anzahl der importierten Einträge (0, wenn die Tabelle bereits Daten enthält)
+     * @return Anzahl neu angelegter, übersprungener (ID bereits vorhanden) und ungültiger Einträge
      */
     @Transactional
-    int importIfEmpty(String resource) {
-        long existing = Location.count();
-        if (existing > 0) {
-            LOG.infof("Standort-Import übersprungen: Tabelle enthält bereits %d Einträge", existing);
-            return 0;
-        }
+    ImportResult importFile(String resource) {
+        JsonNode features = readFeatures(resource);
+        Set<String> existingIds = Location.findAllExternalIds();
 
-        int imported = 0;
+        int created = 0;
         int skipped = 0;
-        for (JsonNode feature : readFeatures(resource)) {
+        int invalid = 0;
+        for (JsonNode feature : features) {
+            Location location;
             try {
-                parser.parse(feature).persist();
-                imported++;
+                location = parser.parse(feature);
             } catch (InvalidFeatureException e) {
+                invalid++;
+                LOG.warnf("%s: ungültiger Eintrag übersprungen: %s", resource, e.getMessage());
+                continue;
+            }
+            // add() liefert false, wenn die ID schon in der Datenbank oder weiter oben in derselben Datei vorkam
+            if (existingIds.add(location.externalId)) {
+                location.persist();
+                created++;
+            } else {
                 skipped++;
-                LOG.warnf("Ungültiger Eintrag übersprungen: %s", e.getMessage());
             }
         }
-        LOG.infof("Standort-Import abgeschlossen: %d importiert, %d übersprungen", imported, skipped);
-        return imported;
+        LOG.infof("Standort-Import %s: %d neu, %d übersprungen (bereits vorhanden), %d ungültig", resource, created,
+                skipped, invalid);
+        return new ImportResult(created, skipped, invalid);
     }
 
     JsonNode readFeatures(String resource) {

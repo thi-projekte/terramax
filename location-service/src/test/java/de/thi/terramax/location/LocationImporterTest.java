@@ -17,15 +17,15 @@ class LocationImporterTest {
     LocationImporter importer;
 
     @Test
-    void importsAllFeaturesAtStartup() {
-        assertEquals(197, Location.count());
+    void importsAllConfiguredFilesAtStartup() {
+        assertEquals(213, Location.count());
     }
 
     @Test
     void importsCategoriesCorrectly() {
         assertEquals(133, Location.count("category", LocationCategory.COMPETITOR));
         assertEquals(64, Location.count("category", LocationCategory.MIXED_COMPETITOR));
-        assertEquals(0, Location.count("category", LocationCategory.JOHN_DEERE));
+        assertEquals(16, Location.count("category", LocationCategory.JOHN_DEERE));
     }
 
     @Test
@@ -38,21 +38,62 @@ class LocationImporterTest {
     }
 
     @Test
-    void skipsImportWhenTableIsNotEmpty() {
-        assertEquals(0, importer.importIfEmpty(LocationImporter.RESOURCE));
-        assertEquals(197, Location.count());
+    void importsJohnDeereLocation() {
+        Location location = Location.findByExternalId("jd-ltc-korneuburg").orElseThrow();
+
+        assertEquals(LocationCategory.JOHN_DEERE, location.category);
+        assertEquals(48.3365145, location.latitude, DELTA);
+        assertEquals(16.338749, location.longitude, DELTA);
     }
 
-    /** Läuft in einer Test-Transaktion, die am Ende zurückgerollt wird; die 197 Einträge bleiben erhalten. */
+    /** Der Start hat bereits importiert; zwei weitere Durchläufe legen nichts an. */
+    @Test
+    void importingTwiceCreatesNoDuplicates() {
+        for (int run = 0; run < 2; run++) {
+            assertEquals(new LocationImporter.ImportResult(0, 197, 0),
+                    importer.importFile(LocationImporter.COMPETITORS));
+            assertEquals(new LocationImporter.ImportResult(0, 16, 0), importer.importFile(LocationImporter.JOHN_DEERE));
+        }
+        assertEquals(213, Location.count());
+    }
+
+    /** Test-Transaktion wird zurückgerollt, die Änderung am Namen bleibt also nicht bestehen. */
+    @Test
+    @TestTransaction
+    void doesNotOverwriteExistingLocations() {
+        Location location = Location.findByExternalId("jd-ltc-korneuburg").orElseThrow();
+        location.name = "Manuell geändert";
+
+        importer.importFile(LocationImporter.JOHN_DEERE);
+        // Neu aus der Datenbank lesen statt aus dem Persistence-Context
+        Location.getEntityManager().flush();
+        Location.getEntityManager().clear();
+
+        assertEquals("Manuell geändert", Location.findByExternalId("jd-ltc-korneuburg").orElseThrow().name);
+    }
+
+    @Test
+    @TestTransaction
+    void importsOnlyMissingLocations() {
+        Location.delete("externalId", "jd-ltc-korneuburg");
+
+        assertEquals(new LocationImporter.ImportResult(1, 15, 0), importer.importFile(LocationImporter.JOHN_DEERE));
+        assertEquals(213, Location.count());
+    }
+
     @Test
     @TestTransaction
     void skipsInvalidFeaturesAndImportsValidOnes() {
-        Location.deleteAll();
-
-        int imported = importer.importIfEmpty("data/test-mixed.geojson");
-
-        assertEquals(1, imported);
-        assertEquals(1, Location.count());
+        assertEquals(new LocationImporter.ImportResult(1, 0, 2), importer.importFile("data/test-mixed.geojson"));
+        assertEquals(214, Location.count());
         assertNotNull(Location.find("externalId", "valid-1").firstResult());
+    }
+
+    @Test
+    @TestTransaction
+    void skipsDuplicateIdsWithinOneFile() {
+        assertEquals(new LocationImporter.ImportResult(1, 1, 0),
+                importer.importFile("data/test-duplicate-ids.geojson"));
+        assertEquals("Erster Eintrag", Location.findByExternalId("dup-1").orElseThrow().name);
     }
 }

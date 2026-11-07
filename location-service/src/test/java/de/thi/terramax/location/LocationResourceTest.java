@@ -1,11 +1,13 @@
 package de.thi.terramax.location;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -42,7 +44,7 @@ class LocationResourceTest {
     @TestSecurity(user = "alice")
     void listReturnsAllLocationsAsFeatureCollectionSortedByName() {
         JsonPath json = given().when().get("/locations").then().statusCode(200).contentType("application/json")
-                .body("type", is("FeatureCollection")).body("features.size()", is(197))
+                .body("type", is("FeatureCollection")).body("features.size()", is(213))
                 .body("features.type", everyItem(is("Feature")))
                 .body("features.geometry.type", everyItem(is("Point"))).extract().jsonPath();
 
@@ -62,21 +64,32 @@ class LocationResourceTest {
     void listFiltersByTwoCategoriesIgnoringWhitespace() {
         given().queryParam("category", " competitor , mixed_competitor ").when().get("/locations").then()
                 .statusCode(200).body("features.size()", is(197))
-                .body("features.properties.category", hasItems("competitor", "mixed_competitor"));
+                .body("features.properties.category", hasItems("competitor", "mixed_competitor"))
+                .body("features.properties.category", everyItem(not(is("john_deere"))));
     }
 
     @Test
     @TestSecurity(user = "alice")
-    void listFiltersByCategoryWithoutLocations() {
+    void listFiltersByJohnDeere() {
         given().queryParam("category", "john_deere").when().get("/locations").then().statusCode(200)
-                .body("type", is("FeatureCollection")).body("features.size()", is(0));
+                .body("type", is("FeatureCollection")).body("features.size()", is(16))
+                .body("features.properties.category", everyItem(is("john_deere")));
+    }
+
+    @Test
+    @TestSecurity(user = "alice")
+    void listFiltersByCompetitorAndJohnDeere() {
+        given().queryParam("category", "competitor,john_deere").when().get("/locations").then().statusCode(200)
+                .body("features.size()", is(149))
+                .body("features.properties.category", everyItem(anyOf(is("competitor"), is("john_deere"))))
+                .body("features.properties.category", hasItems("competitor", "john_deere"));
     }
 
     @Test
     @TestSecurity(user = "alice")
     void listWithEmptyCategoryReturnsAllLocations() {
         given().queryParam("category", " , ").when().get("/locations").then().statusCode(200)
-                .body("features.size()", is(197));
+                .body("features.size()", is(213));
     }
 
     @Test

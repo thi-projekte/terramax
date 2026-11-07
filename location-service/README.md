@@ -146,8 +146,11 @@ die Datei als `.env` kopieren und befüllen. `.env` wird nicht committet.
 | `QUARKUS_DATASOURCE_USERNAME` | ja | Datenbank-Benutzer |
 | `QUARKUS_DATASOURCE_PASSWORD` | ja | Datenbank-Passwort |
 
-Beim Start legt Flyway das Schema an, danach werden die Standorte importiert,
-sofern die Tabelle leer ist.
+Beim Start legt Flyway das Schema an, danach werden die Standorte aus den
+Dateien in `location.import.files` importiert (Standard: `data/competitors_at_v2.geojson`
+und `data/john_deere_at.geojson`). Angelegt werden nur Standorte, deren ID noch
+nicht in der Datenbank steht; bestehende Einträge bleiben unverändert. Das Log
+zeigt pro Datei, wie viele Einträge neu, übersprungen und ungültig waren.
 
 ### Container starten
 

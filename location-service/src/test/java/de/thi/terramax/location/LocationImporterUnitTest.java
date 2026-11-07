@@ -31,8 +31,22 @@ class LocationImporterUnitTest {
     }
 
     @Test
-    void readsFeaturesFromBundledResource() {
-        assertEquals(197, importer.readFeatures(LocationImporter.RESOURCE).size());
+    void readsFeaturesFromBundledResources() {
+        assertEquals(197, importer.readFeatures(LocationImporter.COMPETITORS).size());
+        assertEquals(16, importer.readFeatures(LocationImporter.JOHN_DEERE).size());
+    }
+
+    @Test
+    void johnDeereFileContainsOnlyValidPointsInAustria() {
+        for (var feature : importer.readFeatures(LocationImporter.JOHN_DEERE)) {
+            String id = feature.path("properties").path("id").asText();
+            assertEquals("Point", feature.path("geometry").path("type").asText(), id);
+            double lon = feature.path("geometry").path("coordinates").get(0).asDouble();
+            double lat = feature.path("geometry").path("coordinates").get(1).asDouble();
+            assertTrue(lon >= 9.5 && lon <= 17.2, id + ": Länge " + lon);
+            assertTrue(lat >= 46.3 && lat <= 49.1, id + ": Breite " + lat);
+            assertTrue(feature.path("properties").path("geocode_hint").isMissingNode(), id + ": geocode_hint");
+        }
     }
 
     @Test

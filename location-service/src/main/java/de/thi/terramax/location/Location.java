@@ -11,8 +11,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Standort eines Händlers (Wettbewerber, gemischter Wettbewerber oder John Deere). Das Schema wird über die
@@ -91,6 +93,12 @@ public class Location extends PanacheEntityBase {
     /** Standorte der angegebenen Kategorien, sortiert nach Name. Gefiltert wird in der Datenbank. */
     public static List<Location> listByCategories(Collection<LocationCategory> categories) {
         return list("category in ?1", byName(), categories);
+    }
+
+    /** Alle vorhandenen externen IDs (veränderbare Menge, z. B. für den Import). */
+    public static Set<String> findAllExternalIds() {
+        return new HashSet<>(
+                getEntityManager().createQuery("select l.externalId from Location l", String.class).getResultList());
     }
 
     /** Sucht einen Standort über seine externe ID (z. B. {@code res-21}). */
