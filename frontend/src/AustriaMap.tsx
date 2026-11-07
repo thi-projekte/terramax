@@ -1,8 +1,23 @@
 
 import type { Feature, FeatureCollection, Polygon } from 'geojson'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import {
+  addLocationLayers,
+  CATEGORY_STYLE,
+  countByCategory,
+  fetchLocations,
+  getLocationAt,
+  LOCATION_CATEGORIES,
+  setCategoryVisible,
+  type LocationCategory
+} from './locationLayer'
+
+type LocationState =
+  | { status: 'loading' }
+  | { status: 'error' }
+  | { status: 'ok'; counts: Record<LocationCategory, number> }
 
 const COLORS = {
   unknown: '#9ca3af',
@@ -32,6 +47,20 @@ function getAreaColor(hektar: number | undefined) {
 
 export default function AustriaMap() {
   const mapContainer = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<mapboxgl.Map | null>(null)
+  const [locations, setLocations] = useState<LocationState>({
+    status: 'loading'
+  })
+  const [visible, setVisible] = useState<Record<LocationCategory, boolean>>({
+    competitor: true,
+    mixed_competitor: true,
+    john_deere: true
+  })
+
+  const toggleCategory = (category: LocationCategory, checked: boolean) => {
+    setVisible((current) => ({ ...current, [category]: checked }))
+    if (mapRef.current) setCategoryVisible(mapRef.current, category, checked)
+  }
 
   useEffect(() => {
     if (!mapContainer.current) return
@@ -59,6 +88,7 @@ export default function AustriaMap() {
       antialias: true
     })
 
+    mapRef.current = map
     map.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
     map.on('load', async () => {
@@ -188,6 +218,8 @@ export default function AustriaMap() {
         map.on('click', 'h3-fill', (event) => {
           const cell = event.features?.[0]
           if (!cell) return
+          // Standort an dieser Stelle hat Vorrang (dessen Popup öffnet locationLayer)
+          if (getLocationAt(map, event.point)) return
 
           const h3Index = String(
             cell.properties?.h3Index ?? 'unbekannt'
@@ -287,11 +319,25 @@ export default function AustriaMap() {
           console.error('Fehler beim Laden der Daten:', error)
         }
       }
+
+      // Standorte nach dem H3-Raster laden, damit sie darüber liegen.
+      // Ein Fehler hier betrifft nur die Standorte, nicht die übrige Karte
+      try {
+        const data = await fetchLocations()
+        if (disposed) return
+        addLocationLayers(map, data)
+        setLocations({ status: 'ok', counts: countByCategory(data.features) })
+      } catch (error) {
+        if (disposed) return
+        console.warn('Standorte konnten nicht geladen werden:', error)
+        setLocations({ status: 'error' })
+      }
     })
 
     return () => {
       disposed = true
       if (animationTimer) clearTimeout(animationTimer)
+      mapRef.current = null
       map.remove()
     }
   }, [])
@@ -378,6 +424,69 @@ export default function AustriaMap() {
           }}
         >
           INVEKOS 2024 – vorläufige Auswertung
+        </div>
+
+        <div style={{ marginTop: '12px' }}>
+          <strong>Händlerstandorte</strong>
+        </div>
+
+        {locations.status === 'error' ? (
+          <div style={{ marginTop: '7px', color: '#b91c1c' }}>
+            Standorte konnten nicht geladen werden
+          </div>
+        ) : (
+          LOCATION_CATEGORIES.map((category) => {
+            const { color, label, suffix } = CATEGORY_STYLE[category]
+            const count =
+              locations.status === 'ok' ? locations.counts[category] : null
+            const details = [count, suffix].filter((v) => v !== null && v !== undefined)
+
+            return (
+              <label
+                key={category}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '7px',
+                  cursor: 'pointer'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={visible[category]}
+                  disabled={locations.status !== 'ok'}
+                  onChange={(event) =>
+                    toggleCategory(category, event.target.checked)
+                  }
+                  style={{ margin: 0 }}
+                />
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: '12px',
+                    height: '12px',
+                    flexShrink: 0,
+                    borderRadius: '50%',
+                    background: color,
+                    border: '2px solid #fff',
+                    boxShadow: '0 0 0 1px #aaa'
+                  }}
+                />
+                {details.length > 0 ? `${label} (${details.join(', ')})` : label}
+              </label>
+            )
+          })
+        )}
+
+        <div
+          style={{
+            marginTop: '10px',
+            fontSize: '10px',
+            color: '#666'
+          }}
+        >
+          Datenquellen: OpenStreetMap-Mitwirkende (ODbL), Firmenwebseiten
         </div>
       </div>
     </div>

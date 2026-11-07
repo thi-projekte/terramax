@@ -53,6 +53,21 @@ VITE_MAPBOX_TOKEN=DEIN_MAPBOX_ACCESS_TOKEN
 
 Ein gültiger Mapbox-Access-Token wird benötigt. Die `.env`-Datei wird nicht auf GitHub hochgeladen.
 
+**Optional: Adresse des location-service**
+
+Die Händlerstandorte (Wettbewerber, Mehrmarken/unbekannt, John Deere) lädt die Karte vom
+`location-service` über `GET /locations` mit dem Keycloak-Token des angemeldeten Nutzers.
+
+```env
+VITE_LOCATION_SERVICE_URL=http://localhost:8082
+```
+
+Ohne die Variable wird `http://localhost:8082` verwendet. Lokale Werte gehören in `.env.local`
+(wird nicht eingecheckt). Ist der Service nicht erreichbar oder lehnt er den Token ab (401),
+lädt die Karte trotzdem; in der Legende erscheint dann „Standorte konnten nicht geladen werden“,
+die Ursache steht in der Browser-Konsole. Der `location-service` muss den Frontend-Origin in
+`CORS_ORIGINS` erlauben (Standard `http://localhost:5173`).
+
 **4. Entwicklungsserver starten**
 
 ```bash
