@@ -29,3 +29,13 @@ updates:
     directory: "/hello-service"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "docker"
+    directory: "/speech-service/src/main/docker"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "maven"
+    directory: "/speech-service"
+    schedule:
+      interval: "weekly"
