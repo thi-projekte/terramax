@@ -111,6 +111,7 @@ export type PopupContent = {
   brands: string | null
   address: string | null
   source: { text: string; href: string | null } | null
+  origin: string | null
   retrieved: string
   note: string | null
 }
@@ -119,6 +120,21 @@ function text(value: unknown): string | null {
   if (value === null || value === undefined) return null
   const result = String(value).trim()
   return result === '' ? null : result
+}
+
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+  osm: 'OpenStreetMap',
+  web_research: 'Web-Recherche (KI-gestützt)',
+  'web_research+osm': 'Web-Recherche (KI-gestützt) + OpenStreetMap'
+}
+
+/** Übersetzt properties.source_type; unbekannte Werte bleiben unverändert, fehlende ergeben null. */
+export function formatSourceType(value: unknown): string | null {
+  const sourceType = text(value)
+  if (sourceType === null) return null
+  return Object.hasOwn(SOURCE_TYPE_LABELS, sourceType)
+    ? SOURCE_TYPE_LABELS[sourceType]
+    : sourceType
 }
 
 /** Wandelt YYYY-MM-DD in TT.MM.JJJJ um, andere Werte bleiben unverändert. */
@@ -154,6 +170,7 @@ export function buildPopupContent(props: LocationProperties): PopupContent {
           href: isSafeHttpsUrl(sourceUrl) ? sourceUrl : null
         }
       : null,
+    origin: formatSourceType(props.source_type),
     retrieved: retrievedAt
       ? `Abgerufen am ${formatDate(retrievedAt)} ${verified}`
       : verified,
@@ -196,6 +213,8 @@ export function createPopupElement(content: PopupContent): HTMLElement {
       p.append(document.createTextNode(content.source.text))
     }
   }
+
+  if (content.origin) line(`Herkunft: ${content.origin}`)
 
   line(content.retrieved)
 
