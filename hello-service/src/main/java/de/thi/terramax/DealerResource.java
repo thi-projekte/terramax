@@ -11,8 +11,8 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.Map;
 
 /**
- * Platzhalter für Funktionen des Dealer Principals (z. B. Marktkarte, #17/#26).
- * Zeigt die Gegenrichtung: ein Sales Professional bekommt hier 403.
+ * Platzhalter für Funktionen des Dealer Principals (z. B. Marktkarte, #17/#26). Zeigt die Gegenrichtung: ein Sales
+ * Professional bekommt hier 403.
  */
 @Path("/dealer")
 @RolesAllowed(Roles.DEALER_PRINCIPAL)
@@ -25,7 +25,6 @@ public class DealerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, String> dealer() {
         return Map.of(
-                "message", "Hello " + identity.getPrincipal().getName() + ", du bist als Dealer Principal angemeldet"
-        );
+                "message", "Hello " + identity.getPrincipal().getName() + ", du bist als Dealer Principal angemeldet");
     }
 }

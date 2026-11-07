@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Liefert dem Frontend, wer angemeldet ist, welche TerraMax-Rollen er hat
- * und (falls vorhanden) seine Händlerzuordnung (dealer_id-Claim aus dem Token).
- * Jeder angemeldete Benutzer darf das abfragen – auch ohne Fachrolle.
+ * Liefert dem Frontend, wer angemeldet ist, welche TerraMax-Rollen er hat und (falls vorhanden) seine Händlerzuordnung
+ * (dealer_id-Claim aus dem Token). Jeder angemeldete Benutzer darf das abfragen – auch ohne Fachrolle.
  */
 @Path("/me")
 @Authenticated
