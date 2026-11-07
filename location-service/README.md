@@ -108,3 +108,52 @@ $env:CORS_ORIGINS = "http://localhost:5173,https://<frontend-host>"
 ```
 
 `*` ist nicht erlaubt.
+
+## Betrieb
+
+Der Service läuft im Container auf Port **8082**.
+
+### Image
+
+Die GitHub Action `.github/workflows/location-service.yml` läuft bei
+Änderungen unter `location-service/**`, `config/formatter/**` oder am Workflow
+selbst. Sie führt `./mvnw verify` aus und baut
+das Image aus `src/main/docker/Dockerfile.jvm`.
+
+- Pull Request: Das Image wird nur gebaut, nicht veröffentlicht.
+- Push auf `main`: Das Image wird nach
+  `ghcr.io/thi-projekte/terramax-location-service` gepusht
+  (Tags `latest` und `sha-…`).
+
+Lokal bauen:
+
+```powershell
+cd location-service
+./mvnw package -DskipTests
+docker build -f src/main/docker/Dockerfile.jvm -t terramax-location-service .
+```
+
+### Umgebungsvariablen
+
+Alle Namen stehen in [`.env.example`](.env.example). Für den lokalen Betrieb
+die Datei als `.env` kopieren und befüllen. `.env` wird nicht committet.
+
+| Variable | Pflicht | Bedeutung |
+| --- | --- | --- |
+| `OIDC_AUTH_SERVER_URL` | ja | Keycloak-Realm, z. B. `https://terramax-keycloak.winfprojekt.de/realms/terramax`. Ohne Wert startet der Service nicht |
+| `CORS_ORIGINS` | nein | Erlaubte Frontend-Origins, kommagetrennt (Standard `http://localhost:5173`) |
+| `QUARKUS_DATASOURCE_JDBC_URL` | ja | z. B. `jdbc:postgresql://<host>:5432/<db>` |
+| `QUARKUS_DATASOURCE_USERNAME` | ja | Datenbank-Benutzer |
+| `QUARKUS_DATASOURCE_PASSWORD` | ja | Datenbank-Passwort |
+
+Beim Start legt Flyway das Schema an, danach werden die Standorte importiert,
+sofern die Tabelle leer ist.
+
+### Container starten
+
+```powershell
+docker run --rm -p 8082:8082 --env-file .env terramax-location-service
+```
+
+Danach erreichbar unter http://localhost:8082/q/health. Swagger UI ist im
+Prod-Betrieb nicht enthalten, sondern nur im Dev-Modus.
