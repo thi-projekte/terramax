@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { EMPTY_PROTOCOL, generateProtocol, type VisitProtocol } from './protocol'
 import { transcribe } from './transcribe'
 import { MAX_RECORDING_SECONDS, useVoiceRecorder } from './useVoiceRecorder'
@@ -25,20 +25,13 @@ function formatTime(totalSeconds: number) {
 
 // Ablauf: aufnehmen -> transkribieren -> AI-Entwurf -> bearbeiten -> bestätigen
 function VoiceNoteRecorder({ visitId, onConfirmed }: VoiceNoteRecorderProps) {
-    const { isRecording, elapsedSeconds, audio, error, start, stop } = useVoiceRecorder()
+    const { isRecording, elapsedSeconds, audio, audioUrl, error, start, stop } = useVoiceRecorder()
     const [step, setStep] = useState<Step>('idle')
     const [stepError, setStepError] = useState<string | null>(null)
     const [transcript, setTranscript] = useState<string | null>(null)
     const [draft, setDraft] = useState<VisitProtocol | null>(null)
     const [isManual, setIsManual] = useState(false)
-    const audioUrl = useMemo(() => (audio ? URL.createObjectURL(audio) : null), [audio])
     const isBusy = step !== 'idle'
-
-    useEffect(() => {
-        return () => {
-            if (audioUrl) URL.revokeObjectURL(audioUrl)
-        }
-    }, [audioUrl])
 
     async function handleStart() {
         setStepError(null)

@@ -15,13 +15,28 @@ function describeError(error: unknown): string {
     return 'Die Aufnahme konnte nicht gestartet werden.'
 }
 
+function stopTracks(stream: MediaStream) {
+    stream.getTracks().forEach((track) => track.stop())
+}
+
 export function useVoiceRecorder() {
     const [isRecording, setIsRecording] = useState(false)
     const [elapsedSeconds, setElapsedSeconds] = useState(0)
     const [audio, setAudio] = useState<Blob | null>(null)
+    // Abspiel-URL für <audio>; wird freigegeben, sobald neu aufgenommen oder die Komponente verlassen wird
+    const [audioUrl, setAudioUrl] = useState<string | null>(null)
+    const audioUrlRef = useRef<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const recorderRef = useRef<MediaRecorder | null>(null)
     const timerRef = useRef<number | undefined>(undefined)
+    // Verhindert parallele Starts, solange der Browser noch nach dem Mikrofon fragt
+    const startingRef = useRef(false)
+    const mountedRef = useRef(false)
+
+    const releaseAudioUrl = useCallback(() => {
+        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
+        audioUrlRef.current = null
+    }, [])
 
     const stop = useCallback(() => {
         window.clearInterval(timerRef.current)
@@ -31,8 +46,11 @@ export function useVoiceRecorder() {
     }, [])
 
     const start = useCallback(async () => {
+        if (startingRef.current || recorderRef.current?.state === 'recording') return
         setError(null)
+        releaseAudioUrl()
         setAudio(null)
+        setAudioUrl(null)
         setElapsedSeconds(0)
 
         // Fehlt ausserhalb von HTTPS und localhost.
@@ -41,21 +59,34 @@ export function useVoiceRecorder() {
             return
         }
 
+        startingRef.current = true
+        let stream: MediaStream | null = null
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+            if (!mountedRef.current) {
+                // Komponente wurde während der Mikrofon-Abfrage verlassen
+                stopTracks(stream)
+                return
+            }
+
             const mimeType = PREFERRED_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type))
             const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
             const chunks: Blob[] = []
+            const recordedStream = stream
 
             recorder.ondataavailable = (event) => chunks.push(event.data)
             recorder.onstop = () => {
-                stream.getTracks().forEach((track) => track.stop())
-                setAudio(new Blob(chunks, { type: recorder.mimeType }))
+                stopTracks(recordedStream)
+                if (!mountedRef.current) return
+                const blob = new Blob(chunks, { type: recorder.mimeType })
+                audioUrlRef.current = URL.createObjectURL(blob)
+                setAudio(blob)
+                setAudioUrl(audioUrlRef.current)
                 setIsRecording(false)
             }
 
-            recorderRef.current = recorder
             recorder.start()
+            recorderRef.current = recorder
             setIsRecording(true)
 
             const startedAt = Date.now()
@@ -67,11 +98,22 @@ export function useVoiceRecorder() {
                 }
             }, 250)
         } catch (e) {
+            // Ohne laufende Aufnahme gibt sonst niemand das Mikrofon frei
+            if (stream) stopTracks(stream)
             setError(describeError(e))
+        } finally {
+            startingRef.current = false
         }
-    }, [stop])
+    }, [stop, releaseAudioUrl])
 
-    useEffect(() => stop, [stop])
+    useEffect(() => {
+        mountedRef.current = true
+        return () => {
+            mountedRef.current = false
+            stop()
+            releaseAudioUrl()
+        }
+    }, [stop, releaseAudioUrl])
 
-    return { isRecording, elapsedSeconds, audio, error, start, stop }
+    return { isRecording, elapsedSeconds, audio, audioUrl, error, start, stop }
 }
