@@ -6,7 +6,7 @@ Unterstützte Standorttypen:
 
 - `competitor`: Standorte von Wettbewerbern
 - `mixed_competitor`: Standorte von Händlern mit gemischtem Markenportfolio
-- `john_deere`: John-Deere-Händler (folgt später)
+- `john_deere`: John-Deere-Händler (derzeit 16 Beispielstandorte)
 
 ## Voraussetzungen
 
@@ -27,6 +27,71 @@ cd location-service
 
 Der Service ist unter http://localhost:8082 erreichbar.
 Beenden mit Ctrl + C.
+
+## Lokal testen
+
+Service und Frontend laufen lokal, die Anmeldung läuft über den Team-Keycloak.
+So lässt sich die Standort-Ebene auf der Karte Ende-zu-Ende prüfen.
+
+### Voraussetzungen
+
+- JDK 25
+- Docker läuft (Quarkus startet die PostgreSQL-Datenbank als Dev Service)
+- Node.js 22 (wie in der Frontend-CI)
+- Mapbox-Token und Keycloak-Werte in `frontend/.env.local` (wird nicht eingecheckt):
+
+  ```env
+  VITE_MAPBOX_TOKEN=<dein-mapbox-token>
+  VITE_KEYCLOAK_URL=https://terramax-keycloak.winfprojekt.de
+  VITE_KEYCLOAK_REALM=terramax
+  VITE_KEYCLOAK_CLIENT_ID=publicClient
+  # optional, Standard ist http://localhost:8082
+  VITE_LOCATION_SERVICE_URL=http://localhost:8082
+  ```
+
+- Ein Benutzerkonto im Team-Keycloak (Realm `terramax`)
+
+Mit gesetztem `OIDC_AUTH_SERVER_URL` startet kein lokaler Keycloak; das
+Repository `keycloak-ws2627` wird dafür nicht gebraucht.
+
+### 1. Service starten (Terminal 1)
+
+PowerShell:
+
+```powershell
+cd location-service
+$env:OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/terramax"
+./mvnw quarkus:dev
+```
+
+bash:
+
+```bash
+cd location-service
+OIDC_AUTH_SERVER_URL=https://terramax-keycloak.winfprojekt.de/realms/terramax ./mvnw quarkus:dev
+```
+
+Beim ersten Start importiert der Service die Standorte; das Log zeigt die
+Anzahl pro Datei. Prüfen: http://localhost:8082/q/health
+
+### 2. Frontend starten (Terminal 2)
+
+PowerShell und bash gleich:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+http://localhost:5173 öffnen und im Team-Keycloak anmelden. Auf der Karte
+erscheinen die Standorte in drei Kategorien; die Checkboxen in der Legende
+blenden sie ein und aus, ein Klick auf einen Punkt öffnet das Popup mit
+Quelle und Herkunft.
+
+Läuft der Service nicht oder lehnt er den Token ab, lädt die Karte trotzdem;
+die Legende zeigt dann „Standorte konnten nicht geladen werden“, die Ursache
+steht in der Browser-Konsole.
 
 ## Health-Check
 
