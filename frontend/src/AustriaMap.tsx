@@ -12,6 +12,10 @@ import {
   type LocationCategory,
   type LocationLoadResult
 } from './locationLayer'
+import { addTerritoryLayers } from './territoryLayers'
+import { addCustomerLayers } from './customerLayers'
+import { addWhiteSpotLayers } from './whiteSpotLayers'
+import { addCustomerPopups } from './customerPopups'
 
 type LocationState = { status: 'loading' } | LocationLoadResult
 
@@ -316,6 +320,11 @@ export default function AustriaMap() {
         }
       }
 
+      // Eigene Ebenen (Dealer Principal) vor den Standorten laden, damit die Standorte oben liegen
+      await addTerritoryLayers(map)
+      await addWhiteSpotLayers(map)
+      await addCustomerLayers(map)
+      addCustomerPopups(map)
       // Standorte nach dem H3-Raster laden, damit sie darüber liegen.
       // Ein Fehler hier betrifft nur die Standorte, nicht die übrige Karte
       await loadLocationLayers(map, () => disposed, setLocations)
