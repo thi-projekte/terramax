@@ -8,7 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /** Unit-Test ohne Quarkus-Start. */
 class GeoJsonFeatureParserTest {
@@ -74,88 +78,54 @@ class GeoJsonFeatureParserTest {
         assertNull(parser.parse(feature).geocodedBy);
     }
 
-    @Test
-    void rejectsFeatureWithoutCoordinates() throws Exception {
-        JsonNode feature = mapper.readTree("""
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("featuresWithExpectedMessage")
+    void rejectsInvalidFeatureWithMessage(String description, String json, String expectedMessagePart)
+            throws Exception {
+        JsonNode feature = mapper.readTree(json);
+
+        InvalidFeatureException e = assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
+        assertTrue(e.getMessage().contains(expectedMessagePart), e.getMessage());
+    }
+
+    static Stream<Arguments> featuresWithExpectedMessage() {
+        return Stream.of(Arguments.of("ohne Koordinaten", """
                 {"geometry": {"type": "Point"},
                  "properties": {"id": "res-x", "name": "n", "category": "competitor"}}
-                """);
-
-        InvalidFeatureException e = assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
-        assertTrue(e.getMessage().contains("res-x"));
-    }
-
-    @Test
-    void rejectsFeatureWithoutGeometry() throws Exception {
-        JsonNode feature = mapper.readTree("""
-                {"properties": {"id": "res-x", "name": "n", "category": "competitor"}}
-                """);
-
-        assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
-    }
-
-    @Test
-    void rejectsFeatureWithIncompleteCoordinates() throws Exception {
-        JsonNode feature = mapper.readTree("""
-                {"geometry": {"coordinates": [16.0]},
-                 "properties": {"id": "res-x", "name": "n", "category": "competitor"}}
-                """);
-
-        assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
-    }
-
-    @Test
-    void rejectsFeatureWithoutCategory() throws Exception {
-        JsonNode feature = mapper.readTree("""
-                {"geometry": {"coordinates": [16.0, 48.0]},
-                 "properties": {"id": "res-x", "name": "n"}}
-                """);
-
-        assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
-    }
-
-    @Test
-    void rejectsFeatureWithUnknownCategory() throws Exception {
-        JsonNode feature = mapper.readTree("""
-                {"geometry": {"coordinates": [16.0, 48.0]},
-                 "properties": {"id": "res-x", "name": "n", "category": "dealer"}}
-                """);
-
-        assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
-    }
-
-    @Test
-    void rejectsFeatureWithoutId() throws Exception {
-        JsonNode feature = mapper.readTree("""
+                """, "res-x"), Arguments.of("ohne ID", """
                 {"geometry": {"coordinates": [16.0, 48.0]},
                  "properties": {"name": "n", "category": "competitor"}}
-                """);
-
-        InvalidFeatureException e = assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
-        assertTrue(e.getMessage().contains("properties.id"));
-    }
-
-    @Test
-    void rejectsFeatureWithBlankName() throws Exception {
-        JsonNode feature = mapper.readTree("""
+                """, "properties.id"), Arguments.of("leerer Name", """
                 {"geometry": {"coordinates": [16.0, 48.0]},
                  "properties": {"id": "res-x", "name": "  ", "category": "competitor"}}
-                """);
-
-        InvalidFeatureException e = assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
-        assertTrue(e.getMessage().contains("name"));
-    }
-
-    @Test
-    void rejectsFeatureWithInvalidDate() throws Exception {
-        JsonNode feature = mapper.readTree("""
+                """, "name"), Arguments.of("ungültiges Datum", """
                 {"geometry": {"coordinates": [16.0, 48.0]},
                  "properties": {"id": "res-x", "name": "n", "category": "competitor",
                                 "retrieved_at": "02.11.2026"}}
-                """);
+                """, "retrieved_at"));
+    }
 
-        InvalidFeatureException e = assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
-        assertTrue(e.getMessage().contains("retrieved_at"));
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidFeatures")
+    void rejectsInvalidFeature(String description, String json) throws Exception {
+        JsonNode feature = mapper.readTree(json);
+
+        assertThrows(InvalidFeatureException.class, () -> parser.parse(feature));
+    }
+
+    static Stream<Arguments> invalidFeatures() {
+        return Stream.of(Arguments.of("ohne Geometrie", """
+                {"properties": {"id": "res-x", "name": "n", "category": "competitor"}}
+                """), Arguments.of("unvollständige Koordinaten", """
+                {"geometry": {"coordinates": [16.0]},
+                 "properties": {"id": "res-x", "name": "n", "category": "competitor"}}
+                """), Arguments.of("ohne Kategorie", """
+                {"geometry": {"coordinates": [16.0, 48.0]},
+                 "properties": {"id": "res-x", "name": "n"}}
+                """), Arguments.of("unbekannte Kategorie", """
+                {"geometry": {"coordinates": [16.0, 48.0]},
+                 "properties": {"id": "res-x", "name": "n", "category": "dealer"}}
+                """));
     }
 
     @Test

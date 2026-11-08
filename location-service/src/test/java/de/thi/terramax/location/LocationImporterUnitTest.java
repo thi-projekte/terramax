@@ -17,9 +17,7 @@ class LocationImporterUnitTest {
 
     @BeforeEach
     void setUp() {
-        importer = new LocationImporter();
-        importer.objectMapper = new ObjectMapper();
-        importer.parser = new GeoJsonFeatureParser();
+        importer = new LocationImporter(new ObjectMapper(), new GeoJsonFeatureParser());
     }
 
     @Test

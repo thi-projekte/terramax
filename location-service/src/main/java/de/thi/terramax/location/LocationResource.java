@@ -33,8 +33,12 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @APIResponse(responseCode = "401", description = "Kein oder ungültiger Token")
 public class LocationResource {
 
+    private final LocationGeoJsonMapper mapper;
+
     @Inject
-    LocationGeoJsonMapper mapper;
+    public LocationResource(LocationGeoJsonMapper mapper) {
+        this.mapper = mapper;
+    }
 
     @GET
     @Operation(summary = "Standorte auflisten", description = "Liefert alle Standorte, sortiert nach Name. "

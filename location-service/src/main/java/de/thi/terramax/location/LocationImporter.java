@@ -29,17 +29,20 @@ public class LocationImporter {
 
     private static final Logger LOG = Logger.getLogger(LocationImporter.class);
 
-    @Inject
-    ObjectMapper objectMapper;
-
-    @Inject
-    GeoJsonFeatureParser parser;
+    private final ObjectMapper objectMapper;
+    private final GeoJsonFeatureParser parser;
 
     @ConfigProperty(name = "location.import.enabled", defaultValue = "true")
     boolean importEnabled;
 
     @ConfigProperty(name = "location.import.files", defaultValue = COMPETITORS + "," + JOHN_DEERE)
     List<String> importFiles;
+
+    @Inject
+    LocationImporter(ObjectMapper objectMapper, GeoJsonFeatureParser parser) {
+        this.objectMapper = objectMapper;
+        this.parser = parser;
+    }
 
     /** Ergebnis des Imports einer Datei. */
     record ImportResult(int created, int skipped, int invalid) {

@@ -94,7 +94,7 @@ public class GeoJsonFeatureParser {
         }
         try {
             return LocalDate.parse(value);
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeParseException _) {
             throw new InvalidFeatureException("Feature " + externalId + ": ungültiges Datum " + field + "=" + value);
         }
     }

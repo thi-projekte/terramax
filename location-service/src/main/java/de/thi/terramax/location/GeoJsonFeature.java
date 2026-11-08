@@ -9,9 +9,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public record GeoJsonFeature(@Schema(enumeration = "Feature", example = "Feature") String type, GeoJsonPoint geometry,
         LocationProperties properties) {
 
-    public static final String TYPE = "Feature";
+    public static final String GEOJSON_TYPE = "Feature";
 
     public static GeoJsonFeature of(GeoJsonPoint geometry, LocationProperties properties) {
-        return new GeoJsonFeature(TYPE, geometry, properties);
+        return new GeoJsonFeature(GEOJSON_TYPE, geometry, properties);
     }
 }
