@@ -17,5 +17,5 @@ Das Modell läuft auf CIB seven 2.2.0 (Deployment und Durchläufe mit Test-Deleg
 
 ## Offene Punkte
 
-- **Daten laufen in den nächsten Besuch über:** Nur `besuchUeberspringen` und `sprachnotizVorhanden` sind je Besuch lokal. `protokollEntwurf`, `transkript`, `protokoll`, `sprachnotizId` und `ueberspringenGrund` bleiben auf Prozessebene. Im Test sah Kunde B ohne Sprachnotiz den Entwurf von Kunde A. Vor der Umsetzung im Modell beheben.
+- ~~Daten laufen in den nächsten Besuch über~~ **Behoben:** Die Variablen eines Besuchs (`ueberspringenGrund`, `besuchBegonnenAm`, `besuchAbgeschlossenAm`, `sprachnotizId`, `transkript`, `protokollEntwurf`, `protokoll`) sind jetzt lokale Eingangsvariablen des Unterprozesses.
 - **Abweichung zum `speech-service`:** Das Modell erwartet eine gespeicherte Audiodatei (`sprachnotizId`) und transkribiert per External Task. Der `speech-service` auf `feature/speech-to-text` arbeitet synchron und speichert kein Audio.
