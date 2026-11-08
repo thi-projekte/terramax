@@ -102,6 +102,186 @@ function styleLayerSource(map: mapboxgl.Map, sourceName: string, data: FeatureCo
   else map.addSource(sourceName, { type: 'geojson', data })
 }
 
+// Die Geschäftslogik für Ticket #19 liegt außerhalb der React-/Mapbox-Callbacks.
+// So bleibt die Schachtelung der Funktionen gering und die Karte unverändert.
+type CoverageContext = {
+  map: mapboxgl.Map
+  token: string
+  features: Feature<Polygon>[]
+  isDisposed: () => boolean
+  isSimulationMode: () => boolean
+  stopSimulation: () => void
+  setStatus: (status: CoverageStatus | ((current: CoverageStatus) => CoverageStatus)) => void
+  setCandidateLocation: (location: string) => void
+  replaceMarker: (lng: number, lat: number) => void
+}
+
+function classifyCoverage(
+  context: CoverageContext,
+  areas: AreaCollection,
+  customers: FeatureCollection<Point> | null,
+  simulated: boolean
+): void {
+  const { map, features, setStatus } = context
+  const outside = features.filter((feature) => !covered(cellCenter(feature), areas))
+  const outsideKnownHectares = outside.reduce((sum, feature) =>
+    sum + (typeof feature.properties?.acker_ha === 'number'
+      ? feature.properties.acker_ha : 0), 0)
+
+  const outsideCustomers = customers
+    ? customers.features.filter((customer) =>
+      customer.geometry?.type === 'Point' &&
+      !covered(customer.geometry.coordinates, areas)).length
+    : null
+
+  if (customers) {
+    const annotatedCustomers: FeatureCollection<Point> = {
+      type: 'FeatureCollection',
+      features: customers.features.map((customer) => ({
+        ...customer,
+        properties: {
+          ...customer.properties,
+          outside: !covered(customer.geometry.coordinates, areas)
+        }
+      }))
+    }
+    styleLayerSource(map, 'ticket19-customers', annotatedCustomers)
+  }
+
+  styleLayerSource(map, 'ticket19-gaps', {
+    type: 'FeatureCollection', features: outside
+  })
+  if (!map.getLayer('ticket19-gap-fill')) {
+    map.addLayer({
+      id: 'ticket19-gap-fill', type: 'fill', source: 'ticket19-gaps',
+      paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.23 }
+    }, 'h3-lines')
+  }
+  setStatus({
+    text: simulated ? 'Mit neuem Teststandort' : 'Bestehende Standorte',
+    outsideCells: outside.length,
+    outsideCropHectares: outsideKnownHectares,
+    outsideCustomers
+  })
+}
+
+async function simulateLocation(
+  event: mapboxgl.MapMouseEvent,
+  context: CoverageContext,
+  originalAreas: AreaCollection,
+  customers: FeatureCollection<Point> | null
+): Promise<void> {
+  if (!context.isSimulationMode()) return
+  const { lng, lat } = event.lngLat
+  context.stopSimulation()
+  context.setStatus((current) => ({
+    ...current, text: 'Neuer Standort: Fahrzeit wird berechnet …'
+  }))
+  try {
+    const candidateArea = await getIsochrone(lng, lat, context.token)
+    if (context.isDisposed()) return
+    context.replaceMarker(lng, lat)
+    const combined = combineAreas([originalAreas, candidateArea])
+    styleLayerSource(context.map, 'ticket19-areas', combined)
+    classifyCoverage(context, combined, customers, true)
+    context.setCandidateLocation(`${lat.toFixed(4)}, ${lng.toFixed(4)}`)
+  } catch (error) {
+    if (context.isDisposed()) return
+    console.error('Teststandort konnte nicht simuliert werden:', error)
+    context.setStatus((current) => ({
+      ...current, text: 'Simulation fehlgeschlagen – bitte erneut versuchen'
+    }))
+  }
+}
+
+async function loadCoverage(context: CoverageContext): Promise<void> {
+  const { map, token, isDisposed, isSimulationMode, setStatus } = context
+  try {
+    const sitesResponse = await fetch('/john_deere_at.geojson')
+    if (!sitesResponse.ok) throw new Error('john_deere_at.geojson nicht gefunden')
+    const sites = (await sitesResponse.json()) as SiteCollection
+    if (!sites.features.length) throw new Error('Keine Teststandorte vorhanden')
+
+    const validSites = sites.features.filter((site) =>
+      site.geometry?.type === 'Point' &&
+      site.geometry.coordinates.length >= 2
+    )
+    if (validSites.length !== sites.features.length) {
+      throw new Error('Ein Standort hat keine gültigen Koordinaten')
+    }
+
+    // Alle Standorte müssen geladen werden, sonst wäre die Lücke zu groß.
+    const originalAreas = combineAreas(await Promise.all(
+      validSites.map((site) => getIsochrone(
+        site.geometry.coordinates[0],
+        site.geometry.coordinates[1],
+        token
+      ))
+    ))
+    if (isDisposed()) return
+
+    styleLayerSource(map, 'ticket19-sites', {
+      type: 'FeatureCollection', features: validSites
+    })
+    map.addLayer({
+      id: 'ticket19-sites-points', type: 'circle',
+      source: 'ticket19-sites',
+      paint: {
+        'circle-radius': 7, 'circle-color': '#2563eb',
+        'circle-stroke-color': '#fff', 'circle-stroke-width': 2
+      }
+    })
+    map.on('click', 'ticket19-sites-points', (event) => {
+      if (isSimulationMode()) return
+      const name = event.features?.[0]?.properties?.name ?? 'Teststandort'
+      new mapboxgl.Popup().setLngLat(event.lngLat)
+        .setText(String(name)).addTo(map)
+    })
+
+    styleLayerSource(map, 'ticket19-areas', originalAreas)
+    map.addLayer({
+      id: 'ticket19-isochrones', type: 'fill', source: 'ticket19-areas',
+      paint: { 'fill-color': '#3b82f6', 'fill-opacity': 0.20 }
+    }, 'ticket19-sites-points')
+    map.addLayer({
+      id: 'ticket19-borders', type: 'line', source: 'ticket19-areas',
+      paint: { 'line-color': '#1d4ed8', 'line-width': 2 }
+    }, 'ticket19-sites-points')
+
+    // Kunden nur aus vorhandenen Testdaten laden; keine Schätzwerte.
+    let customers: FeatureCollection<Point> | null = null
+    const customersResponse = await fetch('/kunden.geojson')
+    if (customersResponse.ok) {
+      customers = await customersResponse.json() as FeatureCollection<Point>
+    }
+    if (isDisposed()) return
+    if (customers) {
+      styleLayerSource(map, 'ticket19-customers', customers)
+      map.addLayer({
+        id: 'ticket19-customer-points', type: 'circle',
+        source: 'ticket19-customers',
+        paint: {
+          'circle-radius': 4,
+          'circle-color': ['case', ['get', 'outside'], '#ef4444', '#f59e0b'],
+          'circle-stroke-color': '#fff', 'circle-stroke-width': 1
+        }
+      })
+    }
+
+    classifyCoverage(context, originalAreas, customers, false)
+    map.on('click', (event) => {
+      void simulateLocation(event, context, originalAreas, customers)
+    })
+  } catch (error) {
+    if (isDisposed()) return
+    console.error('Ticket #19:', error)
+    setStatus({
+      text: 'Fahrzeitzonen nicht verfügbar – API/Token prüfen',
+      outsideCells: null, outsideCropHectares: null, outsideCustomers: null
+    })
+  }
+}
+
 export default function AustriaMap() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const simulationModeRef = useRef(false)
@@ -332,160 +512,25 @@ export default function AustriaMap() {
         })
 
 
-        // Ticket #19: Standorte laden und 60-Minuten-Fahrzeitzonen darstellen.
-        // Dieser Block ist unabhängig von der bisherigen H3-Karte.
-        const loadCoverage = async () => {
-          try {
-            const sitesResponse = await fetch('/john_deere_at.geojson')
-            if (!sitesResponse.ok) throw new Error('standorte.geojson nicht gefunden')
-            const sites = (await sitesResponse.json()) as SiteCollection
-            if (!sites.features.length) throw new Error('Keine Teststandorte vorhanden')
-
-            const validSites = sites.features.filter((site) =>
-              site.geometry?.type === 'Point' &&
-              site.geometry.coordinates.length >= 2
-            )
-            if (validSites.length !== sites.features.length) {
-              throw new Error('Ein Standort hat keine gültigen Koordinaten')
-            }
-
-            // Alle Standorte müssen erfolgreich geladen sein, sonst wäre die
-            // angezeigte Versorgungslücke fälschlich zu groß.
-            const originalAreas = combineAreas(await Promise.all(
-              validSites.map((site) => getIsochrone(
-                site.geometry.coordinates[0],
-                site.geometry.coordinates[1],
-                token
-              ))
-            ))
-            if (disposed) return
-
-            styleLayerSource(map, 'ticket19-sites', {
-              type: 'FeatureCollection', features: validSites
-            })
-            map.addLayer({
-              id: 'ticket19-sites-points', type: 'circle',
-              source: 'ticket19-sites',
-              paint: {
-                'circle-radius': 7, 'circle-color': '#2563eb',
-                'circle-stroke-color': '#fff', 'circle-stroke-width': 2
-              }
-            })
-            map.on('click', 'ticket19-sites-points', (event) => {
-              if (simulationModeRef.current) return
-              const name = event.features?.[0]?.properties?.name ?? 'Teststandort'
-              new mapboxgl.Popup().setLngLat(event.lngLat)
-                .setText(String(name)).addTo(map)
-            })
-
-            styleLayerSource(map, 'ticket19-areas', originalAreas)
-            map.addLayer({
-              id: 'ticket19-isochrones', type: 'fill', source: 'ticket19-areas',
-              paint: { 'fill-color': '#3b82f6', 'fill-opacity': 0.20 }
-            }, 'ticket19-sites-points')
-            map.addLayer({
-              id: 'ticket19-borders', type: 'line', source: 'ticket19-areas',
-              paint: { 'line-color': '#1d4ed8', 'line-width': 2 }
-            }, 'ticket19-sites-points')
-
-            // Optional: Kundendaten werden erst erwartet, wenn Nico sie liefert.
-            // Bis dahin werden keine erfundenen Kundenzahlen angezeigt.
-            let customers: FeatureCollection<Point> | null = null
-            const customersResponse = await fetch('/kunden.geojson')
-            if (customersResponse.ok) {
-              customers = await customersResponse.json() as FeatureCollection<Point>
-            }
-            if (disposed) return
-            if (customers) {
-              styleLayerSource(map, 'ticket19-customers', customers)
-              map.addLayer({
-                id: 'ticket19-customer-points', type: 'circle',
-                source: 'ticket19-customers',
-                paint: { 'circle-radius': 4, 'circle-color': [
-                  'case', ['get', 'outside'], '#ef4444', '#f59e0b'
-                ],
-                  'circle-stroke-color': '#fff', 'circle-stroke-width': 1 }
-              })
-            }
-
-            // Ein Kandidaten-Standort wird durch Klick in den Simulationsmodus gesetzt.
-            const evaluate = (areas: AreaCollection, simulated: boolean) => {
-              const outside = features.filter((f) => !covered(cellCenter(f), areas))
-              const outsideKnownHectares = outside.reduce((sum, f) =>
-                sum + (typeof f.properties?.acker_ha === 'number'
-                  ? f.properties.acker_ha : 0), 0)
-              const outsideCustomers = customers
-                ? customers.features.filter((customer) =>
-                    customer.geometry?.type === 'Point' &&
-                    !covered(customer.geometry.coordinates, areas)).length
-                : null
-              if (customers) {
-                const annotatedCustomers: FeatureCollection<Point> = {
-                  type: 'FeatureCollection',
-                  features: customers.features.map((customer) => ({
-                    ...customer,
-                    properties: {
-                      ...customer.properties,
-                      outside: !covered(customer.geometry.coordinates, areas)
-                    }
-                  }))
-                }
-                styleLayerSource(map, 'ticket19-customers', annotatedCustomers)
-              }
-
-              styleLayerSource(map, 'ticket19-gaps', {
-                type: 'FeatureCollection', features: outside
-              })
-              if (!map.getLayer('ticket19-gap-fill')) {
-                map.addLayer({
-                  id: 'ticket19-gap-fill', type: 'fill', source: 'ticket19-gaps',
-                  paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.23 }
-                }, 'h3-lines')
-              }
-              setCoverageStatus({
-                text: simulated ? 'Mit neuem Teststandort' : 'Bestehende Standorte',
-                outsideCells: outside.length,
-                outsideCropHectares: outsideKnownHectares,
-                outsideCustomers
-              })
-            }
-            evaluate(originalAreas, false)
-
-            map.on('click', async (event) => {
-              if (!simulationModeRef.current) return
-              const { lng, lat } = event.lngLat
-              simulationModeRef.current = false
-              setSimulationMode(false)
-              setCoverageStatus((current) => ({
-                ...current, text: 'Neuer Standort: Fahrzeit wird berechnet …'
-              }))
-              try {
-                const candidateArea = await getIsochrone(lng, lat, token)
-                if (disposed) return
-                marker?.remove()
-                marker = new mapboxgl.Marker({ color: '#e11d48' })
-                  .setLngLat([lng, lat]).addTo(map)
-                const combined = combineAreas([originalAreas, candidateArea])
-                styleLayerSource(map, 'ticket19-areas', combined)
-                evaluate(combined, true)
-                setCandidateLocation(`${lat.toFixed(4)}, ${lng.toFixed(4)}`)
-              } catch (error) {
-                console.error('Teststandort konnte nicht simuliert werden:', error)
-                setCoverageStatus((current) => ({
-                  ...current, text: 'Simulation fehlgeschlagen – bitte erneut versuchen'
-                }))
-              }
-            })
-          } catch (error) {
-            if (disposed) return
-            console.error('Ticket #19:', error)
-            setCoverageStatus({
-              text: 'Fahrzeitzonen nicht verfügbar – API/Token prüfen',
-              outsideCells: null, outsideCropHectares: null, outsideCustomers: null
-            })
+        // Ticket #19: Die Fahrzeitlogik ist für die Wartbarkeit ausgelagert.
+        void loadCoverage({
+          map,
+          token,
+          features,
+          isDisposed: () => disposed,
+          isSimulationMode: () => simulationModeRef.current,
+          stopSimulation: () => {
+            simulationModeRef.current = false
+            setSimulationMode(false)
+          },
+          setStatus: setCoverageStatus,
+          setCandidateLocation,
+          replaceMarker: (lng, lat) => {
+            marker?.remove()
+            marker = new mapboxgl.Marker({ color: '#e11d48' })
+              .setLngLat([lng, lat]).addTo(map)
           }
-        }
-        void loadCoverage()
+        })
 
         // Nach dem Kameraflug die H3-Daten weich einblenden
         const showH3Grid = () => {
