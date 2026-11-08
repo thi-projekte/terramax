@@ -1,8 +1,9 @@
 
-import type { Feature, FeatureCollection, Polygon } from 'geojson'
-import { useEffect, useRef } from 'react'
+import type { Feature, FeatureCollection, Polygon, MultiPolygon, Point } from 'geojson'
+import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import { getIsochrone } from './IsochroneLayer'
 
 const COLORS = {
   unknown: '#9ca3af',
@@ -30,8 +31,88 @@ function getAreaColor(hektar: number | undefined) {
   )
 }
 
+
+// Ticket #19: Fahrzeitabdeckung – die Koordinaten liegen in [Längengrad, Breitengrad] vor.
+type SiteProperties = { id: string; name: string }
+type SiteCollection = FeatureCollection<Point, SiteProperties>
+type AreaGeometry = Polygon | MultiPolygon
+type AreaCollection = FeatureCollection<AreaGeometry>
+type CoverageStatus = {
+  text: string
+  outsideCells: number | null
+  outsideCropHectares: number | null
+  outsideCustomers: number | null
+}
+
+function insideRing(point: number[], ring: number[][]): boolean {
+  let inside = false
+  const x = point[0]
+  const y = point[1]
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const a = ring[i]
+    const b = ring[j]
+    if ((a[1] > y) !== (b[1] > y) &&
+        x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]) {
+      inside = !inside
+    }
+  }
+  return inside
+}
+
+function insidePolygon(point: number[], rings: number[][][]): boolean {
+  return rings.length > 0 && insideRing(point, rings[0]) &&
+    !rings.slice(1).some((hole) => insideRing(point, hole))
+}
+
+function insideArea(point: number[], geometry: AreaGeometry): boolean {
+  return geometry.type === 'Polygon'
+    ? insidePolygon(point, geometry.coordinates)
+    : geometry.coordinates.some((polygon) => insidePolygon(point, polygon))
+}
+
+function covered(point: number[], areas: AreaCollection): boolean {
+  return areas.features.some((f) => insideArea(point, f.geometry))
+}
+
+// Für den MVP wird jede H3-Zelle anhand ihres Mittelpunkts klassifiziert.
+// Das ist eine Näherung, keine exakte Verschneidung entlang einer Fahrzeitgrenze.
+function cellCenter(feature: Feature<Polygon>): number[] {
+  const ring = feature.geometry.coordinates[0]
+  const points = ring.length > 1 &&
+    ring[0][0] === ring[ring.length - 1][0] &&
+    ring[0][1] === ring[ring.length - 1][1]
+    ? ring.slice(0, -1)
+    : ring
+  return [
+    points.reduce((sum, p) => sum + p[0], 0) / points.length,
+    points.reduce((sum, p) => sum + p[1], 0) / points.length
+  ]
+}
+
+function combineAreas(collections: AreaCollection[]): AreaCollection {
+  return {
+    type: 'FeatureCollection',
+    features: collections.flatMap((collection) => collection.features)
+  }
+}
+
+function styleLayerSource(map: mapboxgl.Map, sourceName: string, data: FeatureCollection) {
+  const source = map.getSource(sourceName) as mapboxgl.GeoJSONSource | undefined
+  if (source) source.setData(data)
+  else map.addSource(sourceName, { type: 'geojson', data })
+}
+
 export default function AustriaMap() {
   const mapContainer = useRef<HTMLDivElement>(null)
+  const simulationModeRef = useRef(false)
+  const [simulationMode, setSimulationMode] = useState(false)
+  const [coverageStatus, setCoverageStatus] = useState<CoverageStatus>({
+    text: 'Fahrzeitzonen werden geladen …',
+    outsideCells: null,
+    outsideCropHectares: null,
+    outsideCustomers: null
+  })
+  const [candidateLocation, setCandidateLocation] = useState<string | null>(null)
 
   useEffect(() => {
     if (!mapContainer.current) return
@@ -45,6 +126,7 @@ export default function AustriaMap() {
 
     let disposed = false
     let animationTimer: ReturnType<typeof setTimeout> | undefined
+    let marker: mapboxgl.Marker | undefined
 
     // Zuerst die gesamte Erdkugel anzeigen
     const map = new mapboxgl.Map({
@@ -186,6 +268,7 @@ export default function AustriaMap() {
 
         // Pop-up mit echten Hektarwerten
         map.on('click', 'h3-fill', (event) => {
+          if (simulationModeRef.current) return
           const cell = event.features?.[0]
           if (!cell) return
 
@@ -248,6 +331,162 @@ export default function AustriaMap() {
           map.getCanvas().style.cursor = ''
         })
 
+
+        // Ticket #19: Standorte laden und 60-Minuten-Fahrzeitzonen darstellen.
+        // Dieser Block ist unabhängig von der bisherigen H3-Karte.
+        const loadCoverage = async () => {
+          try {
+            const sitesResponse = await fetch('/john_deere_at.geojson')
+            if (!sitesResponse.ok) throw new Error('standorte.geojson nicht gefunden')
+            const sites = (await sitesResponse.json()) as SiteCollection
+            if (!sites.features.length) throw new Error('Keine Teststandorte vorhanden')
+
+            const validSites = sites.features.filter((site) =>
+              site.geometry?.type === 'Point' &&
+              site.geometry.coordinates.length >= 2
+            )
+            if (validSites.length !== sites.features.length) {
+              throw new Error('Ein Standort hat keine gültigen Koordinaten')
+            }
+
+            // Alle Standorte müssen erfolgreich geladen sein, sonst wäre die
+            // angezeigte Versorgungslücke fälschlich zu groß.
+            const originalAreas = combineAreas(await Promise.all(
+              validSites.map((site) => getIsochrone(
+                site.geometry.coordinates[0],
+                site.geometry.coordinates[1],
+                token
+              ))
+            ))
+            if (disposed) return
+
+            styleLayerSource(map, 'ticket19-sites', {
+              type: 'FeatureCollection', features: validSites
+            })
+            map.addLayer({
+              id: 'ticket19-sites-points', type: 'circle',
+              source: 'ticket19-sites',
+              paint: {
+                'circle-radius': 7, 'circle-color': '#2563eb',
+                'circle-stroke-color': '#fff', 'circle-stroke-width': 2
+              }
+            })
+            map.on('click', 'ticket19-sites-points', (event) => {
+              if (simulationModeRef.current) return
+              const name = event.features?.[0]?.properties?.name ?? 'Teststandort'
+              new mapboxgl.Popup().setLngLat(event.lngLat)
+                .setText(String(name)).addTo(map)
+            })
+
+            styleLayerSource(map, 'ticket19-areas', originalAreas)
+            map.addLayer({
+              id: 'ticket19-isochrones', type: 'fill', source: 'ticket19-areas',
+              paint: { 'fill-color': '#3b82f6', 'fill-opacity': 0.20 }
+            }, 'ticket19-sites-points')
+            map.addLayer({
+              id: 'ticket19-borders', type: 'line', source: 'ticket19-areas',
+              paint: { 'line-color': '#1d4ed8', 'line-width': 2 }
+            }, 'ticket19-sites-points')
+
+            // Optional: Kundendaten werden erst erwartet, wenn Nico sie liefert.
+            // Bis dahin werden keine erfundenen Kundenzahlen angezeigt.
+            let customers: FeatureCollection<Point> | null = null
+            const customersResponse = await fetch('/kunden.geojson')
+            if (customersResponse.ok) {
+              customers = await customersResponse.json() as FeatureCollection<Point>
+            }
+            if (disposed) return
+            if (customers) {
+              styleLayerSource(map, 'ticket19-customers', customers)
+              map.addLayer({
+                id: 'ticket19-customer-points', type: 'circle',
+                source: 'ticket19-customers',
+                paint: { 'circle-radius': 4, 'circle-color': [
+                  'case', ['get', 'outside'], '#ef4444', '#f59e0b'
+                ],
+                  'circle-stroke-color': '#fff', 'circle-stroke-width': 1 }
+              })
+            }
+
+            // Ein Kandidaten-Standort wird durch Klick in den Simulationsmodus gesetzt.
+            const evaluate = (areas: AreaCollection, simulated: boolean) => {
+              const outside = features.filter((f) => !covered(cellCenter(f), areas))
+              const outsideKnownHectares = outside.reduce((sum, f) =>
+                sum + (typeof f.properties?.acker_ha === 'number'
+                  ? f.properties.acker_ha : 0), 0)
+              const outsideCustomers = customers
+                ? customers.features.filter((customer) =>
+                    customer.geometry?.type === 'Point' &&
+                    !covered(customer.geometry.coordinates, areas)).length
+                : null
+              if (customers) {
+                const annotatedCustomers: FeatureCollection<Point> = {
+                  type: 'FeatureCollection',
+                  features: customers.features.map((customer) => ({
+                    ...customer,
+                    properties: {
+                      ...customer.properties,
+                      outside: !covered(customer.geometry.coordinates, areas)
+                    }
+                  }))
+                }
+                styleLayerSource(map, 'ticket19-customers', annotatedCustomers)
+              }
+
+              styleLayerSource(map, 'ticket19-gaps', {
+                type: 'FeatureCollection', features: outside
+              })
+              if (!map.getLayer('ticket19-gap-fill')) {
+                map.addLayer({
+                  id: 'ticket19-gap-fill', type: 'fill', source: 'ticket19-gaps',
+                  paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.23 }
+                }, 'h3-lines')
+              }
+              setCoverageStatus({
+                text: simulated ? 'Mit neuem Teststandort' : 'Bestehende Standorte',
+                outsideCells: outside.length,
+                outsideCropHectares: outsideKnownHectares,
+                outsideCustomers
+              })
+            }
+            evaluate(originalAreas, false)
+
+            map.on('click', async (event) => {
+              if (!simulationModeRef.current) return
+              const { lng, lat } = event.lngLat
+              simulationModeRef.current = false
+              setSimulationMode(false)
+              setCoverageStatus((current) => ({
+                ...current, text: 'Neuer Standort: Fahrzeit wird berechnet …'
+              }))
+              try {
+                const candidateArea = await getIsochrone(lng, lat, token)
+                if (disposed) return
+                marker?.remove()
+                marker = new mapboxgl.Marker({ color: '#e11d48' })
+                  .setLngLat([lng, lat]).addTo(map)
+                const combined = combineAreas([originalAreas, candidateArea])
+                styleLayerSource(map, 'ticket19-areas', combined)
+                evaluate(combined, true)
+                setCandidateLocation(`${lat.toFixed(4)}, ${lng.toFixed(4)}`)
+              } catch (error) {
+                console.error('Teststandort konnte nicht simuliert werden:', error)
+                setCoverageStatus((current) => ({
+                  ...current, text: 'Simulation fehlgeschlagen – bitte erneut versuchen'
+                }))
+              }
+            })
+          } catch (error) {
+            if (disposed) return
+            console.error('Ticket #19:', error)
+            setCoverageStatus({
+              text: 'Fahrzeitzonen nicht verfügbar – API/Token prüfen',
+              outsideCells: null, outsideCropHectares: null, outsideCustomers: null
+            })
+          }
+        }
+        void loadCoverage()
+
         // Nach dem Kameraflug die H3-Daten weich einblenden
         const showH3Grid = () => {
           if (disposed) return
@@ -292,6 +531,7 @@ export default function AustriaMap() {
     return () => {
       disposed = true
       if (animationTimer) clearTimeout(animationTimer)
+      marker?.remove()
       map.remove()
     }
   }, [])
@@ -306,6 +546,43 @@ export default function AustriaMap() {
           background: '#101827'
         }}
       />
+
+      <div
+        style={{
+          position: 'absolute', top: '12px', left: '12px', zIndex: 3,
+          background: 'rgba(255,255,255,0.96)', color: '#222',
+          borderRadius: '8px', padding: '12px', fontSize: '12px',
+          maxWidth: '280px', boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+        }}
+      >
+        <strong>Ticket #19 – Fahrzeitabdeckung (60 Min.)</strong>
+        <p style={{ margin: '8px 0' }}>{coverageStatus.text}</p>
+        {coverageStatus.outsideCells !== null && (
+          <>
+            <div>H3-Zellen außerhalb: <strong>{coverageStatus.outsideCells}</strong></div>
+            <div>Weizen + Soja in diesen Zellen: <strong>{
+              coverageStatus.outsideCropHectares?.toLocaleString('de-DE', {
+                maximumFractionDigits: 0
+              }) ?? '–'} ha</strong></div>
+            <div>Kunden außerhalb: <strong>{
+              coverageStatus.outsideCustomers === null
+                ? 'Noch keine Kundendaten' : coverageStatus.outsideCustomers
+            }</strong></div>
+            <p style={{ fontSize: '10px', color: '#555' }}>
+              H3-Zellen über Mittelpunkt klassifiziert (Näherung).
+              Hektar beziehen sich nur auf bekannte Weizen- und Sojaflächen.
+            </p>
+          </>
+        )}
+        <button type="button" onClick={() => {
+          simulationModeRef.current = !simulationModeRef.current
+          setSimulationMode(simulationModeRef.current)
+        }} style={{ marginTop: '6px', padding: '8px', cursor: 'pointer' }}>
+          {simulationMode ? 'Simulation abbrechen' : 'Neuen Standort auf Karte setzen'}
+        </button>
+        {simulationMode && <p>Jetzt auf die Karte klicken.</p>}
+        {candidateLocation && <p>Teststandort: {candidateLocation}</p>}
+      </div>
 
       <div
         style={{
@@ -383,3 +660,4 @@ export default function AustriaMap() {
     </div>
   )
 }
+
