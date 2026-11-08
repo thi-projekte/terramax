@@ -4,20 +4,16 @@ import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import {
-  addLocationLayers,
   CATEGORY_STYLE,
-  countByCategory,
-  fetchLocations,
   getLocationAt,
+  loadLocationLayers,
   LOCATION_CATEGORIES,
   setCategoryVisible,
-  type LocationCategory
+  type LocationCategory,
+  type LocationLoadResult
 } from './locationLayer'
 
-type LocationState =
-  | { status: 'loading' }
-  | { status: 'error' }
-  | { status: 'ok'; counts: Record<LocationCategory, number> }
+type LocationState = { status: 'loading' } | LocationLoadResult
 
 const COLORS = {
   unknown: '#9ca3af',
@@ -322,16 +318,7 @@ export default function AustriaMap() {
 
       // Standorte nach dem H3-Raster laden, damit sie darüber liegen.
       // Ein Fehler hier betrifft nur die Standorte, nicht die übrige Karte
-      try {
-        const data = await fetchLocations()
-        if (disposed) return
-        addLocationLayers(map, data)
-        setLocations({ status: 'ok', counts: countByCategory(data.features) })
-      } catch (error) {
-        if (disposed) return
-        console.warn('Standorte konnten nicht geladen werden:', error)
-        setLocations({ status: 'error' })
-      }
+      await loadLocationLayers(map, () => disposed, setLocations)
     })
 
     return () => {

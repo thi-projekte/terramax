@@ -4,9 +4,16 @@ import keycloak from './keycloak'
 
 // Händlerstandorte aus dem location-service als geclusterte Kreis-Layer (eine Source pro Kategorie)
 
-const LOCATION_SERVICE_URL: string = (
+const LOCATION_SERVICE_URL: string = stripTrailingSlashes(
   import.meta.env.VITE_LOCATION_SERVICE_URL || 'http://localhost:8082'
-).replace(/\/+$/, '')
+)
+
+/** Entfernt abschließende Schrägstriche (ohne Regex, damit kein Backtracking möglich ist). */
+function stripTrailingSlashes(url: string): string {
+  let end = url.length
+  while (end > 0 && url[end - 1] === '/') end--
+  return url.slice(0, end)
+}
 
 export const LOCATION_CATEGORIES = [
   'competitor',
@@ -65,6 +72,31 @@ export async function fetchLocations(): Promise<LocationCollection> {
   return data
 }
 
+export type LocationLoadResult =
+  | { status: 'error' }
+  | { status: 'ok'; counts: Record<LocationCategory, number> }
+
+/**
+ * Lädt die Standorte und fügt sie der Karte hinzu. Ein Fehler betrifft nur die Standorte und wird über onResult
+ * gemeldet. Ist die Karte inzwischen verworfen (isDisposed), passiert nichts mehr.
+ */
+export async function loadLocationLayers(
+  map: mapboxgl.Map,
+  isDisposed: () => boolean,
+  onResult: (result: LocationLoadResult) => void
+): Promise<void> {
+  try {
+    const data = await fetchLocations()
+    if (isDisposed()) return
+    addLocationLayers(map, data)
+    onResult({ status: 'ok', counts: countByCategory(data.features) })
+  } catch (error) {
+    if (isDisposed()) return
+    console.warn('Standorte konnten nicht geladen werden:', error)
+    onResult({ status: 'error' })
+  }
+}
+
 function isFeatureCollection(data: unknown): data is LocationCollection {
   return (
     typeof data === 'object' &&
@@ -116,8 +148,9 @@ export type PopupContent = {
   note: string | null
 }
 
+/** Nur string und number werden als Text übernommen, alles andere ergibt null. */
 function text(value: unknown): string | null {
-  if (value === null || value === undefined) return null
+  if (typeof value !== 'string' && typeof value !== 'number') return null
   const result = String(value).trim()
   return result === '' ? null : result
 }
@@ -143,6 +176,15 @@ function formatDate(value: string): string {
   return match ? `${match[3]}.${match[2]}.${match[1]}` : value
 }
 
+function formatBrands(
+  brands: string | null,
+  brandKnown: boolean | null | undefined
+): string | null {
+  if (brands) return `Marken: ${brands}`
+  if (brandKnown === false) return 'Marken: unbekannt'
+  return null
+}
+
 /** Bereitet die Popup-Texte auf. Fehlende Teile werden weggelassen bzw. als null geliefert. */
 export function buildPopupContent(props: LocationProperties): PopupContent {
   const brands = text(props.brands)
@@ -158,11 +200,7 @@ export function buildPopupContent(props: LocationProperties): PopupContent {
 
   return {
     name: text(props.name) ?? 'Unbenannter Standort',
-    brands: brands
-      ? `Marken: ${brands}`
-      : props.brand_known === false
-        ? 'Marken: unbekannt'
-        : null,
+    brands: formatBrands(brands, props.brand_known),
     address: address || null,
     source: sourceUrl
       ? {
