@@ -5,6 +5,7 @@ import { loadDeliveryDay, saveDeliveryDay } from './settings'
 import NotificationBell from './NotificationBell'
 import SettingsMenu from './SettingsMenu'
 import ProfileMenu from './ProfileMenu'
+import AustriaMap from './AustriaMap'
 
 function App() {
     const username = keycloak.tokenParsed?.preferred_username ?? ''
@@ -26,6 +27,8 @@ function App() {
                   <ProfileMenu username={username} onSignOut={() => keycloak.logout()} />
               </div>
           </header>
+          <h2>Agricultural Market – Austria</h2>
+          <AustriaMap />
       </main>
   )
 }
