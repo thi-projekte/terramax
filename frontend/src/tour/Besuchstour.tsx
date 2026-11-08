@@ -203,7 +203,8 @@ export default function Besuchstour() {
             disabled={busy}
             onClick={() => {
               if (window.confirm('Tour wirklich abbrechen? Offene Besuche bleiben offen.')) {
-                ausfuehren(() => tourAbbrechen(task.processInstanceId))
+                // ausfuehren fängt Fehler selbst ab und zeigt sie an; das Ergebnis wird hier nicht gebraucht
+                void ausfuehren(() => tourAbbrechen(task.processInstanceId))
               }
             }}
           >

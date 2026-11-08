@@ -160,8 +160,9 @@
 .tour-error {
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(220, 38, 38, 0.12);
-  color: #b91c1c;
+  /* Feste Farben mit ausreichendem Kontrast (ca. 8:1) – in hellem und dunklem Modus gleich */
+  background: #fee2e2;
+  color: #7f1d1d;
 }
 
 .tour-abort {

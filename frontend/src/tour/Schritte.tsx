@@ -4,7 +4,7 @@ import type { Kunde, Protokoll, Touruebersicht } from './engineApi'
 // Je Aufgabe (User Task) im BPMN-Modell "Besuchstour" ein Bildschirm.
 // Die Komponenten zeigen nur an und melden Eingaben über onSubmit; die Engine-Aufrufe macht Besuchstour.tsx.
 
-type Busy = { busy: boolean }
+type Busy = { readonly busy: boolean }
 
 function heute(): string {
   const now = new Date()
@@ -17,7 +17,7 @@ function datum(iso: string | null | undefined): string {
   return `${d}.${m}.${y}`
 }
 
-function KundeInfo({ kunde }: { kunde: Kunde }) {
+function KundeInfo({ kunde }: Readonly<{ kunde: Kunde }>) {
   return (
     <dl className="tour-kunde">
       <dt>Kunde</dt>
@@ -36,7 +36,7 @@ function KundeInfo({ kunde }: { kunde: Kunde }) {
 
 // --- Tour starten (Startereignis, Formular terramax:tour-starten) ---
 
-export function TourStarten({ onSubmit, busy }: { onSubmit: (tourDatum: string) => void } & Busy) {
+export function TourStarten({ onSubmit, busy }: Readonly<{ onSubmit: (tourDatum: string) => void } & Busy>) {
   const [tourDatum, setTourDatum] = useState(heute())
   return (
     <form
@@ -49,7 +49,7 @@ export function TourStarten({ onSubmit, busy }: { onSubmit: (tourDatum: string) 
       <h3>Neue Besuchstour</h3>
       <p>TerraMax schlägt dir für den gewählten Tag Kunden in fester Reihenfolge vor.</p>
       <label>
-        Tag der Tour
+        <span>Tag der Tour</span>
         <input type="date" required value={tourDatum} onChange={(e) => setTourDatum(e.target.value)} />
       </label>
       <div className="tour-actions">
@@ -67,7 +67,7 @@ export function BesuchsplanPruefen({
   besuchsplan,
   onSubmit,
   busy,
-}: { besuchsplan: Kunde[]; onSubmit: (plan: Kunde[], bestaetigt: boolean) => void } & Busy) {
+}: Readonly<{ besuchsplan: Kunde[]; onSubmit: (plan: Kunde[], bestaetigt: boolean) => void } & Busy>) {
   const [plan, setPlan] = useState(besuchsplan)
   const zuWenig = plan.length < 2
 
@@ -133,7 +133,7 @@ export function BesuchVorbereiten({
   onBeginnen,
   onUeberspringen,
   busy,
-}: { kunde: Kunde; onBeginnen: () => void; onUeberspringen: (grund: string) => void } & Busy) {
+}: Readonly<{ kunde: Kunde; onBeginnen: () => void; onUeberspringen: (grund: string) => void } & Busy>) {
   const [ueberspringen, setUeberspringen] = useState(false)
   const [grund, setGrund] = useState('')
 
@@ -149,7 +149,7 @@ export function BesuchVorbereiten({
           }}
         >
           <label>
-            Grund für das Überspringen
+            <span>Grund für das Überspringen</span>
             <textarea required value={grund} onChange={(e) => setGrund(e.target.value)} rows={2} />
           </label>
           <div className="tour-actions">
@@ -182,7 +182,7 @@ export function BesuchDurchfuehren({
   begonnenAm,
   onSubmit,
   busy,
-}: { kunde: Kunde; begonnenAm?: string; onSubmit: () => void } & Busy) {
+}: Readonly<{ kunde: Kunde; begonnenAm?: string; onSubmit: () => void } & Busy>) {
   const seit = begonnenAm ? new Date(begonnenAm).toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' }) : null
   return (
     <div className="tour-card">
@@ -201,7 +201,7 @@ export function BesuchDurchfuehren({
 
 // --- Sprachnotiz aufnehmen (terramax:sprachnotiz) ---
 
-export function SprachnotizAufnehmen({ onSubmit, busy }: { onSubmit: () => void } & Busy) {
+export function SprachnotizAufnehmen({ onSubmit, busy }: Readonly<{ onSubmit: () => void } & Busy>) {
   return (
     <div className="tour-card">
       <h3>Sprachnotiz</h3>
@@ -233,7 +233,7 @@ export function ProtokollPruefen({
   entwurf,
   onSubmit,
   busy,
-}: { kunde: Kunde; entwurf?: Partial<Protokoll>; onSubmit: (protokoll: Protokoll) => void } & Busy) {
+}: Readonly<{ kunde: Kunde; entwurf?: Partial<Protokoll>; onSubmit: (protokoll: Protokoll) => void } & Busy>) {
   const [protokoll, setProtokoll] = useState<Protokoll>({
     gespraechspartner: entwurf?.gespraechspartner ?? '',
     themen: entwurf?.themen ?? '',
@@ -288,7 +288,7 @@ export function TourAbschliessen({
   uebersicht,
   onSubmit,
   busy,
-}: { uebersicht: Touruebersicht; onSubmit: () => void } & Busy) {
+}: Readonly<{ uebersicht: Touruebersicht; onSubmit: () => void } & Busy>) {
   return (
     <div className="tour-card">
       <h3>Tourübersicht {datum(uebersicht.tourDatum)}</h3>
