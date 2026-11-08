@@ -84,6 +84,33 @@ class RestApiSecurityTest {
     }
 
     @Test
+    void browserPreflightFromFrontendIsAllowed() {
+        // So fragt der Browser vor jedem Aufruf aus dem React-Frontend (localhost:5173) nach (CORS)
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://localhost:5173");
+        headers.setAccessControlRequestMethod(HttpMethod.POST);
+        headers.setAccessControlRequestHeaders(List.of("authorization", "content-type"));
+
+        ResponseEntity<String> response = rest.exchange("/engine-rest/process-definition/key/Besuchstour/start",
+                HttpMethod.OPTIONS, new HttpEntity<>(headers), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getAccessControlAllowOrigin()).isEqualTo("http://localhost:5173");
+    }
+
+    @Test
+    void preflightFromUnknownOriginIsRejected() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("https://boese.example");
+        headers.setAccessControlRequestMethod(HttpMethod.GET);
+
+        ResponseEntity<String> response = rest.exchange("/engine-rest/task", HttpMethod.OPTIONS,
+                new HttpEntity<>(headers), String.class);
+
+        assertThat(response.getHeaders().getAccessControlAllowOrigin()).isNull();
+    }
+
+    @Test
     void healthCheckIsOpen() {
         assertThat(get("/actuator/health", null).getStatusCode()).isEqualTo(HttpStatus.OK);
     }

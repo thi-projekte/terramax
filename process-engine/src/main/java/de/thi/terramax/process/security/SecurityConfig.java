@@ -63,7 +63,9 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/engine-rest/**", config);
+        // Für alle Pfade: Die REST-API läuft in einem eigenen Servlet (Jersey), dort sieht der Filter nur den Pfad
+        // innerhalb von /engine-rest. Erlaubt sind trotzdem nur die Ursprünge aus terramax.cors.origins.
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }
