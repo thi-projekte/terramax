@@ -16,6 +16,7 @@ import { addTerritoryLayers } from './territoryLayers'
 import { addCustomerLayers } from './customerLayers'
 import { addWhiteSpotLayers } from './whiteSpotLayers'
 import { addCustomerPopups } from './customerPopups'
+import DealerLayerToggles from './DealerLayerToggles'
 
 type LocationState = { status: 'loading' } | LocationLoadResult
 
@@ -475,6 +476,7 @@ export default function AustriaMap() {
           })
         )}
 
+        <DealerLayerToggles mapRef={mapRef} />
         <div
           style={{
             marginTop: '10px',
