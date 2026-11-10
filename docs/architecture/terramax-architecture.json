@@ -1,0 +1,412 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "TerraMax System Architecture",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1330,
+      700
+    ],
+    "views": [
+      {
+        "id": "auth",
+        "label": "Identity & access",
+        "focus": [
+          "spa",
+          "keycloak",
+          "cib",
+          "terramax",
+          "geo",
+          "speech",
+          "notif"
+        ],
+        "note": "SPA logs in via OIDC; every backend validates the Keycloak JWT."
+      },
+      {
+        "id": "core",
+        "label": "Core domain & geo",
+        "focus": [
+          "spa",
+          "terramax",
+          "pg",
+          "geo",
+          "postgis",
+          "mapbox"
+        ],
+        "note": "Market data in TerraMax/PostgreSQL; geo data + metadata in geo/PostGIS; tiles from Mapbox."
+      },
+      {
+        "id": "events",
+        "label": "Process & events",
+        "focus": [
+          "cib",
+          "kafka",
+          "notif",
+          "speech",
+          "spa"
+        ],
+        "note": "CIB Seven and Speech publish to Kafka; notifications consumes and pushes to the SPA."
+      },
+      {
+        "id": "ai",
+        "label": "Voice & AI",
+        "focus": [
+          "spa",
+          "speech",
+          "terramax",
+          "openai"
+        ],
+        "note": "Voice via Speech (REST + WS) → OpenAI Whisper; TerraMax calls the OpenAI LLM API."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "keycloak",
+      "type": "security",
+      "label": "Keycloak",
+      "sublabel": "IdP · OIDC realm",
+      "pos": [
+        580,
+        20
+      ],
+      "size": [
+        170,
+        56
+      ]
+    },
+    {
+      "id": "mapbox",
+      "type": "external",
+      "label": "Mapbox",
+      "sublabel": "map tiles · geocoding",
+      "pos": [
+        30,
+        320
+      ],
+      "size": [
+        150,
+        56
+      ]
+    },
+    {
+      "id": "spa",
+      "type": "frontend",
+      "label": "SPA",
+      "sublabel": "React web app",
+      "pos": [
+        220,
+        320
+      ],
+      "size": [
+        170,
+        56
+      ]
+    },
+    {
+      "id": "cib",
+      "type": "backend",
+      "label": "CIB Seven",
+      "sublabel": "BPMN process engine",
+      "pos": [
+        580,
+        120
+      ],
+      "size": [
+        170,
+        56
+      ]
+    },
+    {
+      "id": "kafka",
+      "type": "messagebus",
+      "label": "Kafka",
+      "sublabel": "event bus",
+      "brand": "apache-kafka",
+      "pos": [
+        1150,
+        320
+      ],
+      "size": [
+        150,
+        56
+      ]
+    },
+    {
+      "id": "terramax",
+      "type": "backend",
+      "label": "TerraMax",
+      "sublabel": "core service · Quarkus",
+      "pos": [
+        580,
+        220
+      ],
+      "size": [
+        170,
+        160
+      ]
+    },
+    {
+      "id": "geo",
+      "type": "backend",
+      "label": "geo",
+      "sublabel": "geo + metadata · Quarkus",
+      "pos": [
+        580,
+        620
+      ],
+      "size": [
+        170,
+        56
+      ]
+    },
+    {
+      "id": "speech",
+      "type": "backend",
+      "label": "Speech",
+      "sublabel": "voice input · Quarkus",
+      "pos": [
+        580,
+        420
+      ],
+      "size": [
+        170,
+        56
+      ]
+    },
+    {
+      "id": "notif",
+      "type": "backend",
+      "label": "notifications",
+      "sublabel": "event → user · Quarkus",
+      "pos": [
+        580,
+        520
+      ],
+      "size": [
+        170,
+        56
+      ]
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "TerraMax data",
+      "brand": "postgresql",
+      "pos": [
+        860,
+        220
+      ],
+      "size": [
+        170,
+        56
+      ]
+    },
+    {
+      "id": "postgis",
+      "type": "database",
+      "label": "PostGIS",
+      "sublabel": "geo + metadata",
+      "brand": "postgresql",
+      "pos": [
+        860,
+        620
+      ],
+      "size": [
+        170,
+        56
+      ]
+    },
+    {
+      "id": "openai",
+      "type": "external",
+      "label": "OpenAI",
+      "sublabel": "LLM · Whisper",
+      "brand": "openai",
+      "pos": [
+        860,
+        324
+      ],
+      "size": [
+        170,
+        56
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Browser",
+      "wraps": [
+        "spa"
+      ],
+      "pad": 14
+    },
+    {
+      "kind": "region",
+      "label": "SaaS",
+      "wraps": [
+        "mapbox"
+      ],
+      "pad": 14
+    },
+    {
+      "kind": "region",
+      "label": "SaaS",
+      "wraps": [
+        "openai"
+      ],
+      "pad": 14
+    }
+  ],
+  "connections": [
+    {
+      "from": "spa",
+      "to": "keycloak",
+      "label": "OIDC login",
+      "variant": "security",
+      "labelSegment": 2
+    },
+    {
+      "from": "keycloak",
+      "to": "cib",
+      "label": "JWT",
+      "variant": "security",
+      "labelAt": [
+        695,
+        98
+      ]
+    },
+    {
+      "from": "spa",
+      "to": "mapbox",
+      "label": "REST"
+    },
+    {
+      "from": "spa",
+      "to": "cib",
+      "label": "REST",
+      "variant": "emphasis",
+      "labelSegment": 2
+    },
+    {
+      "from": "spa",
+      "to": "terramax",
+      "label": "REST",
+      "variant": "emphasis",
+      "labelSegment": 2
+    },
+    {
+      "from": "spa",
+      "to": "geo",
+      "label": "REST",
+      "variant": "emphasis",
+      "labelSegment": 2
+    },
+    {
+      "from": "spa",
+      "to": "speech",
+      "label": "REST · WS",
+      "variant": "emphasis",
+      "labelSegment": 2
+    },
+    {
+      "from": "spa",
+      "to": "notif",
+      "label": "REST",
+      "labelSegment": 2,
+      "labelDy": 14
+    },
+    {
+      "from": "notif",
+      "to": "spa",
+      "label": "push (SSE/WS)",
+      "variant": "dashed",
+      "labelSegment": 0,
+      "labelDy": -14
+    },
+    {
+      "from": "terramax",
+      "to": "cib",
+      "label": "REST"
+    },
+    {
+      "from": "cib",
+      "to": "kafka",
+      "label": "pub",
+      "variant": "dashed",
+      "labelSegment": 0
+    },
+    {
+      "from": "speech",
+      "to": "kafka",
+      "label": "pub",
+      "variant": "dashed",
+      "labelSegment": 0
+    },
+    {
+      "from": "kafka",
+      "to": "notif",
+      "label": "sub",
+      "variant": "dashed",
+      "labelSegment": 2
+    },
+    {
+      "from": "speech",
+      "to": "terramax",
+      "label": "REST"
+    },
+    {
+      "from": "terramax",
+      "to": "pg",
+      "label": "SQL"
+    },
+    {
+      "from": "geo",
+      "to": "postgis",
+      "label": "SQL"
+    },
+    {
+      "from": "terramax",
+      "to": "openai",
+      "label": "REST"
+    },
+    {
+      "from": "speech",
+      "to": "openai",
+      "label": "Whisper"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "From the whiteboard",
+      "items": [
+        "SPA (React) is the hub: REST to TerraMax, geo, CIB Seven, notifications, Speech (REST + WS)",
+        "CIB Seven and Speech publish to Kafka; notifications subscribes",
+        "SaaS: Mapbox (SPA), OpenAI LLM (TerraMax) and Whisper (Speech)"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Added for clarity",
+      "items": [
+        "OIDC login SPA → Keycloak; services validate the JWT",
+        "notifications must push back to the SPA (SSE/WebSocket)",
+        "Browser and SaaS boundaries (everything else is self-hosted)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Open decisions",
+      "items": [
+        "Ingress / API gateway in front of the services?",
+        "Database for CIB Seven (history, runtime)",
+        "Kafka topic names & event schemas; TerraMax ↔ CIB call direction"
+      ]
+    }
+  ]
+}

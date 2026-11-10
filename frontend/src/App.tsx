@@ -1,5 +1,6 @@
 
 import keycloak from './keycloak'
+import RoleSections from './RoleSections'
 import AustriaMap from './AustriaMap'
 import Besuchstour from './tour/Besuchstour'
 import { useState } from 'react'
@@ -29,10 +30,12 @@ function App() {
   }
 
   return (
-    <main>
+ <main>
       <h1>Terramax</h1>
       <p>Logged in as {keycloak.tokenParsed?.preferred_username}</p>
       <button onClick={() => keycloak.logout()}>Sign Out</button>
+
+      <RoleSections />
 
       {darfTour && (
         <nav className="app-tabs" aria-label="Bereiche">
