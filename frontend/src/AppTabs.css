@@ -1,0 +1,34 @@
+/* Reiter "Marktkarte" | "Besuchstour" – nutzt die Farben aus index.css (hell/dunkel) */
+
+.app-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin: 24px auto 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-tabs button {
+  font: inherit;
+  padding: 10px 20px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.app-tabs button:hover {
+  color: var(--text-h);
+}
+
+.app-tabs button[aria-current='true'] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.app-tabs button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
