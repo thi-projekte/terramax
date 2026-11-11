@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>de.thi.terramax</groupId>
+    <artifactId>process-engine</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <!--
+        Aufbau nach der Vorlage d135-1r43/cibseven-template (Spring Boot), aber mit der
+        freien CIB-seven-Version von Maven Central statt der Enterprise-Version.
+        Dadurch sind keine Zugangsdaten für das Enterprise-Repository nötig.
+    -->
+    <properties>
+        <cibseven.version>2.2.0</cibseven.version>
+        <spring-boot.version>3.5.14</spring-boot.version>
+        <formatter-plugin.version>2.29.0</formatter-plugin.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.cibseven.bpm</groupId>
+                <artifactId>cibseven-bom</artifactId>
+                <version>${cibseven.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Engine mit REST-API unter /engine-rest (auf dem Server laut winfprojekt.de nur REST, kein Webinterface) -->
+        <dependency>
+            <groupId>org.cibseven.bpm.springboot</groupId>
+            <artifactId>cibseven-bpm-spring-boot-starter-rest</artifactId>
+            <version>${cibseven.version}</version>
+        </dependency>
+        <!-- Prozessvariablen als JSON speichern, damit das Frontend sie über die REST-API lesen kann -->
+        <dependency>
+            <groupId>org.cibseven.bpm</groupId>
+            <artifactId>cibseven-engine-plugin-spin</artifactId>
+            <version>${cibseven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cibseven.spin</groupId>
+            <artifactId>cibseven-spin-dataformat-json-jackson</artifactId>
+            <version>${cibseven.version}</version>
+        </dependency>
+        <!-- Prüft die Keycloak-Tokens (Bearer) bei jedem Aufruf der REST-API -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <!-- Health-Check unter /actuator/health (Spring MVC; die Engine-REST-API läuft separat über Jersey) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- Speichert den Prozesszustand; lokal als Datei, auf dem Server später PostgreSQL -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- Das BPMN-Modell wird direkt aus docs/process geladen, damit es nur eine Fassung davon gibt -->
+            <resource>
+                <directory>${project.basedir}/../docs/process</directory>
+                <includes>
+                    <include>*.bpmn</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>${formatter-plugin.version}</version>
+                <configuration>
+                    <configFile>${project.basedir}/../config/formatter/eclipse-java.xml</configFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>validate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <parameters>true</parameters>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

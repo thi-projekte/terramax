@@ -1,0 +1,8 @@
+# Tests: Datenbank im Speicher, keine Hintergrund-Jobs. Keycloak und tour-service werden in den Tests ersetzt.
+spring:
+  datasource:
+    url: jdbc:h2:mem:process-engine-test;DB_CLOSE_DELAY=-1
+
+camunda.bpm:
+  job-execution:
+    enabled: false
