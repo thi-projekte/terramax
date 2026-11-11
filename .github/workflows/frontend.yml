@@ -42,6 +42,10 @@ jobs:
         working-directory: frontend
         env:
           VITE_MAPBOX_TOKEN: ${{ vars.VITE_MAPBOX_TOKEN }}
+          VITE_KEYCLOAK_URL: ${{ vars.VITE_KEYCLOAK_URL || 'https://terramax-keycloak.winfprojekt.de' }}
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'http://localhost:8080' }}
+          VITE_LOCATION_SERVICE_URL: ${{ vars.VITE_LOCATION_SERVICE_URL || 'http://localhost:8082' }}
+          VITE_ENGINE_URL: ${{ vars.VITE_ENGINE_URL || 'http://localhost:8086/engine-rest' }}
         run: npm run build
 
       - name: Set up Docker Buildx
@@ -64,6 +68,10 @@ jobs:
           tags: ghcr.io/thi-projekte/terramax-frontend:sha-${{ github.sha }}
           build-args: |
             VITE_MAPBOX_TOKEN=${{ vars.VITE_MAPBOX_TOKEN }}
+            VITE_KEYCLOAK_URL=${{ vars.VITE_KEYCLOAK_URL || 'https://terramax-keycloak.winfprojekt.de' }}
+            VITE_API_URL=${{ vars.VITE_API_URL || 'http://localhost:8080' }}
+            VITE_LOCATION_SERVICE_URL=${{ vars.VITE_LOCATION_SERVICE_URL || 'http://localhost:8082' }}
+            VITE_ENGINE_URL=${{ vars.VITE_ENGINE_URL || 'http://localhost:8086/engine-rest' }}
 
       - name: Tag and push main image
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
