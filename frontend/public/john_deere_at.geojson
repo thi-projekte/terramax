@@ -1,0 +1,421 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.338749,
+     48.3365145
+    ]
+   },
+   "properties": {
+    "id": "jd-ltc-korneuburg",
+    "name": "Lagerhaus Technik-Center – Standort Korneuburg",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": "Raiffeisenstraße 1",
+    "postcode": "2100",
+    "city": "Korneuburg",
+    "source_type": "web_research",
+    "source_url": "https://www.lagerhaustc.at/service/standorte/",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Generalvertrieb John Deere Österreich"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.3219127,
+     47.2385296
+    ]
+   },
+   "properties": {
+    "id": "jd-ltc-grosspetersdorf",
+    "name": "Lagerhaus Technik-Center – Standort Großpetersdorf",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "Großpetersdorf",
+    "source_type": "web_research",
+    "source_url": "https://www.lagerhaustc.at/service/standorte/",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.4786966,
+     46.9644025
+    ]
+   },
+   "properties": {
+    "id": "jd-ltc-kalsdorf",
+    "name": "Lagerhaus Technik-Center – Standort Kalsdorf",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "Kalsdorf bei Graz",
+    "source_type": "web_research",
+    "source_url": "https://www.lagerhaustc.at/service/standorte/",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.6993536,
+     48.2744998
+    ]
+   },
+   "properties": {
+    "id": "jd-lh-herzogenburg",
+    "name": "Lagerhaus Landmaschinen-Fachwerkstätte Herzogenburg (John Deere Center)",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": "Oberndorfer Ortsstraße 51a",
+    "postcode": "3130",
+    "city": "Herzogenburg",
+    "source_type": "web_research",
+    "source_url": "https://lagerhaus.at/stpoelten/services/a/lagerhaus-landmaschinen-fachwerkstatte-herzogenburg",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7493618,
+     48.0728164
+    ]
+   },
+   "properties": {
+    "id": "jd-lh-aschbach",
+    "name": "Lagerhaus Amstetten – John Deere Stützpunktwerkstatt Aschbach",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "Aschbach-Markt",
+    "source_type": "web_research",
+    "source_url": "https://lagerhaus.at/amstetten/services/a/john-deere-stutzpunktwerkstatten",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.5496245,
+     48.1684774
+    ]
+   },
+   "properties": {
+    "id": "jd-lh-st-valentin",
+    "name": "Lagerhaus Amstetten – John Deere Stützpunktwerkstatt St. Valentin",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "St. Valentin",
+    "source_type": "web_research",
+    "source_url": "https://lagerhaus.at/amstetten/services/a/john-deere-stutzpunktwerkstatten",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.9908156,
+     48.5723052
+    ]
+   },
+   "properties": {
+    "id": "jd-lh-rohrbach",
+    "name": "Lagerhaus Rohrbach – Landtechnik-Werkstätte Rohrbach",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "Rohrbach-Berg",
+    "source_type": "web_research",
+    "source_url": "https://lagerhaus.at/rohrbach/services/a/lm-wkst_1",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Werkstätte auch für andere Marken; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.9105182,
+     48.6751701
+    ]
+   },
+   "properties": {
+    "id": "jd-lh-ulrichsberg",
+    "name": "Lagerhaus Rohrbach – Landtechnik-Werkstätte Ulrichsberg",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "Ulrichsberg",
+    "source_type": "web_research",
+    "source_url": "https://lagerhaus.at/rohrbach/services/a/lm-wkst_1",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Werkstätte auch für andere Marken; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.0387795,
+     48.415073
+    ]
+   },
+   "properties": {
+    "id": "jd-lh-st-martin",
+    "name": "Lagerhaus Rohrbach – Landtechnik-Werkstätte St. Martin",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "St. Martin im Mühlkreis",
+    "source_type": "web_research",
+    "source_url": "https://lagerhaus.at/rohrbach/services/a/lm-wkst_1",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Werkstätte auch für andere Marken; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.744331,
+     48.0234116
+    ]
+   },
+   "properties": {
+    "id": "jd-lh-redlham",
+    "name": "Lagerhaus Technik-Center Redlham",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "Redlham",
+    "source_type": "web_research",
+    "source_url": "https://www.meinbezirk.at/voecklabruck/c-wirtschaft/neueroeffnung-des-lagerhaus-technik-centers_a5350576",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Quelle von 2022, John Deere eine von mehreren Marken; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.7743124,
+     47.4056163
+    ]
+   },
+   "properties": {
+    "id": "jd-cha-wiesing",
+    "name": "CHA-Technik (John Deere Vertriebs- und Servicepartner)",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": "Erlach 224",
+    "postcode": "6210",
+    "city": "Wiesing",
+    "source_type": "web_research",
+    "source_url": "https://www.rwa.at/press-release/lagerhaus-technik-center-baut-john-deere-partnernetz-in-tirol-aus",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.3620962,
+     47.2695312
+    ]
+   },
+   "properties": {
+    "id": "jd-kasperhof-innsbruck",
+    "name": "Kasperhof Kfz (John Deere Vertriebs- und Servicepartner)",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": "Schneeburggasse 134",
+    "postcode": "6020",
+    "city": "Innsbruck",
+    "source_type": "web_research",
+    "source_url": "https://www.rwa.at/press-release/lagerhaus-technik-center-baut-john-deere-partnernetz-in-tirol-aus",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.5462861,
+     47.2848386
+    ]
+   },
+   "properties": {
+    "id": "jd-kofler-mils",
+    "name": "Kofler Service GmbH (John Deere Service)",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": "Gewerbepark 20",
+    "postcode": "6068",
+    "city": "Mils",
+    "source_type": "web_research",
+    "source_url": "https://www.rwa.at/press-release/lagerhaus-technik-center-baut-john-deere-partnernetz-in-tirol-aus",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.7681269,
+     46.8298662
+    ]
+   },
+   "properties": {
+    "id": "jd-rgo-lienz",
+    "name": "RGO Lagerhaus – Technikzentrum Lienz (John Deere Partner seit 08/2026)",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "Lienz",
+    "source_type": "web_research",
+    "source_url": "https://www.rwa.at/press-release/neuer-john-deere-vertriebs-und-servicepartner-in-osttirol-und-oberkaernten-rgo-lagerhaus-uebernimmt-regionale-betreuung",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.3156444,
+     47.4173295
+    ]
+   },
+   "properties": {
+    "id": "jd-auer-huettau",
+    "name": "Auer Landmaschinen (John Deere Händler)",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": null,
+    "postcode": null,
+    "city": "Hüttau",
+    "source_type": "web_research",
+    "source_url": "https://bauernnetzwerk.at/john-deere-greift-in-salzburg-an/",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Quelle von 2021, evtl. veraltet; Koordinate = Ortsmitte (Nominatim), keine genaue Adresse"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.6725998,
+     47.1851515
+    ]
+   },
+   "properties": {
+    "id": "jd-oeforst-judenburg",
+    "name": "ÖFORST Forsttechnik GmbH (John Deere Forst)",
+    "category": "john_deere",
+    "brands": "John Deere",
+    "brand_known": true,
+    "street": "Viktor Kaplan Str. 2",
+    "postcode": "8750",
+    "city": "Judenburg",
+    "source_type": "web_research",
+    "source_url": "https://www.oeforst.at/dealerships/judenburg-bezirk-murtal/",
+    "more_sources": null,
+    "retrieved_at": "2026-11-07",
+    "verified": false,
+    "note": "Beispieldaten (Mock) aus öffentlichen Quellen; Schwerpunkt Forsttechnik"
+   }
+  }
+ ]
+}

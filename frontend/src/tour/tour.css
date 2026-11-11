@@ -1,0 +1,172 @@
+/* Besuchstour – nutzt die Farben aus index.css (hell/dunkel) */
+
+.tour {
+  text-align: left;
+  max-width: 640px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.tour-header h2 {
+  margin-bottom: 4px;
+}
+
+.tour-step {
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.tour-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.tour-card h3 {
+  margin: 0;
+  color: var(--text-h);
+}
+
+.tour-card p {
+  margin: 0;
+}
+
+.tour-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9em;
+  color: var(--text-h);
+}
+
+.tour-card input,
+.tour-card textarea {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.tour-card button,
+.tour-abort button {
+  font: inherit;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.tour-card button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.tour-card button:disabled,
+.tour-abort button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tour-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tour-kunde {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.tour-kunde dt {
+  color: var(--text);
+}
+
+.tour-kunde dd {
+  margin: 0;
+  color: var(--text-h);
+}
+
+.tour-plan {
+  margin: 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tour-plan li {
+  padding-left: 4px;
+}
+
+.tour-plan li > span {
+  vertical-align: middle;
+}
+
+.tour-plan-name {
+  display: inline-flex;
+  flex-direction: column;
+  width: calc(100% - 130px);
+  color: var(--text-h);
+}
+
+.tour-plan-name small {
+  color: var(--text);
+}
+
+.tour-plan-buttons {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.tour-plan-buttons button {
+  padding: 2px 8px;
+}
+
+.tour-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.85em;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.tour-status.offen {
+  background: var(--code-bg);
+  color: var(--text);
+}
+
+.tour-hint {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+.tour-error {
+  padding: 8px 12px;
+  border-radius: 8px;
+  /* Feste Farben mit ausreichendem Kontrast (ca. 8:1) – in hellem und dunklem Modus gleich */
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.tour-abort {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

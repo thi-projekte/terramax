@@ -61,6 +61,9 @@ In Entwicklung und Test stellt Dev Services die Verbindung bereit.
 |---|---|---|
 | GET /hello | Gültiges Bearer-Token erforderlich | 200 mit persönlicher JSON-Begrüßung |
 | GET /q/health | Ohne Token erreichbar | 200 mit Status UP |
+| GET /me | Gültiges Bearer-Token | 200 mit Benutzername und TerraMax-Rollen |
+| GET /sales | Rolle `sales_professional` | 200, sonst 403 (ohne Token 401) |
+| GET /dealer | Rolle `dealer_principal` | 200, sonst 403 (ohne Token 401) |
 
 Beispiel für den Benutzer testuser:
 
@@ -70,6 +73,56 @@ Beispiel für den Benutzer testuser:
 
 Ohne Token oder mit ungültigem beziehungsweise abgelaufenem Token
 antwortet `/hello` mit Status 401.
+
+## Rollen (#23)
+
+TerraMax kennt im MVP zwei Fachrollen. Sie werden in Keycloak als **Realm-Rollen**
+gepflegt und stehen im Access Token unter `realm_access.roles`. Quarkus liest sie
+dort automatisch aus; geprüft wird mit `@RolesAllowed` (siehe `Roles.java`).
+
+| Rolle | Bedeutung |
+|---|---|
+| `sales_professional` | Sales Professional (Außendienst) |
+| `dealer_principal` | Dealer Principal (Händler-Geschäftsführung) |
+
+- **401 Unauthorized:** kein oder ungültiges Token – der Benutzer ist nicht angemeldet.
+- **403 Forbidden:** gültig angemeldet, aber ohne die nötige Rolle.
+
+Das Frontend blendet Funktionen passend zur Rolle aus. Das ist nur Komfort –
+der eigentliche Schutz ist die Prüfung im Backend.
+
+Lokale Testnutzer im Realm (nur für Dev Services, nicht auf dem Server verwenden):
+
+| Benutzer | Passwort | Rolle |
+|---|---|---|
+| `sales` | `sales` | `sales_professional` |
+| `dealer` | `dealer` | `dealer_principal` |
+| `testuser` | (wie bisher) | keine Fachrolle |
+
+Auf dem Server-Keycloak müssen die beiden Realm-Rollen ebenfalls angelegt und
+den Benutzern zugewiesen werden. Später (Okta) muss der Identity Provider die
+Rollen unter demselben Namen im Token liefern.
+
+### Zusammen mit dem Frontend lokal starten
+
+Im Dev-Modus läuft Keycloak fest auf Port **8180**, und das Frontend auf
+`http://localhost:5173` darf das Backend aufrufen (CORS, nur `%dev`).
+
+```bash
+# Terminal 1
+cd hello-service
+./mvnw quarkus:dev
+
+# Terminal 2
+cd frontend
+cp .env.local.example .env.local   # einmalig: Frontend gegen lokalen Keycloak
+npm install
+npm run dev
+```
+
+Dann `http://localhost:5173` öffnen und als `sales`, `dealer` oder `testuser`
+anmelden. Unter „Backend-Prüfung (Demo)“ lassen sich `/me`, `/sales` und
+`/dealer` direkt aufrufen.
 
 ## Manuell testen
 
