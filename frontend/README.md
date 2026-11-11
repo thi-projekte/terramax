@@ -101,3 +101,22 @@ Die Auswertung ist vorläufig und dient als MVP für die geografische Visualisie
 - **Ticket:** #17
 - **Pull Request:** #30
 - **Branch:** `feature/17-h3-market-map`
+
+## Deployment
+
+Das Image `ghcr.io/thi-projekte/terramax-frontend` wird bei jedem Push auf `main` gebaut
+(`.github/workflows/frontend.yml`). Da Vite `VITE_*` beim Build ins JS schreibt, werden die
+URLs als Build-Args übergeben. Sie kommen aus den GitHub-Repository-Variablen
+(Settings → Secrets and variables → Actions → Variables):
+
+| Variable | Standard, wenn nicht gesetzt |
+|---|---|
+| `VITE_MAPBOX_TOKEN` | – (Pflicht) |
+| `VITE_KEYCLOAK_URL` | `https://terramax-keycloak.winfprojekt.de` |
+| `VITE_API_URL` | `http://localhost:8080` |
+| `VITE_LOCATION_SERVICE_URL` | `http://localhost:8082` |
+| `VITE_ENGINE_URL` | `http://localhost:8086/engine-rest` |
+
+Betrieb: `docker-compose.yml` in diesem Ordner als Repository-Stack in Portainer
+(ohne `ports:`, Netzwerk `nginx-proxy-manager`); der Nginx Proxy Manager leitet die Subdomain auf
+den Service `frontend`, Port 80.
