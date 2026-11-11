@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [16.0, 48.0] },
+      "properties": { "id": "dup-1", "name": "Erster Eintrag", "category": "john_deere" }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [16.1, 48.1] },
+      "properties": { "id": "dup-1", "name": "Zweiter Eintrag", "category": "john_deere" }
+    }
+  ]
+}
