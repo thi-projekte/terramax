@@ -1,0 +1,53 @@
+# Gemeinsamer Portainer-Stack für das gesamte TerraMax-Projekt.
+# Jeder Service bekommt hier einen Eintrag. Für die lokale Entwicklung gilt die
+# Konfiguration im jeweiligen Service-Ordner (z. B. speech-service/compose-devservices.yml).
+# Keycloak läuft in einem eigenen Stack (eigenes Repo) und ist über
+# https://terramax-keycloak.winfprojekt.de erreichbar.
+#
+# Variablen in Portainer (Geheimnisse nie in diese Datei schreiben):
+#   OPENAI_API_KEY            Pflicht für Besuchsprotokolle (ohne Key antwortet /protocols mit 502)
+#   SPEECH_SERVICE_TAG        optional, Standard latest, z. B. sha-abc1234
+
+services:
+  # --- Spracherkennung (speech-service/README.md) ---
+
+  speech-service:
+    # Image aus .github/workflows/speech-service.yml
+    image: ghcr.io/thi-projekte/terramax-speech-service:${SPEECH_SERVICE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
+      QUARKUS_OIDC_AUTH_SERVER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
+      # Falls Keycloak beim Start dieses Stacks gerade nicht erreichbar ist
+      QUARKUS_OIDC_CONNECTION_DELAY: 3M
+      QUARKUS_REST_CLIENT_WHISPER_URL: http://whisper:8000
+      # Modell beim Start laden; bis dahin antwortet /transcriptions mit 503
+      WHISPER_PRELOAD_MODEL: "true"
+      # Besuchsprotokoll per LLM (LangChain4j mit OpenAI); Wert nur in Portainer setzen
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # Nur nötig, wenn Frontend und Service auf verschiedenen Domains laufen:
+      # QUARKUS_HTTP_CORS_ENABLED: "true"
+      # QUARKUS_HTTP_CORS_ORIGINS: https://terramax.winfprojekt.de
+    depends_on:
+      - whisper
+    networks:
+      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
+      - speech-intern         # erreicht Whisper
+
+  whisper:
+    # Gleicher, getesteter Stand wie in speech-service/compose-devservices.yml
+    image: ghcr.io/speaches-ai/speaches:latest-cpu@sha256:21e3df06d842fb7802ab470dd77c25f0e8c0d22950e8d8c6ae886e851af53ef8
+    restart: unless-stopped
+    volumes:
+      - whisper_models:/home/ubuntu/.cache/huggingface/hub
+    networks:
+      - speech-intern         # nur intern: nur der speech-service erreicht Whisper
+
+networks:
+  nginx-proxy-manager:
+    external: true            # existiert bereits auf dem Host
+  speech-intern:
+    driver: bridge            # vom Stack verwaltet, Whisper ist von außen nicht erreichbar
+
+volumes:
+  whisper_models:             # heruntergeladene Whisper-Modelle

@@ -1,0 +1,15 @@
+# Wird von ./mvnw quarkus:dev automatisch gestartet (Quarkus Compose Dev Services).
+services:
+  whisper:
+    # Fest auf den getesteten Stand gepinnt
+    image: ghcr.io/speaches-ai/speaches:latest-cpu@sha256:21e3df06d842fb7802ab470dd77c25f0e8c0d22950e8d8c6ae886e851af53ef8
+    ports:
+      - "8000:8000"
+    volumes:
+      # Heruntergeladene Modelle bleiben zwischen den Starts erhalten
+      - whisper-models:/home/ubuntu/.cache/huggingface/hub
+    labels:
+      io.quarkus.devservices.compose.wait_for.logs: .*Application startup complete.*
+
+volumes:
+  whisper-models:

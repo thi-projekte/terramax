@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TerraMax Database Schema</title>
+<style>
+  :root {
+    --bg: #f7f8fa; --surface: #ffffff; --text: #1d2330; --muted: #5b6475;
+    --border: #dde1e8; --accent: #2b5fd9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151b; --surface: #1b1f27; --text: #e6e9ef; --muted: #9aa3b5;
+      --border: #2c3240; --accent: #7aa2ff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12151b; --surface: #1b1f27; --text: #e6e9ef; --muted: #9aa3b5;
+    --border: #2c3240; --accent: #7aa2ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 32px 0 12px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; overflow-x: auto;
+  }
+  .mermaid { display: flex; justify-content: center; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  td.card-col { white-space: nowrap; font-family: ui-monospace, Menlo, monospace; color: var(--accent); }
+  ul { padding-left: 20px; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; }
+  details summary { cursor: pointer; color: var(--accent); }
+  details img { margin-top: 12px; max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<main>
+  <h1>TerraMax Database Schema</h1>
+  <p class="sub">Entity-relationship model of the TerraMax service, transcribed from the whiteboard sketch.</p>
+
+  <div class="card">
+    <pre class="mermaid" id="er">
+erDiagram
+    Dealer          ||--|{ DealerEmployee  : employs
+    Dealer          ||--o{ Customer        : serves
+    DealerEmployee  }|--o{ Tour            : drives
+    Customer        }|--o{ Tour            : "visited on"
+    Customer        ||--o{ VisitorProtocol : "documented in"
+    Tour            ||--o{ VisitorProtocol : produces
+    </pre>
+  </div>
+
+  <h2>Relationships</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>From</th><th>Cardinality</th><th>To</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Dealer</td><td class="card-col">1 : 1..n</td><td>DealerEmployee</td><td>A dealer has at least one employee.</td></tr>
+        <tr><td>Dealer</td><td class="card-col">1 : 0..n</td><td>Customer</td><td>A customer belongs to exactly one dealer.</td></tr>
+        <tr><td>DealerEmployee</td><td class="card-col">1..n : 0..n</td><td>Tour</td><td>A tour is run by one or more employees (many-to-many).</td></tr>
+        <tr><td>Customer</td><td class="card-col">1..n : 0..n</td><td>Tour</td><td>A tour visits one or more customers (many-to-many).</td></tr>
+        <tr><td>Customer</td><td class="card-col">1 : 0..n</td><td>VisitorProtocol</td><td>Each protocol is about exactly one customer.</td></tr>
+        <tr><td>Tour</td><td class="card-col">1 : 0..n</td><td>VisitorProtocol</td><td>Each protocol is created during exactly one tour.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>The whiteboard shows entities and cardinalities only; attributes are not yet defined.</li>
+    <li>The two many-to-many relationships need join tables in a relational implementation, e.g. <code>tour_employee</code> and <code>tour_customer</code>.</li>
+  </ul>
+
+  <details>
+    <summary>Original whiteboard photo</summary>
+    <img src="terramax-db-schema-whiteboard.jpg" alt="Whiteboard sketch of the TerraMax database schema">
+  </details>
+</main>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+  const dark = document.documentElement.dataset.theme === "dark" ||
+    (document.documentElement.dataset.theme !== "light" &&
+     window.matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "default", er: { useMaxWidth: true } });
+</script>
+</body>
+</html>

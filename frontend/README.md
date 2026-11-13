@@ -53,6 +53,21 @@ VITE_MAPBOX_TOKEN=DEIN_MAPBOX_ACCESS_TOKEN
 
 Ein gültiger Mapbox-Access-Token wird benötigt. Die `.env`-Datei wird nicht auf GitHub hochgeladen.
 
+**Optional: Adresse des location-service**
+
+Die Händlerstandorte (Wettbewerber, Mehrmarken/unbekannt, John Deere) lädt die Karte vom
+`location-service` über `GET /locations` mit dem Keycloak-Token des angemeldeten Nutzers.
+
+```env
+VITE_LOCATION_SERVICE_URL=http://localhost:8082
+```
+
+Ohne die Variable wird `http://localhost:8082` verwendet. Lokale Werte gehören in `.env.local`
+(wird nicht eingecheckt). Ist der Service nicht erreichbar oder lehnt er den Token ab (401),
+lädt die Karte trotzdem; in der Legende erscheint dann „Standorte konnten nicht geladen werden“,
+die Ursache steht in der Browser-Konsole. Der `location-service` muss den Frontend-Origin in
+`CORS_ORIGINS` erlauben (Standard `http://localhost:5173`).
+
 **4. Entwicklungsserver starten**
 
 ```bash
@@ -86,3 +101,22 @@ Die Auswertung ist vorläufig und dient als MVP für die geografische Visualisie
 - **Ticket:** #17
 - **Pull Request:** #30
 - **Branch:** `feature/17-h3-market-map`
+
+## Deployment
+
+Das Image `ghcr.io/thi-projekte/terramax-frontend` wird bei jedem Push auf `main` gebaut
+(`.github/workflows/frontend.yml`). Da Vite `VITE_*` beim Build ins JS schreibt, werden die
+URLs als Build-Args übergeben. Sie kommen aus den GitHub-Repository-Variablen
+(Settings → Secrets and variables → Actions → Variables):
+
+| Variable | Standard, wenn nicht gesetzt |
+|---|---|
+| `VITE_MAPBOX_TOKEN` | – (Pflicht) |
+| `VITE_KEYCLOAK_URL` | `https://terramax-keycloak.winfprojekt.de` |
+| `VITE_API_URL` | `http://localhost:8080` |
+| `VITE_LOCATION_SERVICE_URL` | `http://localhost:8082` |
+| `VITE_ENGINE_URL` | `http://localhost:8086/engine-rest` |
+
+Betrieb: `docker-compose.yml` in diesem Ordner als Repository-Stack in Portainer
+(ohne `ports:`, Netzwerk `nginx-proxy-manager`); der Nginx Proxy Manager leitet die Subdomain auf
+den Service `frontend`, Port 80.

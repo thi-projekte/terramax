@@ -1,0 +1,39 @@
+
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AT001",
+        "name": "Teststandort Wien"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [16.3738, 48.2082]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AT002",
+        "name": "Teststandort Linz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [14.2858, 48.3069]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AT003",
+        "name": "Teststandort Graz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [15.4395, 47.0707]
+      }
+    }
+  ]
+}
