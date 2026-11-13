@@ -120,19 +120,3 @@ URLs als Build-Args übergeben. Sie kommen aus den GitHub-Repository-Variablen
 Betrieb: `docker-compose.yml` in diesem Ordner als Repository-Stack in Portainer
 (ohne `ports:`, Netzwerk `nginx-proxy-manager`); der Nginx Proxy Manager leitet die Subdomain auf
 den Service `frontend`, Port 80.
-
-### Neuen Backend-Service anbinden
-
-Die Service-URLs stehen nicht im Code, sondern werden beim Build ins Frontend geschrieben.
-Wenn ein Service auf dem Server läuft, reicht der Merge nach `main` deshalb nicht. Zusätzlich:
-
-1. **Repository-Variable setzen** (Settings → Secrets and variables → Actions → Variables,
-   Admin-Rechte nötig) mit der öffentlichen URL des Service:
-   `VITE_API_URL` (hello-service), `VITE_LOCATION_SERVICE_URL` (location-service) oder
-   `VITE_ENGINE_URL` (Engine, inkl. `/engine-rest`).
-2. **Frontend neu bauen.** Der Workflow läuft automatisch nur bei Änderungen unter `frontend/`.
-   Also manuell starten: Actions → „TerraMax Frontend CI“ → „Run workflow“ auf `main`
-   (oder `gh workflow run frontend.yml --ref main`).
-3. **Stack in Portainer neu deployen**, damit das neue Image gezogen wird.
-4. **CORS freigeben:** Der Service muss die Frontend-Domain in `CORS_ORIGINS` erlauben,
-   nicht nur `http://localhost:5173`. Sonst blockiert der Browser die Anfragen.
