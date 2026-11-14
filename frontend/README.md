@@ -117,6 +117,6 @@ URLs als Build-Args übergeben. Sie kommen aus den GitHub-Repository-Variablen
 | `VITE_LOCATION_SERVICE_URL` | `http://localhost:8082` |
 | `VITE_ENGINE_URL` | `http://localhost:8086/engine-rest` |
 
-Betrieb: `docker-compose.yml` in diesem Ordner als Repository-Stack in Portainer
-(ohne `ports:`, Netzwerk `nginx-proxy-manager`); der Nginx Proxy Manager leitet die Subdomain auf
-den Service `frontend`, Port 80.
+Betrieb: Service `frontend` im gemeinsamen Stack `terramax` (`docker-compose.yml` im Repo-Root,
+ohne `ports:`, Netzwerk `nginx-proxy-manager`); der Nginx Proxy Manager leitet die Subdomain auf
+den Container `terramax-frontend-1`, Port 80.
