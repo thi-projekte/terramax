@@ -1,0 +1,18 @@
+.profile-actions {
+    padding: 12px 16px;
+}
+
+.profile-signout {
+    width: 100%;
+    padding: 8px 12px;
+    font: inherit;
+    color: var(--text-h);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.profile-signout:hover {
+    background: var(--code-bg);
+}

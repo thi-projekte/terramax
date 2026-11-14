@@ -1,0 +1,227 @@
+# Location Service
+
+Quarkus-Microservice für TerraMax, der Händlerstandorte verwaltet.
+
+Unterstützte Standorttypen:
+
+- `competitor`: Standorte von Wettbewerbern
+- `mixed_competitor`: Standorte von Händlern mit gemischtem Markenportfolio
+- `john_deere`: John-Deere-Händler (derzeit 16 Beispielstandorte)
+
+## Voraussetzungen
+
+- JDK 25
+- Laufende Docker-Umgebung, beispielsweise Docker Desktop (für Keycloak Dev Services)
+- Im Dev-Modus das Repository `keycloak-ws2627` im selben Ordner wie `terramax`
+  (der Realm wird aus `../../keycloak-ws2627/terramax-realm.json` geladen)
+
+Maven wird über den mitgelieferten Maven Wrapper ausgeführt.
+Eine separate Maven-Installation ist nicht erforderlich.
+
+## Lokal starten
+
+```bash
+cd location-service
+./mvnw quarkus:dev
+```
+
+Der Service ist unter http://localhost:8082 erreichbar.
+Beenden mit Ctrl + C.
+
+## Lokal testen
+
+Service und Frontend laufen lokal, die Anmeldung läuft über den Team-Keycloak.
+So lässt sich die Standort-Ebene auf der Karte Ende-zu-Ende prüfen.
+
+### Voraussetzungen
+
+- JDK 25
+- Docker läuft (Quarkus startet die PostgreSQL-Datenbank als Dev Service)
+- Node.js 22 (wie in der Frontend-CI)
+- Mapbox-Token und Keycloak-Werte in `frontend/.env.local` (wird nicht eingecheckt):
+
+  ```env
+  VITE_MAPBOX_TOKEN=<dein-mapbox-token>
+  VITE_KEYCLOAK_URL=https://terramax-keycloak.winfprojekt.de
+  VITE_KEYCLOAK_REALM=terramax
+  VITE_KEYCLOAK_CLIENT_ID=publicClient
+  # optional, Standard ist http://localhost:8082
+  VITE_LOCATION_SERVICE_URL=http://localhost:8082
+  ```
+
+- Ein Benutzerkonto im Team-Keycloak (Realm `terramax`)
+
+Mit gesetztem `OIDC_AUTH_SERVER_URL` startet kein lokaler Keycloak; das
+Repository `keycloak-ws2627` wird dafür nicht gebraucht.
+
+### 1. Service starten (Terminal 1)
+
+PowerShell:
+
+```powershell
+cd location-service
+$env:OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/terramax"
+./mvnw quarkus:dev
+```
+
+bash:
+
+```bash
+cd location-service
+OIDC_AUTH_SERVER_URL=https://terramax-keycloak.winfprojekt.de/realms/terramax ./mvnw quarkus:dev
+```
+
+Beim ersten Start importiert der Service die Standorte; das Log zeigt die
+Anzahl pro Datei. Prüfen: http://localhost:8082/q/health
+
+### 2. Frontend starten (Terminal 2)
+
+PowerShell und bash gleich:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+http://localhost:5173 öffnen und im Team-Keycloak anmelden. Auf der Karte
+erscheinen die Standorte in drei Kategorien; die Checkboxen in der Legende
+blenden sie ein und aus, ein Klick auf einen Punkt öffnet das Popup mit
+Quelle und Herkunft.
+
+Läuft der Service nicht oder lehnt er den Token ab, lädt die Karte trotzdem;
+die Legende zeigt dann „Standorte konnten nicht geladen werden“, die Ursache
+steht in der Browser-Konsole.
+
+## Health-Check
+
+```bash
+curl http://localhost:8082/q/health
+```
+
+Liveness und Readiness gibt es auch einzeln unter `/q/health/live` und
+`/q/health/ready`.
+
+## Build und Prüfung
+
+```bash
+./mvnw verify
+```
+
+Dabei wird unter anderem die Formatierung mit
+`../config/formatter/eclipse-java.xml` geprüft.
+
+## Endpunkte und API-Doku
+
+Alle Endpunkte unter `/locations` brauchen einen gültigen Keycloak-Token
+(`Authorization: Bearer <token>`) und liefern GeoJSON.
+
+| Methode und Pfad | Liefert |
+| --- | --- |
+| `GET /locations` | Alle Standorte als `FeatureCollection`, sortiert nach Name |
+| `GET /locations?category=competitor,mixed_competitor` | Nur diese Kategorien (400 bei unbekannter Kategorie) |
+| `GET /locations/{id}` | Ein Standort als `Feature` (404 bei unbekannter ID) |
+
+- Swagger UI (Dev-Modus): http://localhost:8082/q/swagger-ui
+  (Token über den Knopf **Authorize** eintragen)
+- OpenAPI-Dokument: http://localhost:8082/q/openapi
+
+## Keycloak: lokal oder Team-Keycloak
+
+Der Service ist ein reiner Resource-Server: Er prüft nur Bearer-Tokens und
+leitet nicht auf eine Login-Seite weiter.
+
+**Ohne Variable (Standard):** Quarkus startet im Dev-Modus einen lokalen
+Keycloak über Dev Services mit dem Testrealm.
+
+```powershell
+cd location-service
+./mvnw quarkus:dev
+```
+
+**Mit Team-Keycloak:** Tokens werden gegen den gemeinsamen Keycloak geprüft.
+Dann wird kein lokaler Keycloak-Container gestartet.
+
+```powershell
+cd location-service
+$env:OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/terramax"
+./mvnw quarkus:dev
+# zurück zum lokalen Keycloak:
+Remove-Item Env:OIDC_AUTH_SERVER_URL
+```
+
+Das Frontend muss sich dann ebenfalls am Team-Keycloak anmelden
+(Realm `terramax`, Client `publicClient`). Der Issuer im Token muss genau
+`https://terramax-keycloak.winfprojekt.de/realms/terramax` lauten.
+Eine Audience-Prüfung findet nicht statt.
+
+Im Prod-Betrieb ist die Variable Pflicht: Ohne `OIDC_AUTH_SERVER_URL`
+startet der Service nicht. Auf dem Server kann statt `OIDC_AUTH_SERVER_URL`
+auch `QUARKUS_OIDC_AUTH_SERVER_URL` gesetzt werden (wie im `hello-service`).
+`./mvnw verify` nutzt immer den lokalen Testrealm und braucht kein Netzwerk
+zum Team-Keycloak. Secrets sind nicht nötig und gehören nicht ins Repository.
+
+## CORS
+
+Standardmäßig ist nur der lokale Vite-Server `http://localhost:5173`
+freigegeben (Methoden `GET`, `OPTIONS`; Header `Authorization`, `Content-Type`).
+Weitere Origins kommagetrennt über `CORS_ORIGINS`:
+
+```powershell
+$env:CORS_ORIGINS = "http://localhost:5173,https://<frontend-host>"
+./mvnw quarkus:dev
+```
+
+`*` ist nicht erlaubt.
+
+## Betrieb
+
+Der Service läuft im Container auf Port **8082**.
+
+### Image
+
+Die GitHub Action `.github/workflows/location-service.yml` läuft bei
+Änderungen unter `location-service/**`, `config/formatter/**` oder am Workflow
+selbst. Sie führt `./mvnw verify` aus und baut
+das Image aus `src/main/docker/Dockerfile.jvm`.
+
+- Pull Request: Das Image wird nur gebaut, nicht veröffentlicht.
+- Push auf `main`: Das Image wird nach
+  `ghcr.io/thi-projekte/terramax-location-service` gepusht
+  (Tags `latest` und `sha-…`).
+
+Lokal bauen:
+
+```powershell
+cd location-service
+./mvnw package -DskipTests
+docker build -f src/main/docker/Dockerfile.jvm -t terramax-location-service .
+```
+
+### Umgebungsvariablen
+
+Alle Namen stehen in [`.env.example`](.env.example). Für den lokalen Betrieb
+die Datei als `.env` kopieren und befüllen. `.env` wird nicht committet.
+
+| Variable | Pflicht | Bedeutung |
+| --- | --- | --- |
+| `OIDC_AUTH_SERVER_URL` | ja | Keycloak-Realm, z. B. `https://terramax-keycloak.winfprojekt.de/realms/terramax`. Ohne Wert startet der Service nicht |
+| `CORS_ORIGINS` | nein | Erlaubte Frontend-Origins, kommagetrennt (Standard `http://localhost:5173`) |
+| `QUARKUS_DATASOURCE_JDBC_URL` | ja | z. B. `jdbc:postgresql://<host>:5432/<db>` |
+| `QUARKUS_DATASOURCE_USERNAME` | ja | Datenbank-Benutzer |
+| `QUARKUS_DATASOURCE_PASSWORD` | ja | Datenbank-Passwort |
+
+Beim Start legt Flyway das Schema an, danach werden die Standorte aus den
+Dateien in `location.import.files` importiert (Standard: `data/competitors_at_v2.geojson`
+und `data/john_deere_at.geojson`). Angelegt werden nur Standorte, deren ID noch
+nicht in der Datenbank steht; bestehende Einträge bleiben unverändert. Das Log
+zeigt pro Datei, wie viele Einträge neu, übersprungen und ungültig waren.
+
+### Container starten
+
+```powershell
+docker run --rm -p 8082:8082 --env-file .env terramax-location-service
+```
+
+Danach erreichbar unter http://localhost:8082/q/health. Swagger UI ist im
+Prod-Betrieb nicht enthalten, sondern nur im Dev-Modus.

@@ -1,0 +1,47 @@
+# --- Server ---
+# 8086, damit der Service lokal neben hello-service (8080), speech-service (8082) und tour-service (8084) läuft
+server:
+  port: 8086
+
+spring:
+  application:
+    name: process-engine
+  jersey:
+    application-path: /engine-rest
+  # Prozesszustand dauerhaft speichern (Akzeptanzkriterium #29: Status bleibt erhalten, wenn die App geschlossen wird).
+  # Lokal als H2-Datei unter process-engine/data; auf dem Server per Umgebungsvariablen auf PostgreSQL umstellen:
+  # SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+  datasource:
+    url: jdbc:h2:file:./data/process-engine
+  # Keycloak-Tokens prüfen. Lokal der Dev-Keycloak (Port 8180), auf dem Server per KEYCLOAK_ISSUER_URL,
+  # z. B. https://terramax-keycloak.winfprojekt.de/realms/terramax
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URL:http://localhost:8180/realms/terramax}
+
+camunda.bpm:
+  # Tabellen beim Start anlegen bzw. aktualisieren
+  database:
+    schema-update: true
+  # Listen und Maps (z. B. besuchsplan) als JSON speichern, damit das Frontend sie über die REST-API lesen kann
+  default-serialization-format: application/json
+  history-level: audit
+  # Kein Admin-Benutzer und keine Webapps: Anmeldung läuft ausschließlich über Keycloak (siehe SecurityConfig)
+
+terramax:
+  tour-service:
+    url: ${TOUR_SERVICE_URL:http://localhost:8084}
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:5173}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health

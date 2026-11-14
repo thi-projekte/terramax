@@ -1,0 +1,347 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-001",
+        "customer_id": "MOCK-001",
+        "name": "Testbetrieb 01 (fiktiv)",
+        "region": "Marchfeld",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.65,
+          48.235
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-002",
+        "customer_id": "MOCK-002",
+        "name": "Testbetrieb 02 (fiktiv)",
+        "region": "Weinviertel",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.32,
+          48.56
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-003",
+        "customer_id": "MOCK-003",
+        "name": "Testbetrieb 03 (fiktiv)",
+        "region": "Weinviertel",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.61,
+          48.69
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-004",
+        "customer_id": "MOCK-004",
+        "name": "Testbetrieb 04 (fiktiv)",
+        "region": "Tullnerfeld",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15.98,
+          48.31
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-005",
+        "customer_id": "MOCK-005",
+        "name": "Testbetrieb 05 (fiktiv)",
+        "region": "Waldviertel",
+        "segment": "Grünland",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15.17,
+          48.62
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-006",
+        "customer_id": "MOCK-006",
+        "name": "Testbetrieb 06 (fiktiv)",
+        "region": "Waldviertel",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15.02,
+          48.83
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-007",
+        "customer_id": "MOCK-007",
+        "name": "Testbetrieb 07 (fiktiv)",
+        "region": "Mostviertel",
+        "segment": "Grünland",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.95,
+          48.08
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-008",
+        "customer_id": "MOCK-008",
+        "name": "Testbetrieb 08 (fiktiv)",
+        "region": "Traunviertel",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.19,
+          48.14
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-009",
+        "customer_id": "MOCK-009",
+        "name": "Testbetrieb 09 (fiktiv)",
+        "region": "Innviertel",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.35,
+          48.24
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-010",
+        "customer_id": "MOCK-010",
+        "name": "Testbetrieb 10 (fiktiv)",
+        "region": "Mühlviertel",
+        "segment": "Grünland",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.48,
+          48.46
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-011",
+        "customer_id": "MOCK-011",
+        "name": "Testbetrieb 11 (fiktiv)",
+        "region": "Nordburgenland",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.96,
+          47.83
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-012",
+        "customer_id": "MOCK-012",
+        "name": "Testbetrieb 12 (fiktiv)",
+        "region": "Südburgenland",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.24,
+          47.07
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-013",
+        "customer_id": "MOCK-013",
+        "name": "Testbetrieb 13 (fiktiv)",
+        "region": "Südoststeiermark",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15.91,
+          46.88
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-014",
+        "customer_id": "MOCK-014",
+        "name": "Testbetrieb 14 (fiktiv)",
+        "region": "Leibnitzer Feld",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15.56,
+          46.77
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-015",
+        "customer_id": "MOCK-015",
+        "name": "Testbetrieb 15 (fiktiv)",
+        "region": "Lavanttal",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.85,
+          46.8
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-016",
+        "customer_id": "MOCK-016",
+        "name": "Testbetrieb 16 (fiktiv)",
+        "region": "Klagenfurter Becken",
+        "segment": "Ackerbau",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.45,
+          46.68
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-017",
+        "customer_id": "MOCK-017",
+        "name": "Testbetrieb 17 (fiktiv)",
+        "region": "Flachgau",
+        "segment": "Grünland",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.1,
+          47.93
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "MOCK-018",
+        "customer_id": "MOCK-018",
+        "name": "Testbetrieb 18 (fiktiv)",
+        "region": "Unterinntal",
+        "segment": "Grünland",
+        "crm_url": null,
+        "mock": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.05,
+          47.47
+        ]
+      }
+    }
+  ]
+}
