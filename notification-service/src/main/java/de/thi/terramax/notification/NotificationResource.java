@@ -1,10 +1,12 @@
 package de.thi.terramax.notification;
 
 import io.quarkus.security.Authenticated;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.List;
 
@@ -15,9 +17,15 @@ import java.util.List;
 @Authenticated
 public class NotificationResource {
 
+    @Inject
+    JsonWebToken jwt;
+
+    @Inject
+    NotificationStore store;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> list() {
-        return List.of();
+    public List<Notification> list() {
+        return store.forUser(jwt.getSubject());
     }
 }
