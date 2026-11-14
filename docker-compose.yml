@@ -50,7 +50,7 @@ services:
   # Kein Port auf dem Host: Services hängen sich an das Netzwerk kafka-intern und nutzen kafka:9092.
 
   kafka:
-    image: apache/kafka:4.3.2
+    image: apache/kafka:4.4.0
     restart: unless-stopped
     # Zeit für ein sauberes Herunterfahren, sonst können die letzten Nachrichten fehlen
     stop_grace_period: 60s
@@ -90,7 +90,7 @@ services:
   # Legt die Topics an (idempotent) und beendet sich danach (Status Exited (0) ist richtig).
   # Neue Topics hier und in docs/kafka/README.md ergänzen.
   kafka-init:
-    image: apache/kafka:4.3.2
+    image: apache/kafka:4.4.0
     restart: "no"
     depends_on:
       kafka:
