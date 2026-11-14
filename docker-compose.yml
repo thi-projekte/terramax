@@ -45,6 +45,16 @@ services:
     networks:
       - speech-intern         # nur intern: nur der speech-service erreicht Whisper
 
+  # --- Frontend (frontend/README.md) ---
+  # Nginx Proxy Manager: terramax.winfprojekt.de -> terramax-frontend-1:80
+
+  frontend:
+    # :main = aktueller Stand von main; zum Ausrollen auf :sha-<commit> pinnen
+    image: ghcr.io/thi-projekte/terramax-frontend:main
+    restart: unless-stopped
+    networks:
+      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
+
   # --- Kafka-Event-Bus (Topics, Schemas und Betrieb: docs/kafka/README.md) ---
   # Single Node im KRaft-Modus (Broker und Controller in einem Prozess, kein ZooKeeper).
   # Kein Port auf dem Host: Services hängen sich an das Netzwerk kafka-intern und nutzen kafka:9092.
