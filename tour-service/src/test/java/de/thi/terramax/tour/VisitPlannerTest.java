@@ -16,7 +16,7 @@ class VisitPlannerTest {
 
     private static final LocalDate TOUR_DATE = LocalDate.of(2026, 11, 10);
 
-    // Start bei (48.0, 14.0); Kunden liegen auf einer Linie nach Norden, damit die Abstände eindeutig sind
+    // Start bei (48.0, 14.0); Kunden liegen auf einem Längengrad (14.0), damit die Abstände eindeutig sind
     private static VisitPlanner planner(Customer... customers) {
         return new VisitPlanner(() -> List.of(customers), 48.0, 14.0);
     }
@@ -52,6 +52,20 @@ class VisitPlannerTest {
 
         assertEquals(List.of("near", "mid", "far"), ids(plan));
         assertEquals(List.of(1, 2, 3), plan.visits().stream().map(VisitPlan.PlannedVisit::position).toList());
+    }
+
+    @Test
+    void nearestNeighbourGoesToClosestOpenCustomerFromCurrentStop() {
+        // Kunden nördlich und südlich vom Start (48.0). Nach Abstand zum Start sortiert wäre die Reihenfolge
+        // south1 (5,6 km), north (6,7 km), south2 (13,3 km). Nearest-Neighbour misst aber ab dem aktuellen Halt:
+        // von south1 aus liegt south2 (7,8 km) näher als north (12,2 km).
+        VisitPlan plan = planner(
+                customer("north", 48.06, null),
+                customer("south2", 47.88, null),
+                customer("south1", 47.95, null))
+                        .plan(TOUR_DATE, 5);
+
+        assertEquals(List.of("south1", "south2", "north"), ids(plan));
     }
 
     @Test

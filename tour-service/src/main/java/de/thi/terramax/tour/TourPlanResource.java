@@ -9,8 +9,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 
 /**
@@ -27,10 +27,12 @@ public class TourPlanResource {
     static final int MIN_VISITS = 2;
     static final int MAX_VISITS = 10;
     static final int DEFAULT_VISITS = 5;
-    private static final ZoneId VIENNA = ZoneId.of("Europe/Vienna");
 
     @Inject
     VisitPlanner planner;
+
+    @Inject
+    Clock clock;
 
     /**
      * @param date
@@ -43,7 +45,7 @@ public class TourPlanResource {
     public Response plan(@QueryParam("date") String date, @QueryParam("maxVisits") Integer maxVisits) {
         LocalDate tourDate;
         try {
-            tourDate = date == null || date.isBlank() ? LocalDate.now(VIENNA) : LocalDate.parse(date);
+            tourDate = date == null || date.isBlank() ? LocalDate.now(clock) : LocalDate.parse(date);
         } catch (DateTimeParseException e) {
             return badRequest("date muss im Format JJJJ-MM-TT angegeben werden, z. B. 2026-11-10");
         }

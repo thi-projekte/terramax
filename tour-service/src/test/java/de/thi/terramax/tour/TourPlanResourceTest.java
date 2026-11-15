@@ -37,10 +37,30 @@ class TourPlanResourceTest {
     @Test
     @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
     void usesTodayAndFiveVisitsByDefault() {
+        // "Heute" kommt in den Tests aus FixedClockProducer, damit das Ergebnis nicht vom Testtag abhängt
         given().when().get("/tours/plan")
                 .then().statusCode(200)
-                .body("date", notNullValue())
+                .body("date", is(FixedClockProducer.TODAY.toString()))
                 .body("visits", hasSize(TourPlanResource.DEFAULT_VISITS));
+    }
+
+    @Test
+    @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
+    void acceptsMinimumOfTwoVisits() {
+        given().queryParam("date", "2026-11-10").queryParam("maxVisits", TourPlanResource.MIN_VISITS)
+                .when().get("/tours/plan")
+                .then().statusCode(200)
+                .body("visits", hasSize(TourPlanResource.MIN_VISITS));
+    }
+
+    @Test
+    @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
+    void acceptsMaximumOfTenVisits() {
+        // maxVisits=10 ist erlaubt; die Mock-Daten haben aber nur 8 Kunden, die alle in Frage kommen
+        given().queryParam("date", "2026-11-10").queryParam("maxVisits", TourPlanResource.MAX_VISITS)
+                .when().get("/tours/plan")
+                .then().statusCode(200)
+                .body("visits", hasSize(8));
     }
 
     @Test
