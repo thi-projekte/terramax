@@ -1,4 +1,4 @@
-package de.thi.terramax.location;
+package de.thi.terramax.common;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 

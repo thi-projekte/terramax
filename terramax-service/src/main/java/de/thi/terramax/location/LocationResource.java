@@ -1,5 +1,7 @@
 package de.thi.terramax.location;
 
+import de.thi.terramax.common.ErrorResponse;
+import de.thi.terramax.common.TerraMaxApplication;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
@@ -29,7 +31,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Authenticated
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Standorte", description = "Händlerstandorte als GeoJSON")
-@SecurityRequirement(name = LocationServiceApplication.BEARER_SCHEME)
+@SecurityRequirement(name = TerraMaxApplication.BEARER_SCHEME)
 @APIResponse(responseCode = "401", description = "Kein oder ungültiger Token")
 public class LocationResource {
 
