@@ -1,0 +1,17 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "customer_id": "TC-1", "name": "Gültiger Kunde", "region": "Mühlviertel", "segment": "Grünland", "crm_url": null },
+      "geometry": { "type": "Point", "coordinates": [14.5, 48.5] } },
+    { "type": "Feature", "properties": { "id": "TC-2", "name": "Nur mit id" },
+      "geometry": { "type": "Point", "coordinates": [14.6, 48.4] } },
+    { "type": "Feature", "properties": { "customer_id": "TC-1", "name": "Doppelt" },
+      "geometry": { "type": "Point", "coordinates": [14.5, 48.5] } },
+    { "type": "Feature", "properties": { "customer_id": "TC-3" },
+      "geometry": { "type": "Point", "coordinates": [14.5, 48.5] } },
+    { "type": "Feature", "properties": { "name": "Ohne ID" },
+      "geometry": { "type": "Point", "coordinates": [14.5, 48.5] } },
+    { "type": "Feature", "properties": { "customer_id": "TC-4", "name": "Außerhalb" },
+      "geometry": { "type": "Point", "coordinates": [14.5, 148.5] } }
+  ]
+}

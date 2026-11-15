@@ -44,10 +44,16 @@ public class TestData {
     @Inject
     EntityManager em;
 
+    /** Leert alle Tabellen des Kernmodells (auch die beim Start importierten Testdaten). */
     @Transactional
-    public Fixture reset() {
+    public void clear() {
         em.createNativeQuery("TRUNCATE visitor_protocol, tour_customer, tour_employee, tour, customer, "
                 + "dealer_employee, dealer RESTART IDENTITY CASCADE").executeUpdate();
+    }
+
+    @Transactional
+    public Fixture reset() {
+        clear();
 
         Dealer dealer = dealer(DEALER, "Landtechnik Wels GmbH", 48.16, 14.03);
         Dealer other = dealer(OTHER_DEALER, "Agrar Graz", 47.07, 15.44);

@@ -2,14 +2,14 @@ package de.thi.terramax.location;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.thi.terramax.common.GeoJsonResources;
 import io.quarkus.runtime.StartupEvent;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptor;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -26,6 +26,9 @@ public class LocationImporter {
 
     static final String COMPETITORS = "data/competitors_at_v2.geojson";
     static final String JOHN_DEERE = "data/john_deere_at.geojson";
+
+    /** Reihenfolge beim Start; kleinere Werte laufen zuerst. */
+    public static final int STARTUP_PRIORITY = Interceptor.Priority.APPLICATION + 500;
 
     private static final Logger LOG = Logger.getLogger(LocationImporter.class);
 
@@ -48,7 +51,11 @@ public class LocationImporter {
     record ImportResult(int created, int skipped, int invalid) {
     }
 
-    void onStart(@Observes StartupEvent event) {
+    /**
+     * Läuft nach Flyway (migrate-at-start) und vor dem Händler- und Kunden-Import
+     * ({@link de.thi.terramax.seed.SeedImporter}), der die Standorte verknüpft.
+     */
+    void onStart(@Observes @Priority(STARTUP_PRIORITY) StartupEvent event) {
         if (!importEnabled) {
             LOG.info("Standort-Import ist deaktiviert (location.import.enabled=false)");
             return;
@@ -92,17 +99,6 @@ public class LocationImporter {
     }
 
     JsonNode readFeatures(String resource) {
-        try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
-            if (in == null) {
-                throw new IllegalStateException("Ressource nicht gefunden: " + resource);
-            }
-            JsonNode features = objectMapper.readTree(in).path("features");
-            if (!features.isArray()) {
-                throw new IllegalStateException(resource + " enthält kein features-Array");
-            }
-            return features;
-        } catch (IOException e) {
-            throw new UncheckedIOException("Konnte " + resource + " nicht lesen", e);
-        }
+        return GeoJsonResources.readFeatures(objectMapper, resource);
     }
 }
