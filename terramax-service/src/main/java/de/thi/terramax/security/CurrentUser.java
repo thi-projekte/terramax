@@ -63,6 +63,23 @@ public class CurrentUser {
         return identity.hasRole(Roles.DEALER_PRINCIPAL);
     }
 
+    /** Fachrolle für den Mitarbeiter-Eintrag: dealer_principal vor sales_professional, sonst leer. */
+    public Optional<String> businessRole() {
+        if (identity.hasRole(Roles.DEALER_PRINCIPAL)) {
+            return Optional.of(Roles.DEALER_PRINCIPAL);
+        }
+        return identity.hasRole(Roles.SALES_PROFESSIONAL) ? Optional.of(Roles.SALES_PROFESSIONAL) : Optional.empty();
+    }
+
+    /** Anzeigename: Claim {@code name}, sonst {@code preferred_username}. */
+    public String displayName() {
+        Object name = jwt.getClaim("name");
+        if (name instanceof JsonString json) {
+            name = json.getString();
+        }
+        return name == null ? username() : nonBlank(name.toString()).orElse(username());
+    }
+
     /**
      * @throws jakarta.ws.rs.ForbiddenException
      *             wenn das Token keinen Claim {@code dealer_id} enthält
@@ -80,11 +97,8 @@ public class CurrentUser {
     }
 
     /**
-     * Der Mitarbeiter-Eintrag des Nutzers, aber nur, wenn er zum Händler aus dem Token gehört. Ohne Eintrag sieht ein
-     * sales_professional keine Touren.
-     * <p>
-     * TODO(#64-meeting): Wie Händler und Mitarbeiter angelegt werden (Import aus CRM/Keycloak, Admin-Endpunkt oder
-     * automatisch beim ersten Login), ist noch offen
+     * Der Mitarbeiter-Eintrag des Nutzers, aber nur, wenn er zum Händler aus dem Token gehört. Angelegt wird er beim
+     * ersten Aufruf automatisch ({@link EmployeeProvisioningFilter}), sofern der Händler in der Datenbank steht.
      */
     public Optional<DealerEmployee> employee() {
         Optional<String> dealerId = dealerId();

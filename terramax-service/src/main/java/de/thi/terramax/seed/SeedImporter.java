@@ -32,6 +32,9 @@ import org.jboss.logging.Logger;
  * zugeordnet. Die externe ID ist {@code properties.customer_id} (sonst {@code properties.id}).</li>
  * </ul>
  * Abschaltbar über {@code terramax.seed.enabled=false} bzw. {@code TERRAMAX_SEED_ENABLED=false}.
+ * <p>
+ * TODO(#64-meeting): Woher echte Händler- und Kundendaten kommen (CRM-Import, Admin-Endpunkt), ist noch offen; dann den
+ * Import mit TERRAMAX_SEED_ENABLED=false abschalten
  */
 @ApplicationScoped
 public class SeedImporter {

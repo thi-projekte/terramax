@@ -81,7 +81,7 @@ class ProtocolResourceTest {
     @TestSecurity(user = "nobody", roles = Roles.SALES_PROFESSIONAL)
     @OidcSecurity(claims = { @Claim(key = "sub", value = "sub-unknown"),
             @Claim(key = "dealer_id", value = TestData.DEALER) })
-    void salesWithoutEmployeeEntrySeesNoCustomerProtocols() {
+    void newSalesWithoutOwnToursSeesNoCustomerProtocols() {
         given().when().get("/customers/{id}/protocols", f.huber()).then().statusCode(200).body("$", empty());
     }
 

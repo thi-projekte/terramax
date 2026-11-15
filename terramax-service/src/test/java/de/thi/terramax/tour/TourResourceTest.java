@@ -53,7 +53,7 @@ class TourResourceTest {
     @TestSecurity(user = "nobody", roles = Roles.SALES_PROFESSIONAL)
     @OidcSecurity(claims = { @Claim(key = "sub", value = "sub-unknown"),
             @Claim(key = "dealer_id", value = TestData.DEALER) })
-    void salesWithoutEmployeeEntrySeesNoTours() {
+    void newSalesWithoutAssignedToursSeesNoTours() {
         given().when().get("/tours").then().statusCode(200).body("$", empty());
     }
 
@@ -122,7 +122,16 @@ class TourResourceTest {
     @TestSecurity(user = "nobody", roles = Roles.SALES_PROFESSIONAL)
     @OidcSecurity(claims = { @Claim(key = "sub", value = "sub-unknown"),
             @Claim(key = "dealer_id", value = TestData.DEALER) })
-    void salesWithoutEmployeeEntryMayNotCreateTour() {
+    void newSalesIsProvisionedAndMayCreateTour() {
+        given().contentType("application/json").body(Map.of("tourDate", "2026-12-01")).when().post("/tours").then()
+                .statusCode(201).body("employeeIds.size()", is(1));
+    }
+
+    /** Händler steht nicht in der Datenbank: kein Mitarbeiter-Eintrag, also keine eigene Tour möglich. */
+    @Test
+    @TestSecurity(user = "nobody", roles = Roles.SALES_PROFESSIONAL)
+    @OidcSecurity(claims = { @Claim(key = "sub", value = "sub-unknown"), @Claim(key = "dealer_id", value = "D-999") })
+    void salesOfUnknownDealerMayNotCreateTour() {
         given().contentType("application/json").body(Map.of("tourDate", "2026-12-01")).when().post("/tours").then()
                 .statusCode(403);
     }
