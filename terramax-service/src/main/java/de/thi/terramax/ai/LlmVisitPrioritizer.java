@@ -76,7 +76,11 @@ public class LlmVisitPrioritizer implements VisitPrioritizer {
     static PrioritizationException translate(RuntimeException e) {
         for (Throwable t = e; t != null; t = t.getCause()) {
             if (t instanceof HttpException http) {
-                return new PrioritizationException("LLM antwortet mit Status " + http.statusCode());
+                return new PrioritizationException(switch (http.statusCode()) {
+                    case 401, 403 -> "LLM nicht konfiguriert (OPENAI_API_KEY prüfen)";
+                    case 429 -> "LLM ausgelastet, bitte später erneut versuchen";
+                    default -> "LLM antwortet mit Status " + http.statusCode();
+                });
             }
             if (t instanceof OutputParsingException) {
                 return new PrioritizationException("Antwort des LLM passt nicht zum Schema");

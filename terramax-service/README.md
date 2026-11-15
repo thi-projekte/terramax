@@ -286,6 +286,24 @@ Im Code mit `TODO(#64-meeting)` markiert (`grep -rn "TODO(#64-meeting)"`):
 | tour-service | Übernahme des tour-service aus PR #53 mit Mohamed klären; dann `GET /tours/plan` im bisherigen Format für die process-engine | `TourPlanner`, `DefaultTourPlanner` |
 | process-engine | Aufrufrichtung und Prozess-Key; CIB Seven auf dem Server kommt mit #63 | `ProcessEngineClient`, `RestProcessEngineClient`, `StubProcessEngineClient`, `application.properties` |
 | Stammdaten | Wie Händler und Mitarbeiter angelegt werden (Import, Admin-Endpunkt, beim ersten Login) | `CurrentUser` |
+| Vorschlag: KI-Besuchsvorbereitung | Siehe unten; noch nicht umgesetzt | – |
+
+### Vorschlag: KI-Besuchsvorbereitung (Briefing)
+
+Idee aus einem früheren Entwurf, fürs Meeting: `POST /customers/{id}/briefing`
+fasst die letzten Besuchsprotokolle eines Kunden per OpenAI zu höchstens 8
+Stichpunkten zusammen, offene Punkte und fällige Follow-ups zuerst. Ohne
+Protokolle schlägt es Gesprächseinstiege vor. Das Ergebnis wird nicht
+gespeichert und als KI-Text gekennzeichnet (`aiGenerated: true`).
+
+Vor einer Umsetzung zu klären:
+
+- **Datenschutz:** Protokolltexte enthalten Namen von Gesprächspartnern und gehen
+  dabei an OpenAI. Das widerspricht der bisherigen Regel „nur IDs an das LLM“ und
+  braucht eine bewusste Entscheidung (z. B. nur Themen, Ergebnis, nächste Schritte
+  und Follow-up-Datum senden, keine Stammdaten).
+- **Zugriff:** gleiche Regeln wie `GET /customers/{id}/protocols`, also für einen
+  `sales_professional` nur Protokolle aus eigenen Touren.
 
 ## Vor dem Merge / Nach dem Merge
 

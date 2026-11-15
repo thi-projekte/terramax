@@ -76,10 +76,14 @@ class LlmVisitPrioritizerTest {
         var error = assertThrows(PrioritizationException.class, () -> new LlmVisitPrioritizer((c, d, m) -> {
             throw new RuntimeException(new HttpException(429, "Kunde 1 Marchfeld ..."));
         }).prioritize(CANDIDATES, CONSTRAINTS));
-        assertEquals("LLM antwortet mit Status 429", error.getMessage());
+        assertEquals("LLM ausgelastet, bitte später erneut versuchen", error.getMessage());
         assertFalse(error.getMessage().contains("Marchfeld"));
         assertNull(error.getCause());
 
+        assertEquals("LLM nicht konfiguriert (OPENAI_API_KEY prüfen)",
+                LlmVisitPrioritizer.translate(new HttpException(401, "invalid api key")).getMessage());
+        assertEquals("LLM antwortet mit Status 500",
+                LlmVisitPrioritizer.translate(new HttpException(500, "server error")).getMessage());
         assertEquals("Antwort des LLM passt nicht zum Schema",
                 LlmVisitPrioritizer.translate(new OutputParsingException("kein JSON", null)).getMessage());
         assertEquals("LLM nicht erreichbar (IllegalStateException)",
