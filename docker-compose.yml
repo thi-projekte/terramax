@@ -16,7 +16,7 @@
 
 services:
   # --- TerraMax-Service: fachlicher Kern (terramax-service/README.md) ---
-  # Nginx Proxy Manager: <subdomain>.winfprojekt.de -> terramax-terramax-service-1:8082, Let's-Encrypt-Zertifikat
+  # Nginx Proxy Manager: <subdomain>.winfprojekt.de -> terramax-terramax-service-1:8080, Let's-Encrypt-Zertifikat
 
   terramax-service:
     # Image aus .github/workflows/terramax-service.yml

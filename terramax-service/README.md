@@ -12,7 +12,7 @@ Der Service ist aus dem früheren `location-service` hervorgegangen
 Package `de.thi.terramax.location`.
 
 > TODO: Das Frontend liest die Adresse noch aus `VITE_LOCATION_SERVICE_URL`
-> (Standard `http://localhost:8082`). Die Variable wird später umbenannt; sie
+> (Standard `http://localhost:8088`). Die Variable wird später umbenannt; sie
 > zeigt jetzt auf diesen Service, Port und Pfad `/locations` sind gleich geblieben.
 
 ## Aufbau
@@ -45,7 +45,7 @@ cd terramax-service
 ./mvnw quarkus:dev
 ```
 
-- Service: http://localhost:8082, Swagger UI: http://localhost:8082/q/swagger-ui
+- Service: http://localhost:8088, Swagger UI: http://localhost:8088/q/swagger-ui
 - PostgreSQL und Keycloak starten automatisch als Dev Services. Keycloak läuft
   auf http://localhost:8180 mit dem Realm aus `src/main/resources/terramax-realm.json`
   (Kopie aus dem `hello-service`, Nutzer `sales`/`sales` und `dealer`/`dealer`,
@@ -93,9 +93,9 @@ Endpunkte gilt außerdem:
 
 Ohne Token erreichbar:
 
-- Health-Check: http://localhost:8082/q/health (einzeln `/q/health/live`, `/q/health/ready`)
-- OpenAPI-Dokument: http://localhost:8082/q/openapi (`?format=json` für JSON)
-- Swagger UI nur im Dev-Modus: http://localhost:8082/q/swagger-ui
+- Health-Check: http://localhost:8088/q/health (einzeln `/q/health/live`, `/q/health/ready`)
+- OpenAPI-Dokument: http://localhost:8088/q/openapi (`?format=json` für JSON)
+- Swagger UI nur im Dev-Modus: http://localhost:8088/q/swagger-ui
   (Token über den Knopf **Authorize** eintragen)
 
 ## Datenbank
@@ -189,8 +189,8 @@ zum Team-Keycloak. Secrets sind nicht nötig und gehören nicht ins Repository.
    VITE_KEYCLOAK_URL=https://terramax-keycloak.winfprojekt.de
    VITE_KEYCLOAK_REALM=terramax
    VITE_KEYCLOAK_CLIENT_ID=publicClient
-   # optional, Standard ist http://localhost:8082
-   VITE_LOCATION_SERVICE_URL=http://localhost:8082
+   # optional, Standard ist http://localhost:8088
+   VITE_LOCATION_SERVICE_URL=http://localhost:8088
    ```
 
 3. `cd frontend && npm install && npm run dev`, dann http://localhost:5173
@@ -215,7 +215,7 @@ Dabei wird unter anderem die Formatierung mit
 
 ## Betrieb
 
-Der Service läuft im Container auf Port **8082**.
+Der Service läuft im Container auf Port **8080** (Quarkus-Standard), lokal im Dev-Modus auf **8088**.
 
 ### Image
 
@@ -268,10 +268,10 @@ Im Portainer-Stack: `TERRAMAX_DB_PASSWORD`, `TERRAMAX_CORS_ORIGINS`,
 ### Container lokal starten
 
 ```powershell
-docker run --rm -p 8082:8082 --env-file .env terramax-terramax-service
+docker run --rm -p 8080:8080 --env-file .env terramax-terramax-service
 ```
 
-Danach erreichbar unter http://localhost:8082/q/health.
+Danach erreichbar unter http://localhost:8080/q/health.
 
 ## Offene Punkte (#64-meeting)
 
@@ -313,7 +313,7 @@ Vor einer Umsetzung zu klären:
       (z. B. `https://terramax.winfprojekt.de`), `OPENAI_API_KEY`
 - [ ] Netzwerkname geklärt (`nginx-proxy-manager` oder `nginx-reverse-proxy`) und im
       `docker-compose.yml` angepasst
-- [ ] Proxy-Host `<subdomain>.winfprojekt.de` → `terramax-terramax-service-1:8082`
+- [ ] Proxy-Host `<subdomain>.winfprojekt.de` → `terramax-terramax-service-1:8080`
       mit Let's-Encrypt-Zertifikat angelegt
 - [ ] Geklärt, ob der Stack nach dem Merge automatisch aktualisiert wird oder von Hand
 

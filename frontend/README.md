@@ -59,10 +59,10 @@ Die Händlerstandorte (Wettbewerber, Mehrmarken/unbekannt, John Deere) lädt die
 `location-service` über `GET /locations` mit dem Keycloak-Token des angemeldeten Nutzers.
 
 ```env
-VITE_LOCATION_SERVICE_URL=http://localhost:8082
+VITE_LOCATION_SERVICE_URL=http://localhost:8088
 ```
 
-Ohne die Variable wird `http://localhost:8082` verwendet. Lokale Werte gehören in `.env.local`
+Ohne die Variable wird `http://localhost:8088` verwendet. Lokale Werte gehören in `.env.local`
 (wird nicht eingecheckt). Ist der Service nicht erreichbar oder lehnt er den Token ab (401),
 lädt die Karte trotzdem; in der Legende erscheint dann „Standorte konnten nicht geladen werden“,
 die Ursache steht in der Browser-Konsole. Der `location-service` muss den Frontend-Origin in
@@ -114,7 +114,7 @@ URLs als Build-Args übergeben. Sie kommen aus den GitHub-Repository-Variablen
 | `VITE_MAPBOX_TOKEN` | – (Pflicht) |
 | `VITE_KEYCLOAK_URL` | `https://terramax-keycloak.winfprojekt.de` |
 | `VITE_API_URL` | `http://localhost:8080` |
-| `VITE_LOCATION_SERVICE_URL` | `http://localhost:8082` |
+| `VITE_LOCATION_SERVICE_URL` | `http://localhost:8088` |
 | `VITE_ENGINE_URL` | `http://localhost:8086/engine-rest` |
 
 Betrieb: Service `frontend` im gemeinsamen Stack `terramax` (`docker-compose.yml` im Repo-Root,
