@@ -27,7 +27,8 @@ Package `de.thi.terramax.location`.
 | `de.thi.terramax.ai` | Platzhalter `VisitPrioritizer` und OpenAI-Anbindung (LangChain4j) |
 | `de.thi.terramax.engine` | Platzhalter `ProcessEngineClient` und REST-Client zu CIB Seven |
 | `de.thi.terramax.security` | Rollen, `CurrentUser`, `GET /me` |
-| `de.thi.terramax.common` | `ErrorResponse`, OpenAPI-Definition |
+| `de.thi.terramax.seed` | Import der Testdaten für Händler und Kunden beim Start |
+| `de.thi.terramax.common` | `ErrorResponse`, OpenAPI-Definition, GeoJSON-Dateien lesen |
 
 ## Voraussetzungen
 
@@ -50,9 +51,10 @@ cd terramax-service
   auf http://localhost:8180 mit dem Realm aus `src/main/resources/terramax-realm.json`
   (Kopie aus dem `hello-service`, Nutzer `sales`/`sales` und `dealer`/`dealer`,
   beide mit `dealer_id = D-100`).
-- Die Datenbank ist anfangs bis auf die Standorte leer. Händler, Mitarbeiter und
-  Kunden lassen sich lokal per SQL anlegen (Dev UI → Datasource) oder Kunden über
-  `POST /customers`, sobald der Händler existiert.
+- Beim Start werden Testdaten importiert (siehe [Testdaten](#testdaten)). Mit
+  `sales` oder `dealer` angemeldet zeigt `GET /customers` sofort die 18 Mock-Kunden.
+- Lokal belegte Ports: 8080 hello-service, 8082 speech-service, 8084 tour-service,
+  8086 process-engine, 8088 terramax-service, 8180 Keycloak.
 
 Beenden mit Ctrl + C.
 
@@ -88,8 +90,11 @@ Endpunkte gilt außerdem:
   laut `tour_employee` fährt, und nur deren Protokolle.
 - `dealer_principal` sieht alle Kunden, Touren und Protokolle seines Händlers.
 - Die Zuordnung Nutzer → Mitarbeiter läuft über den Claim `sub`
-  (`dealer_employee.keycloak_user_id`). Ohne Mitarbeiter-Eintrag sieht ein
-  `sales_professional` keine Touren und kann keine anlegen.
+  (`dealer_employee.keycloak_user_id`). Der Eintrag entsteht beim ersten Aufruf
+  automatisch (Name aus `name` bzw. `preferred_username`, Rolle aus dem Token),
+  sofern der Händler in der Datenbank steht. Bestehende Einträge werden nicht
+  geändert. Ohne Eintrag (Händler unbekannt) sieht ein `sales_professional` keine
+  Touren und kann keine anlegen.
 
 Ohne Token erreichbar:
 
@@ -118,6 +123,29 @@ Beim Start werden außerdem die Standorte aus den Dateien in
 `location.import.files` importiert (Standard: `data/competitors_at_v2.geojson`
 und `data/john_deere_at.geojson`). Angelegt werden nur Standorte, deren ID noch
 nicht in der Datenbank steht; bestehende Einträge bleiben unverändert.
+
+## Testdaten
+
+Beim Start legt `SeedImporter` nach Flyway und dem Standort-Import Testdaten an.
+Wie beim Standort-Import wird nur angelegt, was noch nicht existiert; bestehende
+Einträge werden nie überschrieben, ungültige Einträge geloggt und übersprungen.
+
+| Was | Quelle | Ergebnis |
+| --- | --- | --- |
+| Händler | `data/john_deere_at.geojson` | 16 John-Deere-Händler, ID wie im GeoJSON (z. B. `jd-ltc-korneuburg`), mit dem Standort verknüpft (`location_id`), ohne Kunden |
+| Testhändler | `data/test_dealers.geojson` | `D-100` „Testhändler (fiktiv)“ in St. Pölten, ohne Standort |
+| Kunden | `data/mock_customers.geojson` (Kopie von `frontend/public/kunden.geojson`) | 18 Mock-Kunden `MOCK-001` bis `MOCK-018`, alle bei `D-100` |
+
+`D-100` ist der Wert des Claims `dealer_id` der Testnutzer `sales` und `dealer`
+im Realm. Wer sich lokal mit `sales`/`sales` oder `dealer`/`dealer` anmeldet,
+sieht also sofort die 18 Mock-Kunden. Den Mitarbeiter-Eintrag legt der erste
+Aufruf an. Ein Nutzer mit `dealer_id = jd-ltc-korneuburg` sieht keine Kunden.
+
+Konfiguration (`application.properties`): `terramax.seed.enabled`,
+`terramax.seed.dealer-files`, `terramax.seed.customer-files`,
+`terramax.seed.customer-dealer-id`. Abschalten mit `TERRAMAX_SEED_ENABLED=false`
+(auch im Portainer-Stack), sobald echte CRM-Daten kommen. Bereits importierte
+Daten bleiben dabei in der Datenbank.
 
 ## Platzhalter-Schnittstellen
 
@@ -261,9 +289,11 @@ die Datei als `.env` kopieren und befüllen. `.env` wird nicht committet.
 | `TERRAMAX_PRIORITIZER_MODE` | nein | `stub` (Standard) oder `llm` |
 | `TERRAMAX_ENGINE_MODE` | nein | `stub` (Standard) oder `rest` |
 | `TERRAMAX_ENGINE_URL` | nein | REST-API der process-engine (Standard `http://localhost:8086/engine-rest`) |
+| `TERRAMAX_SEED_ENABLED` | nein | Testdaten beim Start importieren (Standard `true`) |
 
 Im Portainer-Stack: `TERRAMAX_DB_PASSWORD`, `TERRAMAX_CORS_ORIGINS`,
-`OPENAI_API_KEY` und optional `TERRAMAX_SERVICE_TAG` (Standard `main`).
+`OPENAI_API_KEY` und optional `TERRAMAX_SERVICE_TAG` (Standard `main`) sowie
+`TERRAMAX_SEED_ENABLED` (Standard `true`).
 
 ### Container lokal starten
 
@@ -285,7 +315,7 @@ Im Code mit `TODO(#64-meeting)` markiert (`grep -rn "TODO(#64-meeting)"`):
 | Routen | Mapbox Optimization API für Reihenfolge und Fahrzeiten | `RoutePlanner`, `NearestNeighbourRoutePlanner` |
 | tour-service | Übernahme des tour-service aus PR #53 mit Mohamed klären; dann `GET /tours/plan` im bisherigen Format für die process-engine | `TourPlanner`, `DefaultTourPlanner` |
 | process-engine | Aufrufrichtung und Prozess-Key; CIB Seven auf dem Server kommt mit #63 | `ProcessEngineClient`, `RestProcessEngineClient`, `StubProcessEngineClient`, `application.properties` |
-| Stammdaten | Wie Händler und Mitarbeiter angelegt werden (Import, Admin-Endpunkt, beim ersten Login) | `CurrentUser` |
+| Stammdaten | Woher echte Händler- und Kundendaten kommen (CRM-Import, Admin-Endpunkt); bis dahin Testdaten. Mitarbeiter entstehen automatisch beim ersten Aufruf | `SeedImporter` |
 | Vorschlag: KI-Besuchsvorbereitung | Siehe unten; noch nicht umgesetzt | – |
 
 ### Vorschlag: KI-Besuchsvorbereitung (Briefing)
@@ -323,3 +353,5 @@ Vor einer Umsetzung zu klären:
 - [ ] Stack in Portainer aktualisiert (Image neu ziehen)
 - [ ] `https://<subdomain>/q/health` antwortet von außen mit `UP`
 - [ ] `https://<subdomain>/customers` ohne Token antwortet mit `401`
+- [ ] Log zeigt den Testdaten-Import (17 Händler, 18 Kunden); später mit
+      `TERRAMAX_SEED_ENABLED=false` abschalten, sobald echte CRM-Daten kommen

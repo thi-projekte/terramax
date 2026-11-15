@@ -13,6 +13,7 @@
 #   TERRAMAX_DB_PASSWORD      Pflicht, Passwort der TerraMax-Datenbank (ohne startet der Stack nicht)
 #   TERRAMAX_CORS_ORIGINS     erlaubte Frontend-Origins des terramax-service, kommagetrennt
 #   TERRAMAX_SERVICE_TAG      optional, Standard main, z. B. sha-abc1234
+#   TERRAMAX_SEED_ENABLED     optional, Standard true; false, sobald echte CRM-Daten kommen (Testdaten-Import)
 
 services:
   # --- TerraMax-Service: fachlicher Kern (terramax-service/README.md) ---
@@ -33,6 +34,8 @@ services:
       CORS_ORIGINS: ${TERRAMAX_CORS_ORIGINS}
       # Wert nur in Portainer setzen. Ohne Key startet der Service trotzdem
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # Testhändler und Mock-Kunden beim Start anlegen (legt nur Fehlendes an)
+      TERRAMAX_SEED_ENABLED: ${TERRAMAX_SEED_ENABLED:-true}
     depends_on:
       terramax-db:
         condition: service_healthy
