@@ -1,0 +1,19 @@
+customer_id;name;region;lat;lon;segment;crm_url
+MOCK-001;Testbetrieb 01 (fiktiv);Marchfeld;48.2350;16.6500;Ackerbau;
+MOCK-002;Testbetrieb 02 (fiktiv);Weinviertel;48.5600;16.3200;Ackerbau;
+MOCK-003;Testbetrieb 03 (fiktiv);Weinviertel;48.6900;16.6100;Ackerbau;
+MOCK-004;Testbetrieb 04 (fiktiv);Tullnerfeld;48.3100;15.9800;Ackerbau;
+MOCK-005;Testbetrieb 05 (fiktiv);Waldviertel;48.6200;15.1700;Grünland;
+MOCK-006;Testbetrieb 06 (fiktiv);Waldviertel;48.8300;15.0200;Ackerbau;
+MOCK-007;Testbetrieb 07 (fiktiv);Mostviertel;48.0800;14.9500;Grünland;
+MOCK-008;Testbetrieb 08 (fiktiv);Traunviertel;48.1400;14.1900;Ackerbau;
+MOCK-009;Testbetrieb 09 (fiktiv);Innviertel;48.2400;13.3500;Ackerbau;
+MOCK-010;Testbetrieb 10 (fiktiv);Mühlviertel;48.4600;14.4800;Grünland;
+MOCK-011;Testbetrieb 11 (fiktiv);Nordburgenland;47.8300;16.9600;Ackerbau;
+MOCK-012;Testbetrieb 12 (fiktiv);Südburgenland;47.0700;16.2400;Ackerbau;
+MOCK-013;Testbetrieb 13 (fiktiv);Südoststeiermark;46.8800;15.9100;Ackerbau;
+MOCK-014;Testbetrieb 14 (fiktiv);Leibnitzer Feld;46.7700;15.5600;Ackerbau;
+MOCK-015;Testbetrieb 15 (fiktiv);Lavanttal;46.8000;14.8500;Ackerbau;
+MOCK-016;Testbetrieb 16 (fiktiv);Klagenfurter Becken;46.6800;14.4500;Ackerbau;
+MOCK-017;Testbetrieb 17 (fiktiv);Flachgau;47.9300;13.1000;Grünland;
+MOCK-018;Testbetrieb 18 (fiktiv);Unterinntal;47.4700;12.0500;Grünland;
