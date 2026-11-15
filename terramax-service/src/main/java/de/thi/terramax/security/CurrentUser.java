@@ -79,7 +79,13 @@ public class CurrentUser {
         return subject().orElseThrow(() -> ApiErrors.forbidden("Kein Nutzer im Token (sub)"));
     }
 
-    /** Der Mitarbeiter-Eintrag des Nutzers, aber nur, wenn er zum Händler aus dem Token gehört. */
+    /**
+     * Der Mitarbeiter-Eintrag des Nutzers, aber nur, wenn er zum Händler aus dem Token gehört. Ohne Eintrag sieht ein
+     * sales_professional keine Touren.
+     * <p>
+     * TODO(#64-meeting): Wie Händler und Mitarbeiter angelegt werden (Import aus CRM/Keycloak, Admin-Endpunkt oder
+     * automatisch beim ersten Login), ist noch offen
+     */
     public Optional<DealerEmployee> employee() {
         Optional<String> dealerId = dealerId();
         if (dealerId.isEmpty()) {
