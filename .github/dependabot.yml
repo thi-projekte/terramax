@@ -31,7 +31,17 @@ updates:
       interval: "weekly"
 
   - package-ecosystem: "docker"
+    directory: "/tour-service/src/main/docker"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "docker"
     directory: "/speech-service/src/main/docker"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "maven"
+    directory: "/tour-service"
     schedule:
       interval: "weekly"
 
