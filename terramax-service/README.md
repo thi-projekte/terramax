@@ -1,6 +1,12 @@
-# Location Service
+# TerraMax-Service
 
-Quarkus-Microservice für TerraMax, der Händlerstandorte verwaltet.
+Fachlicher Kern-Service von TerraMax (Issue #64): Markt-, Kunden- und
+Gebietsdaten. Er ist aus dem früheren `location-service` hervorgegangen und
+verwaltet weiterhin die Händlerstandorte für die Marktkarte.
+Architektur: [docs/architecture/terramax-architecture.html](../docs/architecture/terramax-architecture.html).
+
+> TODO: Das Frontend liest die Adresse noch aus `VITE_LOCATION_SERVICE_URL`.
+> Die Variable wird erst später umbenannt; sie zeigt jetzt auf diesen Service.
 
 Unterstützte Standorttypen:
 
@@ -21,7 +27,7 @@ Eine separate Maven-Installation ist nicht erforderlich.
 ## Lokal starten
 
 ```bash
-cd location-service
+cd terramax-service
 ./mvnw quarkus:dev
 ```
 
@@ -59,7 +65,7 @@ Repository `keycloak-ws2627` wird dafür nicht gebraucht.
 PowerShell:
 
 ```powershell
-cd location-service
+cd terramax-service
 $env:OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/terramax"
 ./mvnw quarkus:dev
 ```
@@ -67,7 +73,7 @@ $env:OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/ter
 bash:
 
 ```bash
-cd location-service
+cd terramax-service
 OIDC_AUTH_SERVER_URL=https://terramax-keycloak.winfprojekt.de/realms/terramax ./mvnw quarkus:dev
 ```
 
@@ -135,7 +141,7 @@ leitet nicht auf eine Login-Seite weiter.
 Keycloak über Dev Services mit dem Testrealm.
 
 ```powershell
-cd location-service
+cd terramax-service
 ./mvnw quarkus:dev
 ```
 
@@ -143,7 +149,7 @@ cd location-service
 Dann wird kein lokaler Keycloak-Container gestartet.
 
 ```powershell
-cd location-service
+cd terramax-service
 $env:OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/terramax"
 ./mvnw quarkus:dev
 # zurück zum lokalen Keycloak:
@@ -180,22 +186,22 @@ Der Service läuft im Container auf Port **8082**.
 
 ### Image
 
-Die GitHub Action `.github/workflows/location-service.yml` läuft bei
-Änderungen unter `location-service/**`, `config/formatter/**` oder am Workflow
+Die GitHub Action `.github/workflows/terramax-service.yml` läuft bei
+Änderungen unter `terramax-service/**`, `config/formatter/**` oder am Workflow
 selbst. Sie führt `./mvnw verify` aus und baut
 das Image aus `src/main/docker/Dockerfile.jvm`.
 
 - Pull Request: Das Image wird nur gebaut, nicht veröffentlicht.
 - Push auf `main`: Das Image wird nach
-  `ghcr.io/thi-projekte/terramax-location-service` gepusht
-  (Tags `latest` und `sha-…`).
+  `ghcr.io/thi-projekte/terramax-terramax-service` gepusht
+  (Tags `main` und `sha-…`).
 
 Lokal bauen:
 
 ```powershell
-cd location-service
+cd terramax-service
 ./mvnw package -DskipTests
-docker build -f src/main/docker/Dockerfile.jvm -t terramax-location-service .
+docker build -f src/main/docker/Dockerfile.jvm -t terramax-terramax-service .
 ```
 
 ### Umgebungsvariablen
@@ -220,7 +226,7 @@ zeigt pro Datei, wie viele Einträge neu, übersprungen und ungültig waren.
 ### Container starten
 
 ```powershell
-docker run --rm -p 8082:8082 --env-file .env terramax-location-service
+docker run --rm -p 8082:8082 --env-file .env terramax-terramax-service
 ```
 
 Danach erreichbar unter http://localhost:8082/q/health. Swagger UI ist im

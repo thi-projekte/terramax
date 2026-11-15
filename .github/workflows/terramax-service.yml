@@ -1,17 +1,17 @@
-name: location-service
+name: terramax-service
 
 on:
   push:
     branches: [main]
     paths:
-      - "location-service/**"
+      - "terramax-service/**"
       - "config/formatter/**"
-      - ".github/workflows/location-service.yml"
+      - ".github/workflows/terramax-service.yml"
   pull_request:
     paths:
-      - "location-service/**"
+      - "terramax-service/**"
       - "config/formatter/**"
-      - ".github/workflows/location-service.yml"
+      - ".github/workflows/terramax-service.yml"
   workflow_dispatch:
 
 concurrency:
@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/terramax-location-service
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/terramax-terramax-service
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
       packages: write
     defaults:
       run:
-        working-directory: location-service
+        working-directory: terramax-service
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -40,7 +40,8 @@ jobs:
           java-version: "25"
           cache: maven
 
-      # Tests starten PostgreSQL und Keycloak über Dev Services (Docker ist auf ubuntu-latest vorhanden)
+      # Tests starten PostgreSQL und Keycloak über Dev Services (Docker ist auf ubuntu-latest vorhanden).
+      # Ein fehlschlagender Test bricht hier ab, das Image wird dann nicht gebaut und nicht gepusht
       - name: Build and test
         run: ./mvnw -B verify
 
@@ -54,21 +55,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Tags: main (nur auf main) und sha-<commit> (kurzer Commit-Hash, z. B. sha-7e73357)
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=main,enable={{is_default_branch}}
             type=sha
             type=ref,event=pr
 
       - name: Build and push image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
-          context: location-service
-          file: location-service/src/main/docker/Dockerfile.jvm
+          context: terramax-service
+          file: terramax-service/src/main/docker/Dockerfile.jvm
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

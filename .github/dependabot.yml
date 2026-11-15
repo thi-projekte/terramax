@@ -40,6 +40,16 @@ updates:
     schedule:
       interval: "weekly"
 
+  - package-ecosystem: "docker"
+    directory: "/terramax-service/src/main/docker"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "maven"
+    directory: "/terramax-service"
+    schedule:
+      interval: "weekly"
+
   - package-ecosystem: "docker-compose"
     directory: "/"
     schedule:
