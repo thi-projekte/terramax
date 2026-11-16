@@ -1,5 +1,7 @@
 package de.thi.terramax.notification;
 
+import io.smallrye.mutiny.Multi;
+import org.jboss.resteasy.reactive.RestStreamElementType;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -23,9 +25,20 @@ public class NotificationResource {
     @Inject
     NotificationStore store;
 
+    @Inject
+    NotificationStream stream;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Notification> list() {
         return store.forUser(jwt.getSubject());
+    }
+
+    @GET
+    @Path("/stream")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
+    public Multi<Notification> stream() {
+        return stream.forUser(jwt.getSubject());
     }
 }

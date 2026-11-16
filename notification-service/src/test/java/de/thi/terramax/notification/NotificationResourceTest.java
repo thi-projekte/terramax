@@ -44,4 +44,10 @@ class NotificationResourceTest {
                 .then().statusCode(200)
                 .body("status", is("UP"));
     }
+
+    @Test
+    void streamWithoutTokenIsUnauthorized() {
+        given().when().get("/notifications/stream")
+                .then().statusCode(401);
+    }
 }
