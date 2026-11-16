@@ -21,6 +21,9 @@ public class EventConsumer {
     @Inject
     NotificationStore store;
 
+    @Inject
+    NotificationStream stream;
+
     @Incoming("process-events")
     public void onProcessEvent(String json) {
         handle(json);
@@ -38,8 +41,11 @@ public class EventConsumer {
                 LOG.warn("Event ohne id oder userid übersprungen");
                 return;
             }
-            store.add(event.userid(),
-                    new Notification(event.id(), event.type(), event.time(), event.subject(), event.data()));
+            Notification notification = new Notification(event.id(), event.type(), event.time(), event.subject(),
+                    event.data());
+            if (store.add(event.userid(), notification)) {
+                stream.publish(event.userid(), notification);
+            }
         } catch (JsonProcessingException e) {
             LOG.warn("Ungültiges Event übersprungen");
         }
