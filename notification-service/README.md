@@ -58,3 +58,17 @@ If you want to learn more about building native executables, please consult <htt
 - REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
 - OpenID Connect ([guide](https://quarkus.io/guides/security-openid-connect)): Secure applications with OpenID Connect and OAuth 2.0 using bearer tokens and authorization code flow
 - SmallRye Health ([guide](https://quarkus.io/guides/smallrye-health)): Monitor service health
+
+
+## Push: Entscheidung für SSE
+
+Für den Push an die SPA verwendet der Service Server-Sent Events (SSE),
+nicht WebSocket.
+
+- Benachrichtigungen fließen nur vom Server zum Browser. Der Rückkanal von
+  WebSocket würde nicht genutzt.
+- SSE ist normales HTTP. Die Absicherung per OIDC und der Reverse Proxy
+  funktionieren wie bei jedem anderen Endpunkt.
+- In Quarkus genügt eine REST-Methode, die einen Stream zurückgibt.
+
+Der Endpunkt ist `GET /notifications/stream`.
