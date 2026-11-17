@@ -14,8 +14,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Prüft den Endpunkt mit simulierter Anmeldung (@TestSecurity) und simuliertem Whisper. 200 = Sales Professional, 403 =
- * angemeldet ohne Rolle, 401 = nicht angemeldet.
+ * Prüft den Endpunkt mit simulierter Anmeldung (@TestSecurity) und simulierter Spracherkennung. 200 = Sales
+ * Professional, 403 = angemeldet ohne Rolle, 401 = nicht angemeldet.
  */
 @QuarkusTest
 class TranscriptionResourceTest {
@@ -102,8 +102,8 @@ class TranscriptionResourceTest {
 
     @Test
     @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
-    void modelNotReadyIsServiceUnavailable() {
-        speechToText.failWith(Reason.MODEL_NOT_READY);
+    void rateLimitIsServiceUnavailable() {
+        speechToText.failWith(Reason.RATE_LIMITED);
         upload("audio/webm").when().post("/transcriptions")
                 .then().statusCode(503)
                 .body("message", notNullValue());
@@ -111,7 +111,7 @@ class TranscriptionResourceTest {
 
     @Test
     @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
-    void unavailableWhisperIsBadGateway() {
+    void unavailableSpeechToTextIsBadGateway() {
         speechToText.failWith(Reason.UNAVAILABLE);
         upload("audio/webm").when().post("/transcriptions").then().statusCode(502);
     }
