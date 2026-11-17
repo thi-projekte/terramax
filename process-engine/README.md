@@ -35,6 +35,39 @@ React-Frontend ──(Bearer-Token)──> process-engine /engine-rest   Tour st
 - Das BPMN-Modell wird direkt aus `docs/process/` gebaut (siehe `pom.xml`),
   es gibt also keine Kopie davon.
 
+## Aufrufrichtung TerraMax ↔ CIB seven (#63)
+
+| Wer | ruft wen | Wie | Wofür |
+|---|---|---|---|
+| React-Frontend (SPA) | process-engine | REST `/engine-rest`, Token des Nutzers | Tour starten, Aufgaben lesen und abschließen, `TourAbbrechen` |
+| process-engine | TerraMax-Services (heute tour-service) | REST, synchron im Service Task, gleiches Token | Daten für einen Schritt holen, z. B. `GET /tours/plan` |
+| speech-service | process-engine | External Tasks (`fetchAndLock`), noch nicht angebunden | `sprachnotiz-transkribieren`, `protokollentwurf-erstellen` |
+| process-engine | Kafka `terramax.process.events` | Events nach jedem Commit | `notifications` informiert die SPA (siehe unten) |
+
+Festlegung: **Die Engine steuert, die Services liefern zu.** TerraMax-Services
+rufen die Engine nicht auf und kennen keine Prozess-IDs. Wenn der Ablauf
+weitergehen soll, schließt die SPA eine Aufgabe ab oder die Engine fragt einen
+Service. Wer den Zustand einer Tour wissen will, liest ihn per REST aus der
+Engine oder hört auf die Kafka-Events.
+
+## Prozess-Events (Kafka)
+
+Die Engine publiziert die Events aus [docs/kafka/README.md](../docs/kafka/README.md)
+auf `terramax.process.events` (Paket `de.thi.terramax.process.events`):
+
+- Ein Engine-Plugin hängt beim Deployen Listener an die BPMN-Elemente. Das
+  Modell selbst bleibt unverändert.
+- Gesendet wird erst **nach dem Commit** der Engine-Transaktion. Schlägt ein
+  Schritt fehl (z. B. Überspringen ohne Grund), entsteht kein Event.
+- `userid` ist der Keycloak-`sub` des Startenden. Die Engine merkt ihn sich beim
+  Start in der Prozessvariablen `initiatorId`, weil sie sonst nur den
+  Benutzernamen kennt.
+- Ist Kafka nicht erreichbar, wird der Fehler geloggt und der Prozess läuft
+  weiter. Das Event fehlt dann. Für garantierte Zustellung wäre später eine
+  Outbox-Tabelle nötig.
+- Lokal und in Tests ist Kafka aus (`KAFKA_ENABLED=false`), die Events landen
+  nur im Log.
+
 ## Die Platzhalter aus dem Modell
 
 | Delegate im Modell | Klasse | Was passiert |
@@ -71,6 +104,7 @@ bleibt trotzdem sinnvoll.
 | `sprachnotizVorhanden` | „Sprachnotiz aufnehmen“ | Boolean (vorerst `false`) |
 | `protokoll` | „Protokoll prüfen“ | Objekt, z. B. `gespraechspartner`, `themen`, `ergebnis`, `naechsteSchritte`, `followUpDatum` |
 | `touruebersicht` | Engine | `besuche` (mit `status`), `anzahlDokumentiert`, `anzahlUebersprungen`, `anzahlOffen` |
+| `initiatorId` | Engine (Start) | Keycloak-`sub` des Startenden, Empfänger der Kafka-Events |
 
 Listen und Objekte werden als JSON gespeichert. Beim Abschließen einer Aufgabe
 über REST schickt das Frontend sie so:
@@ -118,6 +152,41 @@ Für einen echten Login braucht der Realm die Rolle `sales_professional`
 | `TOUR_SERVICE_URL` | `http://localhost:8084` | Adresse des tour-service |
 | `CORS_ORIGINS` | `http://localhost:5173` | erlaubte Frontend-Adressen |
 | `SPRING_DATASOURCE_URL` / `_USERNAME` / `_PASSWORD` | H2-Datei | auf dem Server PostgreSQL |
+| `KAFKA_ENABLED` | `false` | `true`: Prozess-Events nach Kafka senden |
+| `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | auf dem Server `kafka:9092` |
+
+## Server (Portainer)
+
+Die Engine läuft im gemeinsamen Stack (Root-`docker-compose.yml`) mit einer
+eigenen PostgreSQL-Datenbank:
+
+| Container | Netzwerke | Erreichbar |
+|---|---|---|
+| `process-engine` | `nginx-proxy-manager`, `process-engine-intern`, `kafka-intern` | nur über den Nginx Proxy Manager (`terramax-process-engine-1:8086`) |
+| `process-engine-db` (PostgreSQL 17) | `process-engine-intern` | nur intern, Daten im Volume `terramax-process-engine-db` |
+
+Die Engine legt ihre Tabellen (Runtime und History) beim ersten Start selbst
+an und deployt dabei das Modell `besuchstour.bpmn`.
+
+**Einrichten (einmalig):**
+
+1. Portainer → Stack `terramax` → Variable `PROCESS_ENGINE_DB_PASSWORD` setzen
+   (zufälliges Passwort, nirgends sonst ablegen) → *Update the stack*.
+2. Nginx Proxy Manager → Proxy Host anlegen: Domain z. B.
+   `terramax-engine.winfprojekt.de`, Forward `terramax-process-engine-1`,
+   Port `8086`, Tab *SSL*: Let's-Encrypt-Zertifikat anfordern, *Force SSL*.
+
+**Prüfen:**
+
+```bash
+curl -i https://terramax-engine.winfprojekt.de/actuator/health        # 200, {"status":"UP"}
+curl -i https://terramax-engine.winfprojekt.de/engine-rest/engine      # 401 ohne Token
+curl -i -H "Authorization: Bearer $TOKEN" \
+  https://terramax-engine.winfprojekt.de/engine-rest/engine            # 200, [{"name":"default"}]
+```
+
+Das Token braucht die Realm-Rolle `sales_professional`, sonst kommt `403`.
+Die Events sieht man in der Kafka-UI unter `terramax.process.events`.
 
 ## Tests
 
@@ -125,13 +194,18 @@ Für einen echten Login braucht der Realm die Rolle `sales_professional`
 ./mvnw verify
 ```
 
-15 Tests: der komplette Prozess mit echter Engine (normaler Ablauf,
+25 Tests: der komplette Prozess mit echter Engine (normaler Ablauf,
 Überspringen, Abbruch, zu wenige Kunden, Plan verworfen, Grund ist Pflicht),
-die Absicherung der REST-API und der Aufruf des tour-service.
+die Prozess-Events (Reihenfolge, Inhalte, kein Event bei Fehler), das
+Kafka-Format, der Start mit Kafka, die Absicherung der REST-API und der Aufruf des tour-service.
 
 ## Offen (mit Team/Prof klären)
 
-- Wo und wie die zentrale Instanz auf dem Server läuft (Portainer, PostgreSQL)
+- Der tour-service ist noch nicht im Server-Stack (#64). Bis dahin schlägt
+  „Besuchsplan erzeugen“ auf dem Server fehl.
+- Webapps (Cockpit/Tasklist) mit Keycloak-Login sind nicht eingebaut (siehe
+  Tabelle oben: nur REST-API). Falls das Team sie braucht, kommen dafür
+  `cibseven-bpm-spring-boot-starter-webapp` und ein OIDC-Login dazu.
 - Service-Konto in Keycloak, falls „Besuchsplan erzeugen“ einmal asynchron läuft
 - Anbindung der Sprach-Schritte an den speech-service (External Tasks)
 - Berechtigungen in der Engine: Derzeit darf jeder Sales Professional über die

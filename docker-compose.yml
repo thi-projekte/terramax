@@ -9,6 +9,9 @@
 #   SPEECH_SERVICE_TAG        optional, Standard latest, z. B. sha-abc1234
 #   KAFKA_UI_PASSWORD         Pflicht, Passwort für die Kafka-Entwickler-UI (ohne startet der Stack nicht)
 #   KAFKA_UI_USER             optional, Standard terramax
+#   PROCESS_ENGINE_DB_PASSWORD  Pflicht, Passwort der Engine-Datenbank (ohne startet der Stack nicht)
+#   PROCESS_ENGINE_TAG        optional, Standard latest, z. B. sha-abc1234
+#   TOUR_SERVICE_URL          optional, Standard http://tour-service:8084 (Adresse für "Besuchsplan erzeugen")
 
 services:
   # --- Spracherkennung (speech-service/README.md) ---
@@ -54,6 +57,55 @@ services:
     restart: unless-stopped
     networks:
       - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
+
+  # --- Process Engine / CIB seven (process-engine/README.md, Abschnitt "Server") ---
+  # Nginx Proxy Manager: terramax-engine.winfprojekt.de -> terramax-process-engine-1:8086
+  # Erreichbar sind nur /engine-rest (Keycloak-Token nötig) und /actuator/health.
+
+  process-engine:
+    # Image aus .github/workflows/process-engine.yml
+    image: ghcr.io/thi-projekte/terramax-process-engine:${PROCESS_ENGINE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://process-engine-db:5432/process_engine
+      SPRING_DATASOURCE_USERNAME: process_engine
+      SPRING_DATASOURCE_PASSWORD: ${PROCESS_ENGINE_DB_PASSWORD:?PROCESS_ENGINE_DB_PASSWORD in Portainer setzen}
+      # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
+      KEYCLOAK_ISSUER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
+      # Der tour-service ist noch nicht in diesem Stack (#64). Bis dahin schlägt "Besuchsplan erzeugen" fehl.
+      TOUR_SERVICE_URL: ${TOUR_SERVICE_URL:-http://tour-service:8084}
+      CORS_ORIGINS: https://terramax.winfprojekt.de
+      # Prozess-Events nach docs/kafka/README.md
+      KAFKA_ENABLED: "true"
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      process-engine-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
+      - process-engine-intern # erreicht die Datenbank
+      - kafka-intern          # publiziert Prozess-Events
+
+  # Eigene PostgreSQL-Datenbank der Engine (Runtime- und History-Tabellen), nur intern erreichbar.
+  # Die Engine legt die Tabellen beim Start selbst an (camunda.bpm.database.schema-update).
+  process-engine-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: process_engine
+      POSTGRES_USER: process_engine
+      POSTGRES_PASSWORD: ${PROCESS_ENGINE_DB_PASSWORD:?PROCESS_ENGINE_DB_PASSWORD in Portainer setzen}
+    volumes:
+      - process_engine_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U process_engine -d process_engine"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - process-engine-intern # nur intern, kein Port nach außen
 
   # --- Kafka-Event-Bus (Topics, Schemas und Betrieb: docs/kafka/README.md) ---
   # Single Node im KRaft-Modus (Broker und Controller in einem Prozess, kein ZooKeeper).
@@ -142,11 +194,15 @@ networks:
     external: true            # existiert bereits auf dem Host
   speech-intern:
     driver: bridge            # vom Stack verwaltet, Whisper ist von außen nicht erreichbar
+  process-engine-intern:
+    driver: bridge            # vom Stack verwaltet, die Datenbank ist von außen nicht erreichbar
   kafka-intern:
-    name: terramax-kafka      # fester Name für Testbefehle (docker run --network terramax-kafka)
+    name: terramax-kafka     # fester Name für Testbefehle (docker run --network terramax-kafka)
     driver: bridge            # vom Stack verwaltet, Kafka ist von außen nicht erreichbar
 
 volumes:
   whisper_models:             # heruntergeladene Whisper-Modelle
   kafka_data:
     name: terramax-kafka-data # Topics und Offsets, überleben einen Redeploy
+  process_engine_db:
+    name: terramax-process-engine-db # Prozesszustand und History, überleben einen Redeploy

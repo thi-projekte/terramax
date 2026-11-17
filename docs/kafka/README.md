@@ -89,7 +89,7 @@ Producer ist die `process-engine` (z. B. per Execution-/Task-Listener). Key und 
 | `tour.completed` | Ende `EndEvent_TourAbgeschlossen` | `tourDatum`, `dokumentiert`, `uebersprungen`, `offen` (je Anzahl Besuche) |
 | `task.created` | User Task wird erzeugt | `taskId`, `taskDefinitionKey`, `name`, `formKey` |
 | `visit.skipped` | Ende `EndEvent_BesuchUebersprungen` | `kundeId`, `position` |
-| `visit.documented` | Ende `EndEvent_BesuchDokumentiert` | `kundeId`, `position`, `sprachnotizId` (oder `null`) |
+| `visit.documented` | Ende `EndEvent_BesuchDokumentiert` (erzeugt zu Beginn von `Task_ProtokollZuordnen`, das direkt dorthin führt und `sprachnotizId` danach entfernt) | `kundeId`, `position`, `sprachnotizId` (oder `null`) |
 
 Beispiel `data` für `tour.completed`:
 
@@ -144,5 +144,5 @@ Die Daten von `kafka` liegen im Volume `terramax-kafka-data` und überleben eine
 
 ## Offen
 
-- Die Producer in `process-engine` und `speech-service` und der `notifications`-Service selbst sind noch nicht umgesetzt; dieses Dokument ist der Vertrag dafür.
+- Der Producer in `process-engine` ist umgesetzt (#63, siehe `process-engine/README.md`, Abschnitt „Prozess-Events“). Der Producer im `speech-service` und der `notifications`-Service selbst fehlen noch; dieses Dokument ist der Vertrag dafür.
 - Fehlgeschlagene Verarbeitung im Consumer (Dead-Letter-Topic) wird festgelegt, sobald `notifications` steht.
