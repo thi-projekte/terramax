@@ -51,6 +51,27 @@ services:
     networks:
       - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
 
+  # --- Benachrichtigungen (notification-service/README.md) ---
+  # Nginx Proxy Manager: terramax-notifications.winfprojekt.de -> terramax-notification-service-1:8080
+
+  notification-service:
+    # Image aus .github/workflows/notification-service.yml; zum Ausrollen auf :sha-<commit> pinnen
+    image: ghcr.io/thi-projekte/terramax-notification-service:main
+    restart: unless-stopped
+    environment:
+      # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
+      QUARKUS_OIDC_AUTH_SERVER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
+      # Falls Keycloak beim Start dieses Stacks gerade nicht erreichbar ist
+      QUARKUS_OIDC_CONNECTION_DELAY: 3M
+      # Kafka aus diesem Stack (docs/kafka/README.md)
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
+      - kafka-intern          # erreicht Kafka
+
   # --- Kafka-Event-Bus (Topics, Schemas und Betrieb: docs/kafka/README.md) ---
   # Single Node im KRaft-Modus (Broker und Controller in einem Prozess, kein ZooKeeper).
   # Kein Port auf dem Host: Services hängen sich an das Netzwerk kafka-intern und nutzen kafka:9092.
