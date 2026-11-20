@@ -31,9 +31,10 @@ services:
       QUARKUS_REST_CLIENT_TERRAMAX_URL: ${SPEECH_TERRAMAX_URL:-http://terramax-service:8080}
       # Events auf terramax.speech.events (docs/kafka/README.md)
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      # Nur nötig, wenn Frontend und Service auf verschiedenen Domains laufen:
-      # QUARKUS_HTTP_CORS_ENABLED: "true"
-      # QUARKUS_HTTP_CORS_ORIGINS: https://terramax.winfprojekt.de
+      # Frontend (terramax.winfprojekt.de) und Service (terramax-speech.winfprojekt.de) laufen auf
+      # verschiedenen Domains, deshalb CORS für die SPA freigeben
+      QUARKUS_HTTP_CORS_ENABLED: "true"
+      QUARKUS_HTTP_CORS_ORIGINS: https://terramax.winfprojekt.de
     depends_on:
       - kafka
     networks:

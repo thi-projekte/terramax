@@ -227,9 +227,10 @@ client_max_body_size 10m;
 proxy_read_timeout 120s;
 ```
 
-Das Frontend wird mit der öffentlichen Adresse gebaut (`VITE_SPEECH_API_URL`).
-Laufen Frontend und Service auf verschiedenen Domains, die CORS-Zeilen in
-`docker-compose.yml` aktivieren.
+Das Frontend wird mit der öffentlichen Adresse gebaut (`VITE_SPEECH_API_URL`,
+Standard in `.github/workflows/frontend.yml`: `https://terramax-speech.winfprojekt.de`).
+Weil Frontend und Service auf verschiedenen Domains laufen, ist CORS in
+`docker-compose.yml` für `https://terramax.winfprojekt.de` freigegeben.
 
 ## Datenschutz
 
