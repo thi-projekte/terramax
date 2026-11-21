@@ -12,6 +12,8 @@ public final class TourRequests {
 
     /** Wie {@code tour_customer.skip_reason}. */
     static final int MAX_SKIP_REASON_LENGTH = 1000;
+    /** Wie {@code tour.abort_reason}. */
+    static final int MAX_ABORT_REASON_LENGTH = 1000;
     /** Wie {@code tour.process_instance_id}. */
     static final int MAX_PROCESS_INSTANCE_ID_LENGTH = 64;
 
@@ -41,6 +43,11 @@ public final class TourRequests {
     @Schema(name = "StopTimeRequest", description = "Optional. Ohne Body oder ohne at gilt die aktuelle Zeit des Servers.")
     public record StopTime(
             @Schema(description = "Zeitpunkt, z. B. aus besuchBegonnenAm bzw. besuchAbgeschlossenAm", example = "2026-11-24T09:15:00+01:00") OffsetDateTime at) {
+    }
+
+    @Schema(name = "AbortTourRequest", description = "Optional. Ohne Body oder ohne reason wird die Tour ohne Grund abgebrochen.")
+    public record Abort(
+            @Schema(description = "Grund des Abbruchs, höchstens 1000 Zeichen", example = "Unwetter") String reason) {
     }
 
     @Schema(name = "SkipStopRequest", description = "Besuch überspringen, Grund ist Pflicht (Akzeptanzkriterium #29)")

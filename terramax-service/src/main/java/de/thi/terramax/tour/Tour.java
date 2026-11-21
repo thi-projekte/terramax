@@ -54,6 +54,14 @@ public class Tour extends PanacheEntityBase {
     @Column(name = "created_at", nullable = false, updatable = false)
     public OffsetDateTime createdAt;
 
+    /** Optionaler Grund, nur bei {@link TourStatus#ABORTED}. */
+    @Column(name = "abort_reason")
+    public String abortReason;
+
+    /** Zeitpunkt des Abbruchs, nur bei {@link TourStatus#ABORTED}. */
+    @Column(name = "aborted_at")
+    public OffsetDateTime abortedAt;
+
     /** Wer die Tour fährt. */
     @ManyToMany
     @JoinTable(name = "tour_employee", joinColumns = @JoinColumn(name = "tour_id"), inverseJoinColumns = @JoinColumn(name = "employee_id"))

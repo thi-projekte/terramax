@@ -1,5 +1,7 @@
 package de.thi.terramax.tour;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.thi.terramax.common.ApiErrors;
 import de.thi.terramax.common.ErrorResponse;
 import de.thi.terramax.common.TerraMaxApplication;
@@ -9,6 +11,7 @@ import de.thi.terramax.dealer.DealerEmployee;
 import de.thi.terramax.protocol.VisitorProtocol;
 import de.thi.terramax.security.CurrentUser;
 import de.thi.terramax.security.Roles;
+import de.thi.terramax.tour.StopTransitions.InvalidTransitionException;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.quarkus.narayana.jta.QuarkusTransactionException;
 import jakarta.annotation.security.RolesAllowed;
@@ -27,6 +30,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +68,7 @@ public class TourResource {
     static final String EXAMPLE_TOUR = """
             {"id": 1, "dealerId": "D-100", "tourDate": "2026-11-24", "status": "in_progress",
              "processInstanceId": "8f2c1a7e-1b2c-11f0-9d5e-0242ac120002", "createdAt": "2026-11-24T07:58:12.345+01:00",
-             "employeeIds": [1],
+             "abortReason": null, "abortedAt": null, "employeeIds": [1],
              "customers": [
                {"customerId": 3, "externalId": "MOCK-003", "name": "Testbetrieb 03 (fiktiv)", "position": 1,
                 "status": "DOKUMENTIERT", "skipReason": null, "startedAt": "2026-11-24T09:15:00+01:00",
@@ -78,6 +82,9 @@ public class TourResource {
 
     @Inject
     TourAccess access;
+
+    @Inject
+    ObjectMapper objectMapper;
 
     @GET
     @RolesAllowed({ Roles.SALES_PROFESSIONAL, Roles.DEALER_PRINCIPAL })
@@ -116,11 +123,16 @@ public class TourResource {
             @ExampleObject(name = "Tour läuft", value = """
                     {"tourId": 1, "processInstanceId": "8f2c1a7e-1b2c-11f0-9d5e-0242ac120002", "tourStatus": "in_progress",
                      "anzahlHalte": 5, "offeneHalte": 3, "dokumentiert": 1, "uebersprungen": 1, "alleErledigt": false,
+                     "beendet": false, "abgebrochen": false, "abbruchGrund": null,
                      "naechsterHalt": {"kundeId": 7, "position": 3, "name": "Testbetrieb 07 (fiktiv)", "begonnen": false}}"""),
             @ExampleObject(name = "Alle erledigt", value = """
                     {"tourId": 1, "processInstanceId": "8f2c1a7e-1b2c-11f0-9d5e-0242ac120002", "tourStatus": "in_progress",
                      "anzahlHalte": 5, "offeneHalte": 0, "dokumentiert": 4, "uebersprungen": 1, "alleErledigt": true,
-                     "naechsterHalt": null}""") }))
+                     "beendet": false, "abgebrochen": false, "abbruchGrund": null, "naechsterHalt": null}"""),
+            @ExampleObject(name = "Abgebrochen", value = """
+                    {"tourId": 1, "processInstanceId": "8f2c1a7e-1b2c-11f0-9d5e-0242ac120002", "tourStatus": "aborted",
+                     "anzahlHalte": 5, "offeneHalte": 3, "dokumentiert": 1, "uebersprungen": 1, "alleErledigt": false,
+                     "beendet": true, "abgebrochen": true, "abbruchGrund": "Unwetter", "naechsterHalt": null}""") }))
     @APIResponse(responseCode = "404", description = "Unbekannte oder nicht sichtbare Tour", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErrorResponse.class)))
     public TourProcessStatusDto status(
             @Parameter(description = "ID der Tour", example = "1") @PathParam("id") long id) {
@@ -131,9 +143,9 @@ public class TourResource {
     @Path("/{id}/overview")
     @Operation(summary = "Tourübersicht", description = "Alle Halte mit Status, Grund, Zeiten und Protokoll-IDs. "
             + "Ersetzt die Prozessvariable touruebersicht (Service Task \"Tourübersicht erstellen\").")
-    @APIResponse(responseCode = "200", description = "Übersicht", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = TourOverviewDto.class), examples = @ExampleObject(name = "Abgeschlossene Tour", value = """
+    @APIResponse(responseCode = "200", description = "Übersicht", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = TourOverviewDto.class), examples = @ExampleObject(name = "Abgebrochene Tour", value = """
             {"tourId": 1, "processInstanceId": "8f2c1a7e-1b2c-11f0-9d5e-0242ac120002", "tourDatum": "2026-11-24",
-             "tourStatus": "completed",
+             "tourStatus": "aborted", "abbruchGrund": "Unwetter", "abgebrochenAm": "2026-11-24T11:05:00+01:00",
              "besuche": [
                {"position": 1, "kundeId": 3, "externalId": "MOCK-003", "name": "Testbetrieb 03 (fiktiv)", "ort": "Mostviertel",
                 "status": "DOKUMENTIERT", "grund": null, "besuchBegonnenAm": "2026-11-24T09:15:00+01:00",
@@ -210,15 +222,18 @@ public class TourResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     @Operation(summary = "Tour ändern", description = "Status der Tour (z. B. completed bei \"Tour abschließen\", "
-            + "discarded bei \"Tour verworfen\") und Reihenfolge der Halte (\"Besuchsplan prüfen\"). Den Stand "
-            + "einzelner Halte ändern die Endpunkte unter /tours/{id}/stops/{customerId}.")
+            + "discarded bei \"Tour verworfen\") und Reihenfolge der Halte (\"Besuchsplan prüfen\"). completed, "
+            + "discarded und aborted sind endgültig: ein Wechsel daraus ergibt 409, derselbe Status 200. Abbrechen "
+            + "nur über POST /tours/{id}/abort. Den Stand einzelner Halte ändern die Endpunkte unter "
+            + "/tours/{id}/stops/{customerId}.")
     @RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = TourRequests.Patch.class), examples = {
             @ExampleObject(name = "Tour abschließen", value = "{\"status\": \"completed\"}"),
             @ExampleObject(name = "Tour verworfen", value = "{\"status\": \"discarded\"}"),
             @ExampleObject(name = "Reihenfolge ändern", value = "{\"customerOrder\": [2, 3, 1]}") }))
     @APIResponse(responseCode = "200", description = "Geändert", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = TourDto.class)))
-    @APIResponse(responseCode = "400", description = "Ungültige Angaben", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErrorResponse.class)))
+    @APIResponse(responseCode = "400", description = "Ungültige Angaben, z. B. status aborted (dafür POST /tours/{id}/abort)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErrorResponse.class)))
     @APIResponse(responseCode = "404", description = "Unbekannte oder nicht sichtbare Tour", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErrorResponse.class)))
+    @APIResponse(responseCode = "409", description = "Tour ist bereits abgeschlossen, verworfen oder abgebrochen", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErrorResponse.class), examples = @ExampleObject(name = "Abgebrochen", value = "{\"error\": \"Tour 1 ist aborted und kann nicht mehr completed werden.\"}")))
     public TourDto patch(@Parameter(description = "ID der Tour", example = "1") @PathParam("id") long id,
             TourRequests.Patch request) {
         if (request == null) {
@@ -229,8 +244,12 @@ public class TourResource {
                 .collect(Collectors.toMap(s -> s.customer.id, Function.identity()));
 
         if (request.status() != null) {
+            TourStatus target;
             try {
-                tour.status = TourStatus.fromDbValue(request.status());
+                target = TourStatus.fromDbValue(request.status());
+                TourTransitions.changeStatus(tour, target);
+            } catch (InvalidTransitionException e) {
+                throw ApiErrors.conflict(e.getMessage());
             } catch (IllegalArgumentException e) {
                 throw ApiErrors.badRequest(e.getMessage());
             }
@@ -247,6 +266,62 @@ public class TourResource {
             tour.stops.sort((a, b) -> Integer.compare(a.position, b.position));
         }
         return TourDto.from(tour);
+    }
+
+    @POST
+    @Path("/{id}/abort")
+    @Transactional
+    @Operation(summary = "Tour abbrechen", description = "Message TourAbbrechen: setzt die Tour auf aborted, optional "
+            + "mit Grund. Offene Halte bleiben OFFEN, erledigte unverändert. Idempotent: Eine abgebrochene Tour bleibt "
+            + "ohne oder mit demselben Grund unverändert (200), ein anderer Grund ergibt 409. Eine abgeschlossene oder "
+            + "verworfene Tour kann nicht abgebrochen werden (409). Body optional, auch ohne Content-Type.")
+    @RequestBody(required = false, content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = TourRequests.Abort.class), examples = {
+            @ExampleObject(name = "Ohne Grund", value = "{}"),
+            @ExampleObject(name = "Mit Grund", value = "{\"reason\": \"Unwetter\"}") }))
+    @APIResponse(responseCode = "200", description = "Tour nach dem Aufruf", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = TourDto.class), examples = @ExampleObject(name = "Abgebrochen", value = """
+            {"id": 1, "dealerId": "D-100", "tourDate": "2026-11-24", "status": "aborted",
+             "processInstanceId": "8f2c1a7e-1b2c-11f0-9d5e-0242ac120002", "createdAt": "2026-11-24T07:58:12.345+01:00",
+             "abortReason": "Unwetter", "abortedAt": "2026-11-24T11:05:00+01:00", "employeeIds": [1],
+             "customers": [
+               {"customerId": 3, "externalId": "MOCK-003", "name": "Testbetrieb 03 (fiktiv)", "position": 1,
+                "status": "DOKUMENTIERT", "skipReason": null, "startedAt": "2026-11-24T09:15:00+01:00",
+                "finishedAt": "2026-11-24T09:55:00+01:00", "latitude": 48.31, "longitude": 15.62},
+               {"customerId": 1, "externalId": "MOCK-001", "name": "Testbetrieb 01 (fiktiv)", "position": 2,
+                "status": "OFFEN", "skipReason": null, "startedAt": null, "finishedAt": null,
+                "latitude": 48.235, "longitude": 16.65}]}""")))
+    @APIResponse(responseCode = "400", description = "Body ungültig oder Grund zu lang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErrorResponse.class)))
+    @APIResponse(responseCode = "404", description = "Unbekannte oder nicht sichtbare Tour", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErrorResponse.class)))
+    @APIResponse(responseCode = "409", description = "Tour ist abgeschlossen oder verworfen, oder wurde mit anderem Grund abgebrochen", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErrorResponse.class), examples = @ExampleObject(name = "Abgeschlossen", value = "{\"error\": \"Tour 1 ist completed und kann nicht abgebrochen werden.\"}")))
+    public TourDto abort(@Parameter(description = "ID der Tour", example = "1") @PathParam("id") long id,
+            String body) {
+        Tour tour = access.visibleTour(id);
+        String reason = abortReason(body);
+        try {
+            if (TourTransitions.abort(tour, reason, OffsetDateTime.now())) {
+                LOG.infof("Tour %d abgebrochen", tour.id);
+            }
+        } catch (InvalidTransitionException e) {
+            throw ApiErrors.conflict(e.getMessage());
+        }
+        return TourDto.from(tour);
+    }
+
+    /** Body von /abort ist optional und wird selbst geparst, damit auch Aufrufe ohne Content-Type gehen. */
+    private String abortReason(String body) {
+        if (body == null || body.isBlank()) {
+            return null;
+        }
+        TourRequests.Abort request;
+        try {
+            request = objectMapper.readValue(body, TourRequests.Abort.class);
+        } catch (JsonProcessingException e) {
+            throw ApiErrors.badRequest("Der Body muss leer sein oder {\"reason\": \"…\"} lauten.");
+        }
+        String reason = request == null ? null : blankToNull(request.reason());
+        if (reason != null && reason.length() > TourRequests.MAX_ABORT_REASON_LENGTH) {
+            throw ApiErrors.badRequest("Der Grund ist zu lang.");
+        }
+        return reason;
     }
 
     /** Antwort 200 mit der bestehenden Tour zur Prozessinstanz, oder 409, wenn der Aufrufer sie nicht sieht. */

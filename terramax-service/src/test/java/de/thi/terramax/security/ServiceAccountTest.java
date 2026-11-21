@@ -91,6 +91,12 @@ class ServiceAccountTest {
     }
 
     @Test
+    void abortsTourOfAnyDealer() {
+        given().contentType("application/json").body(Map.of("reason", "TourAbbrechen")).when()
+                .post("/tours/{id}/abort", f.foreignTour()).then().statusCode(200).body("status", is("aborted"));
+    }
+
+    @Test
     void savesProtocolAsServiceAccount() {
         given().contentType("application/json").body(Map.of("customerId", f.maier(), "outcome", "per Engine")).when()
                 .post("/tours/{id}/protocols", f.ownTour()).then().statusCode(201)

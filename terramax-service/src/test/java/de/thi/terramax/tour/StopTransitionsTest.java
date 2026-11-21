@@ -75,7 +75,7 @@ class StopTransitionsTest {
 
     @Test
     void finishedOrDiscardedTourAllowsNoTransition() {
-        for (TourStatus status : new TourStatus[] { TourStatus.COMPLETED, TourStatus.DISCARDED }) {
+        for (TourStatus status : new TourStatus[] { TourStatus.COMPLETED, TourStatus.DISCARDED, TourStatus.ABORTED }) {
             setUp();
             stop.tour.status = status;
             assertThrows(InvalidTransitionException.class, () -> StopTransitions.start(stop, T1));

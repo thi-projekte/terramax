@@ -39,8 +39,8 @@ import java.util.Objects;
  * </tr>
  * </table>
  * Erledigte Halte ({@code DOKUMENTIERT}, {@code UEBERSPRUNGEN}) lassen sich nicht mehr ändern. Auf Touren mit Status
- * {@code completed} oder {@code discarded} ist kein Übergang mehr möglich. Der erste Übergang setzt eine Tour von
- * {@code planned} auf {@code in_progress}.
+ * {@code completed}, {@code discarded} oder {@code aborted} ist kein Übergang mehr möglich. Der erste Übergang setzt
+ * eine Tour von {@code planned} auf {@code in_progress}.
  */
 public final class StopTransitions {
 
@@ -124,7 +124,7 @@ public final class StopTransitions {
 
     private static void requireTourOpen(TourCustomer stop) {
         TourStatus status = stop.tour.status;
-        if (status == TourStatus.COMPLETED || status == TourStatus.DISCARDED) {
+        if (status.isFinal()) {
             throw new InvalidTransitionException(
                     "Tour " + stop.tour.id + " ist " + status.getDbValue() + ", Halte sind nicht mehr änderbar.");
         }

@@ -25,6 +25,7 @@ class SecurityTest {
             "PATCH,/tours/1", "GET,/tours/1/protocols", "POST,/tours/1/protocols", "GET,/tours/plan",
             "GET,/tours/by-process/p1", "GET,/tours/1/status", "GET,/tours/1/overview", "POST,/tours/1/stops/1/start",
             "POST,/tours/1/stops/1/skip", "POST,/tours/1/stops/1/complete", "DELETE,/tours/1/stops/1",
+            "POST,/tours/1/abort",
             "GET,/protocols/1", "PUT,/protocols/1", "PATCH,/protocols/1", "DELETE,/protocols/1" })
     void withoutTokenReturnsUnauthorized(String method, String path) {
         given().contentType("application/json").body(BODY).when().request(method, path).then().statusCode(401);
@@ -42,7 +43,8 @@ class SecurityTest {
             "GET,/customers/1/protocols", "GET,/tours", "GET,/tours/1", "POST,/tours", "PATCH,/tours/1",
             "GET,/tours/1/protocols", "POST,/tours/1/protocols", "GET,/tours/plan", "GET,/tours/by-process/p1",
             "GET,/tours/1/status", "GET,/tours/1/overview", "POST,/tours/1/stops/1/start", "POST,/tours/1/stops/1/skip",
-            "POST,/tours/1/stops/1/complete", "DELETE,/tours/1/stops/1", "GET,/protocols/1", "PUT,/protocols/1",
+            "POST,/tours/1/stops/1/complete", "DELETE,/tours/1/stops/1", "POST,/tours/1/abort", "GET,/protocols/1",
+            "PUT,/protocols/1",
             "PATCH,/protocols/1", "DELETE,/protocols/1" })
     @TestSecurity(user = "testuser")
     @OidcSecurity(claims = @Claim(key = "dealer_id", value = TestData.DEALER))
@@ -55,7 +57,8 @@ class SecurityTest {
             "GET,/customers/1/protocols", "GET,/tours", "GET,/tours/1", "POST,/tours", "PATCH,/tours/1",
             "GET,/tours/1/protocols", "POST,/tours/1/protocols", "GET,/tours/plan", "GET,/tours/by-process/p1",
             "GET,/tours/1/status", "GET,/tours/1/overview", "POST,/tours/1/stops/1/start", "POST,/tours/1/stops/1/skip",
-            "POST,/tours/1/stops/1/complete", "DELETE,/tours/1/stops/1", "GET,/protocols/1", "PUT,/protocols/1",
+            "POST,/tours/1/stops/1/complete", "DELETE,/tours/1/stops/1", "POST,/tours/1/abort", "GET,/protocols/1",
+            "PUT,/protocols/1",
             "PATCH,/protocols/1", "DELETE,/protocols/1" })
     @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
     @OidcSecurity(claims = @Claim(key = "sub", value = TestData.SALES_SUB))

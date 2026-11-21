@@ -13,9 +13,11 @@ public record TourDto(@Schema(example = "1") Long id,
         @Schema(example = "D-100") String dealerId, @Schema(example = "2026-11-20") LocalDate tourDate,
         @Schema(enumeration = {
                 "planned", "in_progress", "completed",
-                "discarded" }, example = "planned") String status,
+                "discarded", "aborted" }, example = "planned") String status,
         @Schema(description = "Prozessinstanz in CIB Seven, null bei Touren ohne Prozess", example = "8f2c1a7e-1b2c-11f0-9d5e-0242ac120002") String processInstanceId,
         OffsetDateTime createdAt,
+        @Schema(description = "Grund des Abbruchs, nur bei aborted (optional)", example = "Unwetter") String abortReason,
+        @Schema(description = "Zeitpunkt des Abbruchs, nur bei aborted") OffsetDateTime abortedAt,
         @Schema(description = "IDs der Mitarbeiter, die die Tour fahren", example = "[1]") List<Long> employeeIds,
         @Schema(description = "Halte in Besuchsreihenfolge") List<Stop> customers){
 
@@ -41,6 +43,6 @@ public record TourDto(@Schema(example = "1") Long id,
         List<Stop> stops = tour.stops.stream().map(Stop::from).toList();
         List<Long> employeeIds = tour.employees.stream().map(e -> e.id).sorted().toList();
         return new TourDto(tour.id, tour.dealer.id, tour.tourDate, tour.status.getDbValue(),
-                tour.processInstanceId, tour.createdAt, employeeIds, stops);
+                tour.processInstanceId, tour.createdAt, tour.abortReason, tour.abortedAt, employeeIds, stops);
     }
 }

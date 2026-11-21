@@ -17,7 +17,9 @@ public record TourOverviewDto(@Schema(example = "1") long tourId,
         @Schema(example = "2026-11-20") LocalDate tourDatum,
         @Schema(enumeration = {
                 "planned", "in_progress", "completed",
-                "discarded" }, example = "completed") String tourStatus,
+                "discarded", "aborted" }, example = "completed") String tourStatus,
+        @Schema(description = "Grund des Abbruchs, nur bei aborted", example = "Unwetter") String abbruchGrund,
+        @Schema(description = "Zeitpunkt des Abbruchs, nur bei aborted") OffsetDateTime abgebrochenAm,
         @Schema(description = "Alle Halte in Besuchsreihenfolge") List<Besuch> besuche,
         @Schema(example = "3") int anzahlDokumentiert, @Schema(example = "1") int anzahlUebersprungen,
         @Schema(example = "1") int anzahlOffen){
@@ -43,7 +45,8 @@ public record TourOverviewDto(@Schema(example = "1") long tourId,
                         s.customer.region, s.status.name(), s.skipReason, s.startedAt, s.finishedAt,
                         protocolIds.getOrDefault(s.customer.id, List.of())))
                 .toList();
-        return new TourOverviewDto(tour.id, tour.processInstanceId, tour.tourDate, tour.status.getDbValue(), besuche,
+        return new TourOverviewDto(tour.id, tour.processInstanceId, tour.tourDate, tour.status.getDbValue(),
+                tour.abortReason, tour.abortedAt, besuche,
                 TourProcessStatusDto.count(tour.stops, StopStatus.DOKUMENTIERT),
                 TourProcessStatusDto.count(tour.stops, StopStatus.UEBERSPRUNGEN),
                 TourProcessStatusDto.count(tour.stops, StopStatus.OFFEN));

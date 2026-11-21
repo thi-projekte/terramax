@@ -14,12 +14,15 @@ public record TourProcessStatusDto(@Schema(example = "1") long tourId,
         @Schema(example = "8f2c1a7e-1b2c-11f0-9d5e-0242ac120002") String processInstanceId,
         @Schema(enumeration = {
                 "planned", "in_progress", "completed",
-                "discarded" }, example = "in_progress") String tourStatus,
+                "discarded", "aborted" }, example = "in_progress") String tourStatus,
         @Schema(description = "Alle Halte der Tour; Gateway \"Mindestens zwei Kunden?\": anzahlHalte >= 2", example = "5") int anzahlHalte,
         @Schema(description = "Halte im Status OFFEN (auch begonnene)", example = "3") int offeneHalte,
         @Schema(example = "1") int dokumentiert, @Schema(example = "1") int uebersprungen,
         @Schema(description = "true, wenn kein Halt mehr OFFEN ist (auch bei einer Tour ohne Halte)", example = "false") boolean alleErledigt,
-        @Schema(description = "Erster offener Halt nach Position, null wenn alle erledigt") NaechsterHalt naechsterHalt){
+        @Schema(description = "Tour abgeschlossen, verworfen oder abgebrochen: keine Übergänge mehr", example = "false") boolean beendet,
+        @Schema(description = "Tour abgebrochen (aborted); offene Halte bleiben OFFEN", example = "false") boolean abgebrochen,
+        @Schema(description = "Grund des Abbruchs, nur bei aborted", example = "Unwetter") String abbruchGrund,
+        @Schema(description = "Erster offener Halt nach Position; null, wenn alle erledigt oder die Tour beendet ist") NaechsterHalt naechsterHalt){
 
     @Schema(name = "NaechsterHalt", description = "Nächster offener Halt")
     public record NaechsterHalt(@Schema(example = "3") long kundeId, @Schema(example = "3") int position,
@@ -30,12 +33,14 @@ public record TourProcessStatusDto(@Schema(example = "1") long tourId,
     public static TourProcessStatusDto from(Tour tour) {
         List<TourCustomer> stops = tour.stops;
         int offen = count(stops, StopStatus.OFFEN);
-        NaechsterHalt next = stops.stream().filter(s -> s.status == StopStatus.OFFEN)
-                .min(Comparator.comparingInt(s -> s.position))
-                .map(s -> new NaechsterHalt(s.customer.id, s.position, s.customer.name, s.startedAt != null))
-                .orElse(null);
+        NaechsterHalt next = tour.status.isFinal() ? null
+                : stops.stream().filter(s -> s.status == StopStatus.OFFEN)
+                        .min(Comparator.comparingInt(s -> s.position))
+                        .map(s -> new NaechsterHalt(s.customer.id, s.position, s.customer.name, s.startedAt != null))
+                        .orElse(null);
         return new TourProcessStatusDto(tour.id, tour.processInstanceId, tour.status.getDbValue(), stops.size(), offen,
-                count(stops, StopStatus.DOKUMENTIERT), count(stops, StopStatus.UEBERSPRUNGEN), offen == 0, next);
+                count(stops, StopStatus.DOKUMENTIERT), count(stops, StopStatus.UEBERSPRUNGEN), offen == 0,
+                tour.status.isFinal(), tour.status == TourStatus.ABORTED, tour.abortReason, next);
     }
 
     static int count(List<TourCustomer> stops, StopStatus status) {
