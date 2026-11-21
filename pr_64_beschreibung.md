@@ -24,12 +24,18 @@ CIB-Seven-Entwickler. Übergabe mit allen Schritten:
 | Besuchsplan prüfen | `PATCH /tours/{id}` `customerOrder`, `DELETE /tours/{id}/stops/{customerId}` | `besuchsplan` bearbeiten |
 | Besuch durchführen / beginnen | `POST /tours/{id}/stops/{customerId}/start` | `besuchBegonnenAm` in `besuchsergebnisse` |
 | Grund für Überspringen speichern | `POST /tours/{id}/stops/{customerId}/skip` mit `reason` | `besuchsergebnisse` (`UEBERSPRUNGEN`) |
-| Protokoll dem Kunden zuordnen | `POST /tours/{id}/stops/{customerId}/complete` (Protokoll speichert vorher der speech-service per `POST /tours/{id}/protocols`) | `besuchsergebnisse` (`DOKUMENTIERT`) |
+| Protokoll dem Kunden zuordnen | `POST /tours/{id}/stops/{customerId}/complete`. Kein Protokoll anlegen: das hat der speech-service schon per `POST /tours/{id}/protocols` in TerraMax gespeichert | `besuchsergebnisse` (`DOKUMENTIERT`) |
 | Tourübersicht erstellen | `GET /tours/{id}/overview` (gleiche Feldnamen wie bisher) | `touruebersicht` |
-| Tour abschließen / verworfen / abgebrochen | `PATCH /tours/{id}` `status` = `completed` bzw. `discarded` | – |
-| Protokoll lesen, korrigieren, löschen | `GET`, `PUT`, `PATCH`, `DELETE /protocols/{id}` | `protokoll` |
+| Tour abschließen / verworfen | `PATCH /tours/{id}` `status` = `completed` bzw. `discarded` | – |
+| Message TourAbbrechen | `POST /tours/{id}/abort`, optional mit `reason`; Status `aborted`, offene Halte bleiben `OFFEN` | – |
+| Protokolle lesen (nur bei Bedarf) | `GET /tours/{id}/protocols`, `GET /protocols/{id}` | `protokoll` |
 
 Alle Schreibaufrufe sind idempotent; ungültige Statusübergänge geben `409`.
+
+**Protokolle:** TerraMax speichert die Besuchsprotokolle. Der speech-service
+schickt sie an `POST /tours/{id}/protocols`. Die Engine legt keine Protokolle an
+und liest sie nur bei Bedarf. Ändern und löschen (`PUT`/`PATCH`/`DELETE
+/protocols/{id}`) dürfen der Ersteller und das Service-Konto.
 Swagger UI mit Beispielen zu allen Endpunkten: `/q/swagger-ui` (jetzt auch im Container).
 
 ## Änderungen
@@ -43,6 +49,11 @@ Swagger UI mit Beispielen zu allen Endpunkten: `/q/swagger-ui` (jetzt auch im Co
   (`OFFEN`/`DOKUMENTIERT`/`UEBERSPRUNGEN`) statt `visited`, Altdaten
   `visited = true` → `DOKUMENTIERT`; `skip_reason` (Pflicht bei `UEBERSPRUNGEN`),
   `started_at`, `finished_at`; Unique-Index auf `tour.process_instance_id`.
+- **Flyway `V4__tour_aborted.sql`:** Tour-Status `aborted` mit `abort_reason` und
+  `aborted_at`. `POST /tours/{id}/abort` (Regeln in `TourTransitions`):
+  idempotent, `409` bei abgeschlossener oder verworfener Tour; `completed`,
+  `discarded` und `aborted` sind endgültig, auch für `PATCH` (`409`). Status und
+  Übersicht zeigen `abgebrochen`/`abbruchGrund`.
 - **Engine-Endpunkte** wie oben, Regeln der Übergänge in `StopTransitions`.
   `PATCH /tours/{id}` hat das Feld `visited` nicht mehr; der Halt-Status ändert sich
   nur über `/stops/{customerId}/start|skip|complete`. `TourStop` liefert `status`,
@@ -65,11 +76,17 @@ Swagger UI mit Beispielen zu allen Endpunkten: `/q/swagger-ui` (jetzt auch im Co
 - **OpenAPI:** Beispiele für Requests und Responses aller Engine-Endpunkte,
   Swagger UI auch in prod (`quarkus.swagger-ui.always-include=true`).
 - **CORS:** `DELETE` zusätzlich erlaubt (neue DELETE-Endpunkte).
+- **Dev-Modus:** `%dev.quarkus.oidc.auth-server-url=${OIDC_AUTH_SERVER_URL:}`
+  entfernt. Der leere Wert überschrieb die Adresse des lokalen Keycloaks, Aufrufe
+  mit Token endeten mit 500. Team-Keycloak lokal jetzt über
+  `QUARKUS_OIDC_AUTH_SERVER_URL`.
+- **Stack:** `OPENAI_API_KEY: ${OPENAI_API_KEY:-not-configured}`, sonst startet der
+  Service ohne gesetzten Key nicht (leerer String).
 - README und Übergabedoku aktualisiert.
 
 ## Tests
 
-`./mvnw verify`: 307 Tests, alle grün. Neu:
+`./mvnw verify`: 332 Tests, alle grün. Neu:
 
 - `TourProcessEndpointsTest`: Idempotenz von `POST /tours`, `409` bei fremder
   `processInstanceId`, `by-process`, `status`, `overview`
@@ -79,18 +96,30 @@ Swagger UI mit Beispielen zu allen Endpunkten: `/q/swagger-ui` (jetzt auch im Co
 - `ServiceAccountTest`: Service-Konto ohne `dealer_id`
 - `TourPlanResourceTest`: Format streng gegen eine Kopie von `TourPlan` der Engine,
   Parameter, Rollen
+- `TourAbortTest`, `TourTransitionsTest`: Abbruch mit und ohne Grund, Idempotenz,
+  `409` in beide Richtungen, offene Halte bleiben `OFFEN`
 - `OpenApiTest`: Engine-Endpunkte dokumentiert, mit Beispielen; Swagger UI erreichbar
 
-Manuell: Image gebaut und mit dem gemeinsamen `docker-compose.yml`
-(`terramax-service` + `terramax-db`) gestartet. Flyway V1–V3 laufen durch, der
-Testdaten-Import läuft, `/q/health` ist `UP` und `/q/swagger-ui` erreichbar.
+Manuell:
+
+- Image gebaut und mit dem gemeinsamen `docker-compose.yml` (`terramax-service`
+  + `terramax-db`, für Tokens zusätzlich ein lokaler Keycloak mit dem Realm aus dem
+  Branch) gestartet. Flyway V1–V4 laufen durch, der Testdaten-Import läuft,
+  `/q/swagger-ui` antwortet mit 200.
+- Per curl mit echten Tokens (`sales` und Service-Konto) und den Testdaten:
+  `GET /tours/plan` 200, `POST /tours` 201 und wiederholt 200, `POST
+  /tours/{id}/protocols` im speech-service-Format 201, `start`/`complete` ohne Body
+  200, `status` 200, `abort` mit Grund 200, wiederholt 200, anderer Grund 409,
+  `PATCH completed` und `complete` auf der abgebrochenen Tour 409.
+- `./mvnw quarkus:dev` mit dem lokalen Keycloak der Dev Services: Aufruf mit
+  Service-Konto-Token 200/201, ohne Token 401.
 
 ## Abstimmen vor oder nach dem Merge
 
 - [ ] Team-Keycloak: Realm-Rolle `process_engine` und Confidential Client mit
       Service Account für die Engine anlegen
-- [ ] Abgebrochene Tour: `completed` (Vorschlag) oder eigener Status `aborted`
-- [ ] Protokoll speichert nur der speech-service; `protokollZuordnen` schließt den Halt nur ab
+- [x] Abgebrochene Tour: eigener Status `aborted` über `POST /tours/{id}/abort` (geklärt)
+- [x] Doppelte Protokolle: TerraMax speichert, der speech-service schickt, die Engine legt keine an und liest nur (geklärt)
 - [ ] Engine im Stack im selben Netzwerk wie `terramax-service`, `TOUR_SERVICE_URL=http://terramax-service:8080`
 - [ ] Danach kann der tour-service entfallen
 

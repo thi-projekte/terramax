@@ -86,13 +86,14 @@ im Format `{"error": "…"}`.
 | `GET /tours/{id}/status` | beide, Engine | kompakter Stand für Gateways: `anzahlHalte`, `offeneHalte`, `naechsterHalt`, `alleErledigt` |
 | `GET /tours/{id}/overview` | beide, Engine | Tourübersicht (ersetzt die Prozessvariable `touruebersicht`) |
 | `POST /tours` | beide, Engine | Tour anlegen (Status `planned`, Halte `OFFEN`); mit `processInstanceId` idempotent (`200` mit der bestehenden Tour) |
-| `PATCH /tours/{id}` | beide, Engine | `status` und `customerOrder` (neue Reihenfolge) |
+| `PATCH /tours/{id}` | beide, Engine | `status` und `customerOrder` (neue Reihenfolge); endgültige Status sind nicht mehr änderbar (`409`) |
+| `POST /tours/{id}/abort` | beide, Engine | Tour abbrechen (`aborted`), optional mit `reason`; idempotent, `409` bei abgeschlossener oder verworfener Tour |
 | `POST /tours/{id}/stops/{customerId}/start` | beide, Engine | Besuch beginnen (`startedAt`); idempotent |
 | `POST /tours/{id}/stops/{customerId}/skip` | beide, Engine | überspringen mit `reason` (Pflicht); idempotent bei gleichem Grund |
 | `POST /tours/{id}/stops/{customerId}/complete` | beide, Engine | als `DOKUMENTIERT` abschließen; idempotent |
 | `DELETE /tours/{id}/stops/{customerId}` | beide, Engine | Kunden aus einer geplanten Tour streichen („Besuchsplan prüfen“) |
 | `GET /tours/{id}/protocols` | beide, Engine | Besuchsprotokolle der Tour |
-| `POST /tours/{id}/protocols` | beide, Engine | Protokoll speichern; Format wie `VisitProtocol` im speech-service plus `customerId` und optional `transcript` (Vertrag mit `TerraMaxApi` im speech-service, unverändert) |
+| `POST /tours/{id}/protocols` | beide, Engine | Protokoll speichern (Aufrufer: speech-service, nicht die Engine); Format wie `VisitProtocol` im speech-service plus `customerId` und optional `transcript` (Vertrag mit `TerraMaxApi` im speech-service, unverändert) |
 | `GET /protocols/{id}` | beide, Engine | ein Protokoll |
 | `PUT /protocols/{id}`, `PATCH /protocols/{id}` | Ersteller, Engine | Protokoll ersetzen bzw. teilweise ändern |
 | `DELETE /protocols/{id}` | Ersteller, Engine | Protokoll löschen |
@@ -130,9 +131,36 @@ Jeder Halt (`tour_customer`) hat einen Status `OFFEN`, `DOKUMENTIERT` oder
 | `complete` | DOKUMENTIERT | DOKUMENTIERT | unverändert (`200`) | `409` |
 
 Der erste Übergang setzt die Tour von `planned` auf `in_progress`. Bei Touren mit
-Status `completed` oder `discarded` ergibt jeder Übergang `409`. `start` und
-`complete` nehmen optional `{"at": "<ISO-8601>"}` (sonst die Serverzeit) und gehen
-auch ohne Body und ohne Content-Type. Regeln im Code: `StopTransitions`.
+Status `completed`, `discarded` oder `aborted` ergibt jeder Übergang `409`. `start`
+und `complete` nehmen optional `{"at": "<ISO-8601>"}` (sonst die Serverzeit) und
+gehen auch ohne Body und ohne Content-Type. Regeln im Code: `StopTransitions`.
+
+### Tour-Status und Abbruch
+
+`planned` → `in_progress` → `completed`, daneben `discarded` (Plan verworfen) und
+`aborted` (abgebrochen, BPMN-Message `TourAbbrechen`). `completed`, `discarded` und
+`aborted` sind endgültig: Ein Wechsel daraus ergibt `409`, derselbe Status `200`.
+
+- `POST /tours/{id}/abort`, optional `{"reason": "…"}` (auch ohne Body und ohne
+  Content-Type): setzt `aborted`, `abortReason` und `abortedAt`. Offene Halte
+  bleiben `OFFEN`, erledigte unverändert. Wiederholt ohne oder mit demselben Grund:
+  `200` ohne Änderung; anderer Grund: `409`. Eine abgeschlossene oder verworfene
+  Tour lässt sich nicht abbrechen (`409`).
+- `PATCH /tours/{id}` mit `status: aborted` ergibt `400`; abbrechen geht nur über
+  `/abort`. Eine abgebrochene Tour kann nicht mehr `completed` werden (`409`).
+- `GET /tours/{id}/status` zeigt `beendet`, `abgebrochen` und `abbruchGrund`
+  (`naechsterHalt` ist bei beendeter Tour `null`), die Übersicht `abbruchGrund`
+  und `abgebrochenAm`.
+
+Regeln im Code: `TourTransitions`.
+
+### Besuchsprotokolle
+
+**TerraMax speichert die Besuchsprotokolle.** Der speech-service schickt das
+bestätigte Protokoll an `POST /tours/{id}/protocols` (Format unverändert). Die
+process-engine legt keine Protokolle an; sie liest sie bei Bedarf nur
+(`GET /tours/{id}/protocols`, `GET /protocols/{id}`, `protokollIds` in der
+Übersicht). Ändern und löschen dürfen nur der Ersteller und das Service-Konto.
 
 ### Anmeldung der process-engine
 
@@ -179,8 +207,10 @@ Schema nichts.
   `DOKUMENTIERT`), dazu `skip_reason` (Pflicht bei `UEBERSPRUNGEN`), `started_at`,
   `finished_at` und der Unique-Index `uk_tour_process_instance` auf
   `tour.process_instance_id`.
+- `V4__tour_aborted.sql`: Tour-Status `aborted` (CHECK-Constraint erweitert),
+  `tour.abort_reason` und `tour.aborted_at`.
 
-Schemaänderungen immer als **neue** Migration anlegen (`V4__…sql`), nie eine
+Schemaänderungen immer als **neue** Migration anlegen (`V5__…sql`), nie eine
 bereits ausgerollte Migration ändern, sonst startet der Service auf dem Server
 nicht mehr (Checksumme).
 
@@ -279,15 +309,16 @@ leitet nicht auf eine Login-Seite weiter.
 **Ohne Variable (Standard):** Quarkus startet im Dev-Modus einen lokalen
 Keycloak über Dev Services mit dem Testrealm.
 
-**Mit Team-Keycloak:** Tokens werden gegen den gemeinsamen Keycloak geprüft.
+**Mit Team-Keycloak:** Tokens werden gegen den gemeinsamen Keycloak geprüft (Variable
+`QUARKUS_OIDC_AUTH_SERVER_URL`; `OIDC_AUTH_SERVER_URL` wirkt nur im Prod-Profil).
 Dann wird kein lokaler Keycloak-Container gestartet.
 
 ```powershell
 cd terramax-service
-$env:OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/terramax"
+$env:QUARKUS_OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/realms/terramax"
 ./mvnw quarkus:dev
 # zurück zum lokalen Keycloak:
-Remove-Item Env:OIDC_AUTH_SERVER_URL
+Remove-Item Env:QUARKUS_OIDC_AUTH_SERVER_URL
 ```
 
 Das Frontend muss sich dann ebenfalls am Team-Keycloak anmelden
@@ -404,16 +435,23 @@ Im Code mit `TODO(#64-meeting)` markiert (`grep -rn "TODO(#64-meeting)"`):
 | Netzwerk | Proxy-Netzwerk `nginx-proxy-manager` (wie speech-service) oder `nginx-reverse-proxy` (Issue) | `docker-compose.yml` |
 | Priorisierung (auf Eis) | Kriterien (Umsatz, offene Angebote, Follow-ups, Saison) und Prompt abstimmen, erst dann `llm` als Standard | `VisitPrioritizer`, `LongestUnvisitedPrioritizer`, `LlmVisitPrioritizer` |
 | Routen | Mapbox Optimization API für Reihenfolge und Fahrzeiten | `RoutePlanner`, `NearestNeighbourRoutePlanner` |
-| process-engine | Delegates umstellen (Lukas, CIB-Seven-Entwickler); Abbruch als `completed` oder eigener Status; wer das Protokoll speichert | [docs/process/terramax-engine-schnittstelle.md](../docs/process/terramax-engine-schnittstelle.md) |
+| process-engine | Delegates umstellen (Lukas, CIB-Seven-Entwickler) | [docs/process/terramax-engine-schnittstelle.md](../docs/process/terramax-engine-schnittstelle.md) |
 | Keycloak | Rolle `process_engine` und Client `terramax-process-engine` (Service-Konto) im Team-Realm anlegen | – |
 | tour-service | Nach der Umstellung der Engine kann der tour-service entfallen; `GET /tours/plan` liefert jetzt dieser Service | – |
-
-Geklärt: Der speech-service ruft `POST /tours/{id}/protocols` mit dem durchgereichten
-Nutzer-Token auf (siehe [Anmeldung der process-engine](#anmeldung-der-process-engine)).
-Die Tourplanung aus PR #53 ist übernommen ([Tourplanung](#tourplanung-get-toursplan)),
-die Aufrufrichtung ist Engine → TerraMax.
 | Stammdaten | Woher echte Händler- und Kundendaten kommen (CRM-Import, Admin-Endpunkt); bis dahin Testdaten. Mitarbeiter entstehen automatisch beim ersten Aufruf | `SeedImporter` |
 | Vorschlag: KI-Besuchsvorbereitung | Siehe unten; noch nicht umgesetzt | – |
+
+Geklärt:
+
+- Der speech-service ruft `POST /tours/{id}/protocols` mit dem durchgereichten
+  Nutzer-Token auf (siehe [Anmeldung der process-engine](#anmeldung-der-process-engine)).
+- **Protokolle:** TerraMax speichert sie; der speech-service schickt sie, die Engine
+  legt keine an und liest sie nur. Doppelte Protokolle aus Engine und speech-service
+  sind damit ausgeschlossen ([Besuchsprotokolle](#besuchsprotokolle)).
+- **Abbruch:** eigener Status `aborted` über `POST /tours/{id}/abort`
+  ([Tour-Status und Abbruch](#tour-status-und-abbruch)).
+- Die Tourplanung aus PR #53 ist übernommen ([Tourplanung](#tourplanung-get-toursplan)),
+  die Aufrufrichtung ist Engine → TerraMax.
 
 ### Vorschlag: KI-Besuchsvorbereitung (Briefing)
 
