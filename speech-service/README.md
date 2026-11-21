@@ -5,33 +5,48 @@ einem Kundenbesuch eine Sprachnotiz auf (max. ca. 2 Minuten). Der Service
 transkribiert sie und erstellt daraus einen Protokollentwurf mit festen Feldern,
 den der Nutzer im Frontend bearbeitet und bestätigt.
 
-- Spracherkennung: Whisper über [Speaches](https://github.com/speaches-ai/speaches),
-  läuft im eigenen Stack. Das Audio verlässt die eigene Infrastruktur nicht.
+- Spracherkennung: OpenAI-API (`POST /v1/audio/transcriptions`) mit dem Modell
+  `gpt-transcribe`. Dafür wird das Audio an OpenAI gesendet.
 - Protokoll: OpenAI über [LangChain4j](https://docs.quarkiverse.io/quarkus-langchain4j/dev/)
   (`quarkus-langchain4j-openai`). Dafür wird das Transkript an OpenAI gesendet.
+- Beides nutzt denselben API-Key (`OPENAI_API_KEY`).
+
+- Übergabe: Das bestätigte Protokoll gibt der Service an den
+  [terramax-service](../terramax-service/README.md) weiter, mit dem Token der SPA.
+- Events: jeder Schritt landet auf Kafka (`terramax.speech.events`).
 
 ```text
-Frontend ──POST /transcriptions──► speech-service ──► Whisper (im Stack)
-         ──POST /protocols───────►                ──► OpenAI (LangChain4j)
+SPA ──POST /transcriptions (oder WS)──► speech-service ──► OpenAI gpt-transcribe
+    ──POST /protocols─────────────────►                ──► OpenAI gpt-4o-mini (LangChain4j)
+      (Nutzer prüft und bearbeitet den Entwurf)
+    ──POST /tours/{tourId}/protocols──►                ──► terramax-service POST /tours/{tourId}/protocols
+                                                             (gleicher Authorization-Header)
+                                                       ──► Kafka terramax.speech.events
 ```
+
+### Wie die Anmeldung bei TerraMax funktioniert
+
+Der speech-service hat kein eigenes Konto in Keycloak. Er reicht den
+`Authorization`-Header der SPA unverändert an den terramax-service weiter
+(`TerraMaxApi`). Der terramax-service prüft das Token selbst gegen denselben
+Realm, prüft `dealer_id` und die Sichtbarkeit der Tour und speichert das
+Protokoll mit `createdBy` = `sub` des Nutzers. Deshalb müssen SPA,
+speech-service und terramax-service denselben Keycloak verwenden.
 
 ## Lokal starten
 
-Voraussetzungen: JDK 25, Docker, Port 8000 frei.
+Voraussetzungen: JDK 25, Docker (für Keycloak und Kafka), ein OpenAI-Key.
 
 ```bash
 cd speech-service
 ./mvnw quarkus:dev
 ```
 
-Quarkus Dev Services starten dabei Whisper (`compose-devservices.yml`, Port 8000)
-und Keycloak mit dem TerraMax-Realm (Port 8180). Beim ersten Start lädt der
-Service das Whisper-Modell herunter; bis im Log `Whisper-Modell ... ist bereit`
-steht, antwortet `/transcriptions` mit 503. Das Modell bleibt im Docker-Volume
-`whisper-models`.
+Quarkus Dev Services starten dabei Keycloak mit dem TerraMax-Realm (Port 8180)
+und einen Kafka-Broker.
 
-Für Protokolle wird ein OpenAI-Key gebraucht. Dafür `speech-service/.env`
-anlegen (ist in `.gitignore`):
+Für Spracherkennung und Protokolle wird ein OpenAI-Key gebraucht. Dafür
+`speech-service/.env` anlegen (ist in `.gitignore`):
 
 ```text
 OPENAI_API_KEY=sk-...
@@ -48,6 +63,14 @@ npm run dev
 Unter http://localhost:5173 als `sales` / `sales` anmelden und in der Karte
 „Besuchsprotokoll“ eine Notiz aufnehmen.
 
+**Zusammen mit dem terramax-service:** den terramax-service zuerst starten
+(`cd terramax-service && ./mvnw quarkus:dev`, Port 8088). Sein Keycloak-Container
+(Port 8180) wird vom speech-service mitbenutzt; dessen Realm enthält den Claim
+`dealer_id`, den der terramax-service verlangt. Der speech-service erreicht ihn
+unter `quarkus.rest-client.terramax.url` (Standard `http://localhost:8088`).
+Kafka startet Quarkus im Dev-Modus selbst (Dev Services); die Events zeigt die
+Dev UI unter http://localhost:8082/q/dev-ui.
+
 **Gegen den Keycloak-Server testen:** Frontend und Backend müssen denselben
 Keycloak verwenden, sonst antwortet der Service mit 401. Zeigt `.env.local` auf
 den Server, den Service so starten (dann startet kein lokaler Keycloak):
@@ -59,8 +82,11 @@ $env:QUARKUS_OIDC_AUTH_SERVER_URL = "https://terramax-keycloak.winfprojekt.de/re
 
 ## Endpunkte
 
-Beide nur mit Realm-Rolle `sales_professional` (sonst 401 bzw. 403). Fehler
+Alle nur mit Realm-Rolle `sales_professional` (sonst 401 bzw. 403). Fehler
 liefern eine Meldung für die Oberfläche: `{"message": "..."}`.
+
+Die `visitId` bildet die SPA als `<tourId>:<customerId>` (IDs aus dem
+terramax-service). Damit gehören alle Events eines Besuchs zusammen.
 
 ### `POST /transcriptions`
 
@@ -76,8 +102,8 @@ max. 10 MB) und `visitId`.
 | 400 | Audiodatei oder `visitId` fehlt |
 | 413 | Upload größer als 10 MB |
 | 415 | Keine Audiodatei oder Audio nicht lesbar |
-| 502 | Whisper nicht erreichbar |
-| 503 | Whisper-Modell noch nicht geladen |
+| 502 | OpenAI nicht erreichbar oder API-Key fehlt/ungültig |
+| 503 | Anfragelimit bei OpenAI erreicht |
 
 ### `POST /protocols`
 
@@ -107,6 +133,54 @@ Fehlende Angaben sind `null` bzw. eine leere Liste. Relative Angaben wie
 | 502 | OpenAI nicht erreichbar, Key fehlt oder Antwort unbrauchbar |
 | 503 | Anfragelimit bei OpenAI erreicht |
 
+### `POST /tours/{tourId}/protocols`
+
+Übergibt das vom Nutzer bestätigte Protokoll an TerraMax. Erst hier wird
+etwas gespeichert. Felder wie `VisitProtocol`, dazu `customerId` (Pflicht) und
+optional `transcript` (max. 20 000 Zeichen):
+
+```json
+{
+  "customerId": 5,
+  "contactPerson": "Herr Maier (Betriebsleiter)",
+  "topics": ["8R 410", "Finanzierung"],
+  "outcome": "Interesse an einer Vorführung.",
+  "nextSteps": ["Angebot schicken"],
+  "followUpDate": "2026-11-28",
+  "transcript": "Besuch beim Hof Maier ..."
+}
+```
+
+Antwort `201` mit dem gespeicherten Protokoll, so wie es der terramax-service
+liefert (`id`, `tourId`, `customerId`, `createdBy`, `createdAt`, …).
+
+| Status | Bedeutung |
+|---|---|
+| 400 | `customerId` fehlt, Transkript zu lang, oder TerraMax lehnt ab (Meldung von TerraMax, z. B. „Kunde nicht auf der Tour: 5“) |
+| 401 | Token von TerraMax abgelehnt (abgelaufen) |
+| 403 | TerraMax verweigert, z. B. kein `dealer_id` im Token |
+| 404 | Tour unbekannt oder für den Nutzer nicht sichtbar |
+| 502 | TerraMax nicht erreichbar oder Serverfehler |
+
+### WebSocket `/transcriptions/stream/{visitId}`
+
+Wie `POST /transcriptions`, aber die Aufnahme kann schon während des Sprechens
+gesendet werden:
+
+1. SPA schickt die Aufnahme in Stücken als Binary Messages (max. 10 MB),
+2. dann `{"type": "stop", "mediaType": "audio/webm"}`,
+3. Service meldet `{"type": "progress", "step": "TRANSCRIBING"}`,
+4. dann `{"type": "result", "result": {…wie POST /transcriptions…}}` oder
+   `{"type": "error", "status": 503, "message": "…"}` und schließt die Verbindung.
+
+Browser können beim Handshake keinen `Authorization`-Header setzen; das Token
+kommt als Subprotocol:
+
+```js
+new WebSocket(`${wsUrl}/transcriptions/stream/${visitId}`, ['bearer-token-carrier',
+  'quarkus-http-upgrade#Authorization#' + encodeURIComponent('Bearer ' + keycloak.token)])
+```
+
 Der Prompt steht in `VisitProtocolAssistant`. LangChain4j erzeugt aus dem Record
 `VisitProtocol` ein JSON-Schema, an das sich die Antwort halten muss
 (OpenAI Structured Outputs).
@@ -118,39 +192,52 @@ In `src/main/resources/application.properties`, per Umgebungsvariable
 
 | Eigenschaft | Standard |
 |---|---|
-| `quarkus.rest-client.whisper.url` | `http://localhost:8000` |
-| `whisper.model` | `Systran/faster-whisper-small` |
-| `whisper.prompt` | Fachbegriffe als Hilfe für die Erkennung |
-| `whisper.preload-model` | `true` im Dev-Modus |
-| `OPENAI_API_KEY` | – (ohne Key antwortet `/protocols` mit 502) |
+| `OPENAI_API_KEY` | – (ohne Key antworten `/transcriptions` und `/protocols` mit 502) |
+| `transcription.model` | `gpt-transcribe` |
+| `transcription.languages` | `de` |
+| `transcription.prompt` | Kontext für die Erkennung (Besuchsprotokoll) |
+| `transcription.keywords` | Fachbegriffe, kommagetrennt (John Deere, 8R 410, …) |
+| `quarkus.rest-client.openai-transcription.url` | `https://api.openai.com/v1` |
 | `quarkus.langchain4j.openai.chat-model.model-name` | `gpt-4o-mini` |
+| `quarkus.rest-client.terramax.url` | `http://localhost:8088` (Server: `http://terramax-service:8080`) |
+| `KAFKA_BOOTSTRAP_SERVERS` | lokal Dev Services, auf dem Server `kafka:9092` |
+
+## Events
+
+Topic `terramax.speech.events`, CloudEvents mit Key `visitId`. Typen und Felder
+stehen in [docs/kafka/README.md](../docs/kafka/README.md):
+`transcription.completed`/`failed`, `protocol.drafted`/`failed`,
+`protocol.submitted`. Transkript und Protokoll stehen nie im Event. Fällt Kafka
+aus, wird das nur geloggt; die Anfrage läuft weiter.
 
 ## Deployment
 
-`.github/workflows/speech-service.yml` baut und testet den Service bei jedem
-Push und lädt das Image nach `ghcr.io/thi-projekte/terramax-speech-service`.
-Er läuft im Projekt-Stack aus `docker-compose.yml` im Repo-Root, zusammen mit
-Whisper. Whisper hängt nur im internen Netz `speech-intern`.
+`.github/workflows/speech-service.yml` baut und testet den Service bei
+Änderungen im Service-Ordner und lädt das Image nach
+`ghcr.io/thi-projekte/terramax-speech-service` (Tags `main` und `sha-<commit>`).
+Er läuft im Projekt-Stack aus `docker-compose.yml` im Repo-Root.
 
 In Portainer zu setzen: `OPENAI_API_KEY`.
 
-Im Nginx Proxy Manager beim Proxy-Host unter *Advanced* (die Standardwerte
-reichen für 2-Minuten-Notizen nicht):
+Im Nginx Proxy Manager beim Proxy-Host **„Websockets Support“** einschalten und
+unter *Advanced* eintragen (die Standardwerte reichen für 2-Minuten-Notizen nicht):
 
 ```nginx
 client_max_body_size 10m;
 proxy_read_timeout 120s;
 ```
 
-Das Frontend wird mit der öffentlichen Adresse gebaut (`VITE_SPEECH_API_URL`).
-Laufen Frontend und Service auf verschiedenen Domains, die CORS-Zeilen in
-`docker-compose.yml` aktivieren.
+Das Frontend wird mit der öffentlichen Adresse gebaut (`VITE_SPEECH_API_URL`,
+Standard in `.github/workflows/frontend.yml`: `https://terramax-speech.winfprojekt.de`).
+Weil Frontend und Service auf verschiedenen Domains laufen, ist CORS in
+`docker-compose.yml` für `https://terramax.winfprojekt.de` freigegeben.
 
 ## Datenschutz
 
 - Audio wird nur als temporäre Datei verarbeitet und nach der Anfrage gelöscht.
-- Das Transkript wird zur Protokollerstellung an OpenAI gesendet. Ob das für
-  Kundengespräche zulässig ist, ist eine offene Frage der Story.
+- Audio (Spracherkennung) und Transkript (Protokollerstellung) werden an OpenAI
+  gesendet. Ob das für Kundengespräche zulässig ist, ist eine offene Frage der
+  Story.
 - Transkripte und Protokolle werden im Service weder gespeichert noch geloggt.
 
 ## Tests
@@ -159,7 +246,10 @@ Laufen Frontend und Service auf verschiedenen Domains, die CORS-Zeilen in
 ./mvnw verify
 ```
 
-Anmeldung (`@TestSecurity`), Whisper (`FakeSpeechToTextClient`) und LLM
-(`FakeProtocolGenerator`) werden simuliert; Docker, Keycloak und ein OpenAI-Key
-sind nicht nötig. Die Uploadgrenze (413) ist nur manuell geprüft, weil der
+Anmeldung (`@TestSecurity`), Spracherkennung (`FakeSpeechToTextClient`; der echte
+OpenAI-Client läuft in `OpenAiTranscriptionClientTest` gegen `FakeOpenAi`), LLM
+(`FakeProtocolGenerator`), terramax-service (`FakeTerraMax`, eine Resource im
+selben Prozess, damit der echte REST-Client mitläuft) und Kafka
+(In-Memory-Connector, `EventSink`) werden simuliert; Docker, Keycloak und ein
+OpenAI-Key sind nicht nötig. Die Uploadgrenze (413) ist nur manuell geprüft, weil der
 Testclient den Verbindungsabbruch nicht auswerten kann.

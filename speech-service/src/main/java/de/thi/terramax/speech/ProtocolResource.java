@@ -33,6 +33,9 @@ public class ProtocolResource {
     @Inject
     ProtocolGenerator generator;
 
+    @Inject
+    SpeechEvents events;
+
     public record ProtocolRequest(String visitId, String transcript) {
     }
 
@@ -53,7 +56,14 @@ public class ProtocolResource {
             throw ErrorResponse.exception(Status.BAD_REQUEST, "Das Transkript ist zu lang.");
         }
 
-        VisitProtocol protocol = generator.generate(request.transcript().strip(), LocalDate.now(ZONE));
+        VisitProtocol protocol;
+        try {
+            protocol = generator.generate(request.transcript().strip(), LocalDate.now(ZONE));
+        } catch (ProtocolGenerationException e) {
+            events.protocolFailed(request.visitId(), e.reason().status());
+            throw e;
+        }
+        events.protocolDrafted(request.visitId());
         LOG.infof("Protokollentwurf für Besuch %s erstellt", request.visitId());
         return new ProtocolResponse(request.visitId(), protocol);
     }
@@ -61,12 +71,13 @@ public class ProtocolResource {
     @ServerExceptionMapper
     public Response mapProtocolError(ProtocolGenerationException e) {
         LOG.warnf("Protokoll konnte nicht erstellt werden (%s): %s", e.reason(), e.getMessage());
+        Status status = Status.fromStatusCode(e.reason().status());
         return switch (e.reason()) {
-            case RATE_LIMITED -> ErrorResponse.of(Status.SERVICE_UNAVAILABLE,
-                    "Die AI ist gerade ausgelastet. Bitte gleich erneut versuchen.");
-            case NOT_CONFIGURED, UNAVAILABLE -> ErrorResponse.of(Status.BAD_GATEWAY,
+            case RATE_LIMITED ->
+                    ErrorResponse.of(status, "Die AI ist gerade ausgelastet. Bitte gleich erneut versuchen.");
+            case NOT_CONFIGURED, UNAVAILABLE -> ErrorResponse.of(status,
                     "Die AI ist gerade nicht erreichbar. Das Protokoll kann auch von Hand ausgefüllt werden.");
-            case INVALID_RESPONSE -> ErrorResponse.of(Status.BAD_GATEWAY,
+            case INVALID_RESPONSE -> ErrorResponse.of(status,
                     "Die AI hat kein gültiges Protokoll geliefert. Bitte erneut versuchen.");
         };
     }

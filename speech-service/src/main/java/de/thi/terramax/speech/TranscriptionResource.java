@@ -17,6 +17,8 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 /**
  * Nimmt eine Sprachnotiz zu einem Kundenbesuch an und gibt das Transkript zurück. Nur für Sales Professionals – sonst
  * 403, ohne Token 401. Audio und Transkript werden nicht gespeichert und nicht geloggt.
+ * <p>
+ * Dasselbe als Stream: {@link TranscriptionSocket}.
  */
 @Path("/transcriptions")
 @RolesAllowed(Roles.SALES_PROFESSIONAL)
@@ -25,9 +27,14 @@ public class TranscriptionResource {
     private static final Logger LOG = Logger.getLogger(TranscriptionResource.class);
 
     @Inject
-    SpeechToTextClient speechToText;
+    Transcriber transcriber;
 
-    public record TranscriptionResponse(String visitId, String transcript, String language, double durationSeconds) {
+    public record TranscriptionResponse(String visitId, String transcript, String language, Double durationSeconds) {
+
+        static TranscriptionResponse of(String visitId, Transcription transcription) {
+            return new TranscriptionResponse(visitId, transcription.transcript(), transcription.language(),
+                    transcription.durationSeconds());
+        }
     }
 
     @POST
@@ -40,30 +47,20 @@ public class TranscriptionResource {
         if (visitId == null || visitId.isBlank()) {
             throw ErrorResponse.exception(Status.BAD_REQUEST, "Die visitId fehlt.");
         }
-        // Browser senden z. B. "audio/webm;codecs=opus"
-        String mediaType = audio.contentType() == null ? "" : audio.contentType().split(";")[0].strip();
+        String mediaType = Transcriber.mediaType(audio.contentType());
         if (!mediaType.startsWith("audio/")) {
             throw ErrorResponse.exception(Status.UNSUPPORTED_MEDIA_TYPE, "Die Datei ist keine Audiodatei.");
         }
 
         // Die temporäre Upload-Datei löscht Quarkus nach der Anfrage (delete-uploaded-files-on-end)
-        Transcription transcription = speechToText.transcribe(audio.uploadedFile(), audio.fileName(), mediaType);
-        LOG.infof("Sprachnotiz für Besuch %s transkribiert (%.0f s Audio)", visitId, transcription.durationSeconds());
-
-        return new TranscriptionResponse(visitId, transcription.transcript(), transcription.language(),
-                transcription.durationSeconds());
+        Transcription transcription = transcriber.transcribe(visitId, audio.uploadedFile(), audio.fileName(),
+                mediaType);
+        return TranscriptionResponse.of(visitId, transcription);
     }
 
     @ServerExceptionMapper
     public Response mapSpeechToTextError(SpeechToTextException e) {
         LOG.warnf("Transkription fehlgeschlagen: %s", e.getMessage());
-        return switch (e.reason()) {
-            case UNSUPPORTED_AUDIO -> ErrorResponse.of(Status.UNSUPPORTED_MEDIA_TYPE,
-                    "Die Audiodatei konnte nicht gelesen werden.");
-            case MODEL_NOT_READY -> ErrorResponse.of(Status.SERVICE_UNAVAILABLE,
-                    "Die Spracherkennung startet noch. Bitte in ein paar Minuten erneut versuchen.");
-            case UNAVAILABLE -> ErrorResponse.of(Status.BAD_GATEWAY,
-                    "Die Spracherkennung ist gerade nicht erreichbar.");
-        };
+        return ErrorResponse.of(Status.fromStatusCode(e.reason().status()), e.reason().userMessage());
     }
 }

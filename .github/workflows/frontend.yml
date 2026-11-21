@@ -46,6 +46,7 @@ jobs:
           VITE_API_URL: ${{ vars.VITE_API_URL || 'http://localhost:8080' }}
           VITE_LOCATION_SERVICE_URL: ${{ vars.VITE_LOCATION_SERVICE_URL || 'http://localhost:8088' }}
           VITE_ENGINE_URL: ${{ vars.VITE_ENGINE_URL || 'http://localhost:8086/engine-rest' }}
+          VITE_SPEECH_API_URL: ${{ vars.VITE_SPEECH_API_URL || 'https://terramax-speech.winfprojekt.de' }}
         run: npm run build
 
       - name: Set up Docker Buildx
@@ -72,6 +73,7 @@ jobs:
             VITE_API_URL=${{ vars.VITE_API_URL || 'http://localhost:8080' }}
             VITE_LOCATION_SERVICE_URL=${{ vars.VITE_LOCATION_SERVICE_URL || 'http://localhost:8088' }}
             VITE_ENGINE_URL=${{ vars.VITE_ENGINE_URL || 'http://localhost:8086/engine-rest' }}
+            VITE_SPEECH_API_URL=${{ vars.VITE_SPEECH_API_URL || 'https://terramax-speech.winfprojekt.de' }}
 
       - name: Tag and push main image
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
