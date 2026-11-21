@@ -35,8 +35,9 @@ services:
       QUARKUS_DATASOURCE_USERNAME: terramax
       QUARKUS_DATASOURCE_PASSWORD: ${TERRAMAX_DB_PASSWORD:?TERRAMAX_DB_PASSWORD in Portainer setzen}
       CORS_ORIGINS: ${TERRAMAX_CORS_ORIGINS}
-      # Wert nur in Portainer setzen. Ohne Key startet der Service trotzdem
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # Optional, die LLM-Priorisierung ist auf Eis. Wert nur in Portainer setzen. Ohne Wert käme ein leerer String
+      # an, an dem Quarkus beim Start scheitert; deshalb der Platzhalter (wird im Modus stub nie benutzt)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-not-configured}
       # Testhändler und Mock-Kunden beim Start anlegen (legt nur Fehlendes an)
       TERRAMAX_SEED_ENABLED: ${TERRAMAX_SEED_ENABLED:-true}
     depends_on:
