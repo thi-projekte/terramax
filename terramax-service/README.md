@@ -1,9 +1,17 @@
 # TerraMax-Service
 
 Fachlicher Kern-Service von TerraMax (Issue #64): Händler, Kunden, Besuchstouren,
-Besuchsprotokolle und die Händlerstandorte der Marktkarte. Die SPA und der
-speech-service rufen ihn per REST auf. Er hat eine eigene PostgreSQL-Datenbank
-und ist für CIB Seven (process-engine) und die OpenAI-LLM-API vorbereitet.
+Besuchsprotokolle und die Händlerstandorte der Marktkarte. Die SPA, der
+speech-service und die process-engine (CIB Seven) rufen ihn per REST auf. Er hat
+eine eigene PostgreSQL-Datenbank.
+
+**TerraMax ist die Single Source of Truth für alle Tourdaten**: welche Kunden auf
+einer Tour sind, Status je Halt, Gründe fürs Überspringen, Zeiten und Protokolle.
+Die process-engine stößt Abläufe nur an und hält im Prozesskontext nur die
+`tourId` und Flags für Gateways. Aufrufe gehen ausschließlich von der Engine zu
+TerraMax, nie umgekehrt. Welche Endpunkte die Engine in welchem BPMN-Schritt
+aufruft, steht in
+[docs/process/terramax-engine-schnittstelle.md](../docs/process/terramax-engine-schnittstelle.md).
 Architektur: [docs/architecture/terramax-architecture.html](../docs/architecture/terramax-architecture.html),
 Datenmodell: [docs/architecture/terramax-db-schema.md](../docs/architecture/terramax-db-schema.md).
 
@@ -22,11 +30,10 @@ Package `de.thi.terramax.location`.
 | `de.thi.terramax.location` | Händlerstandorte (Wettbewerber, John Deere) als GeoJSON, Import beim Start |
 | `de.thi.terramax.dealer` | Händler und Mitarbeiter, `GET /dealers/me` |
 | `de.thi.terramax.customer` | Kunden, auch als GeoJSON |
-| `de.thi.terramax.tour` | Touren, `TourAccess` (Sichtbarkeit), Platzhalter `RoutePlanner` und `TourPlanner` |
-| `de.thi.terramax.protocol` | Besuchsprotokolle |
-| `de.thi.terramax.ai` | Platzhalter `VisitPrioritizer` und OpenAI-Anbindung (LangChain4j) |
-| `de.thi.terramax.engine` | Platzhalter `ProcessEngineClient` und REST-Client zu CIB Seven |
-| `de.thi.terramax.security` | Rollen, `CurrentUser`, `GET /me` |
+| `de.thi.terramax.tour` | Touren, Halte mit Status (`StopTransitions`), `TourAccess` (Sichtbarkeit), Tourplanung `GET /tours/plan` (`TourPlanner`, `RoutePlanner`) |
+| `de.thi.terramax.protocol` | Besuchsprotokolle (Anlegen über die Tour, CRUD unter `/protocols/{id}`) |
+| `de.thi.terramax.ai` | `VisitPrioritizer`: Standard „am längsten nicht besucht“; OpenAI-Anbindung (LangChain4j) **auf Eis** |
+| `de.thi.terramax.security` | Rollen (auch Service-Konto `process_engine`), `CurrentUser`, `GET /me` |
 | `de.thi.terramax.seed` | Import der Testdaten für Händler und Kunden beim Start |
 | `de.thi.terramax.common` | `ErrorResponse`, OpenAPI-Definition, GeoJSON-Dateien lesen |
 
@@ -73,18 +80,30 @@ im Format `{"error": "…"}`.
 | `POST /customers`, `PUT /customers/{id}` | beide | Kunde anlegen bzw. ändern (`409` bei vergebener Kundennummer) |
 | `GET /customers/{id}/protocols` | beide | Besuchsprotokolle des Kunden, neueste zuerst |
 | `GET /tours` | beide | Touren, neueste zuerst |
-| `GET /tours/{id}` | beide | Tour mit Kunden in Reihenfolge |
-| `POST /tours` | beide | Tour anlegen (Status `planned`) |
-| `PATCH /tours/{id}` | beide | `status`, `customerOrder` (neue Reihenfolge), `visited` (`{"<kundenId>": true}`) |
-| `GET /tours/{id}/protocols` | beide | Besuchsprotokolle der Tour |
-| `POST /tours/{id}/protocols` | beide | Protokoll speichern; Format wie `VisitProtocol` im speech-service plus `customerId` und optional `transcript` |
+| `GET /tours/plan` | `sales_professional` | Besuchsplan für `?date=JJJJ-MM-TT` (Standard heute) und `maxVisits` (2–10, Standard 5), exakt im Format von `TourPlan` der process-engine |
+| `GET /tours/{id}` | beide, Engine | Tour mit Halten in Reihenfolge (Status, Grund, Zeiten je Halt) |
+| `GET /tours/by-process/{processInstanceId}` | beide, Engine | Tour zur Prozessinstanz |
+| `GET /tours/{id}/status` | beide, Engine | kompakter Stand für Gateways: `anzahlHalte`, `offeneHalte`, `naechsterHalt`, `alleErledigt` |
+| `GET /tours/{id}/overview` | beide, Engine | Tourübersicht (ersetzt die Prozessvariable `touruebersicht`) |
+| `POST /tours` | beide, Engine | Tour anlegen (Status `planned`, Halte `OFFEN`); mit `processInstanceId` idempotent (`200` mit der bestehenden Tour) |
+| `PATCH /tours/{id}` | beide, Engine | `status` und `customerOrder` (neue Reihenfolge) |
+| `POST /tours/{id}/stops/{customerId}/start` | beide, Engine | Besuch beginnen (`startedAt`); idempotent |
+| `POST /tours/{id}/stops/{customerId}/skip` | beide, Engine | überspringen mit `reason` (Pflicht); idempotent bei gleichem Grund |
+| `POST /tours/{id}/stops/{customerId}/complete` | beide, Engine | als `DOKUMENTIERT` abschließen; idempotent |
+| `DELETE /tours/{id}/stops/{customerId}` | beide, Engine | Kunden aus einer geplanten Tour streichen („Besuchsplan prüfen“) |
+| `GET /tours/{id}/protocols` | beide, Engine | Besuchsprotokolle der Tour |
+| `POST /tours/{id}/protocols` | beide, Engine | Protokoll speichern; Format wie `VisitProtocol` im speech-service plus `customerId` und optional `transcript` (Vertrag mit `TerraMaxApi` im speech-service, unverändert) |
+| `GET /protocols/{id}` | beide, Engine | ein Protokoll |
+| `PUT /protocols/{id}`, `PATCH /protocols/{id}` | Ersteller, Engine | Protokoll ersetzen bzw. teilweise ändern |
+| `DELETE /protocols/{id}` | Ersteller, Engine | Protokoll löschen |
 | `GET /locations` | angemeldet | Standorte als `FeatureCollection`, optional `?category=competitor,mixed_competitor` |
 | `GET /locations/{id}` | angemeldet | ein Standort als `Feature` |
 
-„beide“ heißt `sales_professional` oder `dealer_principal`. Für diese
-Endpunkte gilt außerdem:
+„beide“ heißt `sales_professional` oder `dealer_principal`, „Engine“ das
+Service-Konto der process-engine (Rolle `process_engine`), „Ersteller“ der
+Nutzer, dessen `sub` in `createdBy` steht. Für diese Endpunkte gilt außerdem:
 
-- Ohne Claim `dealer_id` im Token: `403`.
+- Nutzer ohne Claim `dealer_id` im Token: `403`.
 - Daten anderer Händler sind nie sichtbar; fremde IDs antworten mit `404`.
 - `sales_professional` sieht alle Kunden seines Händlers, aber nur Touren, die er
   laut `tour_employee` fährt, und nur deren Protokolle.
@@ -95,13 +114,54 @@ Endpunkte gilt außerdem:
   sofern der Händler in der Datenbank steht. Bestehende Einträge werden nicht
   geändert. Ohne Eintrag (Händler unbekannt) sieht ein `sales_professional` keine
   Touren und kann keine anlegen.
+- Protokolle ändern oder löschen darf nur der Ersteller (auch nicht der
+  `dealer_principal`) oder das Service-Konto; sonst `403`.
+
+### Halte und Statusübergänge
+
+Jeder Halt (`tour_customer`) hat einen Status `OFFEN`, `DOKUMENTIERT` oder
+`UEBERSPRUNGEN` (Namen wie `BesuchstourVariablen.STATUS_*` in der Engine), dazu
+`skipReason`, `startedAt` und `finishedAt`.
+
+| Aufruf | OFFEN | OFFEN, begonnen | DOKUMENTIERT | UEBERSPRUNGEN |
+| --- | --- | --- | --- | --- |
+| `start` | setzt `startedAt` | unverändert (`200`) | `409` | `409` |
+| `skip` | UEBERSPRUNGEN | UEBERSPRUNGEN | `409` | gleicher Grund `200`, sonst `409` |
+| `complete` | DOKUMENTIERT | DOKUMENTIERT | unverändert (`200`) | `409` |
+
+Der erste Übergang setzt die Tour von `planned` auf `in_progress`. Bei Touren mit
+Status `completed` oder `discarded` ergibt jeder Übergang `409`. `start` und
+`complete` nehmen optional `{"at": "<ISO-8601>"}` (sonst die Serverzeit) und gehen
+auch ohne Body und ohne Content-Type. Regeln im Code: `StopTransitions`.
+
+### Anmeldung der process-engine
+
+Die Engine ruft mit einem von zwei Tokens auf:
+
+1. **Nutzer-Token (Token Propagation):** Sie reicht den `Authorization`-Header des
+   Sales Professional durch, solange der Schritt in dessen Request läuft. Es
+   gelten die Regeln des Nutzers.
+2. **Service-Konto:** Für Schritte ohne Nutzer ein Client-Credentials-Token mit
+   der Realm-Rolle `process_engine`. Es hat kein `dealer_id`; `CurrentUser.requireDealerId()`
+   wird dafür nicht aufgerufen, der Händler kommt aus der Tour (`TourAccess`). Nur
+   `POST /tours` braucht dann `dealerId` im Body. Gesperrt bleiben `GET /tours`,
+   `GET /tours/plan` und die Kunden-Endpunkte.
+
+Der speech-service hat kein eigenes Konto. Er reicht beim Speichern eines Protokolls
+(`TerraMaxApi.createProtocol`) den `Authorization`-Header des Nutzers durch,
+`createdBy` ist also dessen `sub`.
+
+Im lokalen Realm (`terramax-realm.json`) gibt es dafür die Rolle `process_engine`
+und den Client `terramax-process-engine` (Secret `local-dev-process-engine-secret`,
+nur lokal). Auf dem Team-Keycloak müssen Rolle und Client noch angelegt werden.
 
 Ohne Token erreichbar:
 
 - Health-Check: http://localhost:8088/q/health (einzeln `/q/health/live`, `/q/health/ready`)
 - OpenAPI-Dokument: http://localhost:8088/q/openapi (`?format=json` für JSON)
-- Swagger UI nur im Dev-Modus: http://localhost:8088/q/swagger-ui
-  (Token über den Knopf **Authorize** eintragen)
+- Swagger UI, auch im Container: http://localhost:8088/q/swagger-ui. Alle
+  Engine-Endpunkte haben dort Beispiele. Aufrufe daraus brauchen ein Token (Knopf
+  **Authorize**)
 
 ## Datenbank
 
@@ -114,8 +174,13 @@ Schema nichts.
   `tour`, `tour_employee`, `tour_customer`, `visitor_protocol` nach dem ER-Modell.
   `dealer.id` entspricht dem Claim `dealer_id`, `dealer.location_id` verknüpft
   optional mit dem Kartenpunkt, `tour.process_instance_id` mit CIB Seven.
+- `V3__tour_stop_status.sql`: `tour_customer.status` (`OFFEN`, `DOKUMENTIERT`,
+  `UEBERSPRUNGEN`) statt `visited BOOLEAN` (bisher besuchte Kunden werden
+  `DOKUMENTIERT`), dazu `skip_reason` (Pflicht bei `UEBERSPRUNGEN`), `started_at`,
+  `finished_at` und der Unique-Index `uk_tour_process_instance` auf
+  `tour.process_instance_id`.
 
-Schemaänderungen immer als **neue** Migration anlegen (`V3__…sql`), nie eine
+Schemaänderungen immer als **neue** Migration anlegen (`V4__…sql`), nie eine
 bereits ausgerollte Migration ändern, sonst startet der Service auf dem Server
 nicht mehr (Checksumme).
 
@@ -147,33 +212,62 @@ Konfiguration (`application.properties`): `terramax.seed.enabled`,
 (auch im Portainer-Stack), sobald echte CRM-Daten kommen. Bereits importierte
 Daten bleiben dabei in der Datenbank.
 
+## Tourplanung (`GET /tours/plan`)
+
+Übernommen aus dem tour-service (PR #53, `VisitPlanner`) und mit den bisherigen
+Platzhaltern zusammengeführt (`DefaultTourPlanner`):
+
+1. **Kandidaten:** Kunden des eigenen Händlers aus der Datenbank (statt
+   Mock-Kunden) mit Koordinaten. Wer am Tourtag oder danach schon besucht wurde,
+   fällt heraus. Letzter Besuch ist das spätere Datum aus dokumentierten Halten
+   (Tourdatum) und Besuchsprotokollen.
+2. **Auswahl** (`VisitPrioritizer`, Standard `LongestUnvisitedPrioritizer`): nie
+   besuchte zuerst, dann am längsten nicht besuchte, höchstens `maxVisits`.
+3. **Reihenfolge** (`RoutePlanner`, Standard `NearestNeighbourRoutePlanner`):
+   Luftlinie ab dem Standort des Händlers, immer zum nächstgelegenen offenen Kunden.
+
+Die Antwort hat exakt das Format von `TourPlan` der process-engine (`date`,
+`visits[position, customer{id, name, location, position{latitude, longitude},
+lastVisit}, distanceFromPreviousKm]`, `totalDistanceKm`). `customer.id` ist die
+Datenbank-ID als String, `location` die Region des Kunden, Entfernungen in km auf
+eine Nachkommastelle. Die Engine muss nur `TOUR_SERVICE_URL` auf diesen Service
+umstellen. Ein Test hält eine Kopie von `TourPlan` und prüft die Felder streng
+(`TourPlanResourceTest`). Den Startpunkt (`start`) des tour-service liefert der
+Endpunkt nicht mehr, weil `TourPlan` ihn nicht hat.
+
+Unterschiede zum tour-service: Kunden ohne Koordinaten kommen nicht in den Plan;
+Fehler kommen als `{"error": …}` statt `{"message": …}` (die Engine wertet den
+Body nicht aus).
+
 ## Platzhalter-Schnittstellen
 
-Alle mit `TODO(#64-meeting)` markiert, siehe [Offene Punkte](#offene-punkte-64-meeting).
+Mit `TODO(#64-meeting)` markiert, siehe [Offene Punkte](#offene-punkte-64-meeting).
 
-| Schnittstelle | Platzhalter (Standard) | Vorbereitet |
+| Schnittstelle | Standard | Vorbereitet |
 | --- | --- | --- |
-| `VisitPrioritizer` | `LongestUnvisitedPrioritizer`: nie besuchte Kunden zuerst, dann am längsten nicht besuchte | `LlmVisitPrioritizer` (OpenAI), `terramax.prioritizer.mode=llm` |
-| `RoutePlanner` | `NearestNeighbourRoutePlanner`: Luftlinie ab Händler, Fahrzeit `null` | – |
-| `TourPlanner` | `DefaultTourPlanner`: Priorisierung, dann Route; noch kein Endpunkt | – |
-| `ProcessEngineClient` | `StubProcessEngineClient`: loggt nur, Fake-ID `stub-…` | `RestProcessEngineClient` gegen `/engine-rest`, `terramax.engine.mode=rest` |
+| `VisitPrioritizer` | `LongestUnvisitedPrioritizer`: nie besuchte Kunden zuerst, dann am längsten nicht besuchte | `LlmVisitPrioritizer` (OpenAI), `terramax.prioritizer.mode=llm`, **auf Eis** |
+| `RoutePlanner` | `NearestNeighbourRoutePlanner`: Luftlinie ab Händler, Fahrzeit `null` | Mapbox Optimization API (offen) |
 
-### OpenAI
+### OpenAI (auf Eis)
 
-LangChain4j (`quarkus-langchain4j-openai`) wie im speech-service, Modell
-`gpt-4o-mini`, strukturierte Antwort (`VisitPrioritization`). Der Key kommt
-ausschließlich aus `OPENAI_API_KEY` und liegt nie im Repo. Ohne Key startet der
-Service trotzdem. An das LLM gehen nur Kunden-ID, Region, Segment und das
-Datum des letzten Besuchs, keine Namen, Kontaktdaten oder Koordinaten. Die Tests
-ersetzen OpenAI durch ein Fake-ChatModel (`RecordingChatModel`).
+Die LLM-Priorisierung ist vorbereitet und getestet, aber **auf Eis**: Sie ist
+nicht im Einsatz, `terramax.prioritizer.mode` bleibt `stub`, und
+`OPENAI_API_KEY` ist optional (ohne Key startet der Service normal).
+
+Technik für später: LangChain4j (`quarkus-langchain4j-openai`) wie im
+speech-service, Modell `gpt-4o-mini`, strukturierte Antwort (`VisitPrioritization`).
+Der Key kommt ausschließlich aus `OPENAI_API_KEY` und liegt nie im Repo. An das LLM
+gehen nur Kunden-ID, Region, Segment und das Datum des letzten Besuchs, keine
+Namen, Kontaktdaten oder Koordinaten. Die Tests ersetzen OpenAI durch ein
+Fake-ChatModel (`RecordingChatModel`).
 
 ### CIB Seven
 
-`CibSevenApi` ist ein MicroProfile-REST-Client auf die REST-API der
-process-engine (`TERRAMAX_ENGINE_URL`, Standard `http://localhost:8086/engine-rest`).
-Mit `@AccessToken` geht das Token des Aufrufers mit; die Engine prüft die
-Rollen selbst. `startTour` startet den Prozess `Besuchstour`
-(`terramax.engine.process-key`) mit der Tour-ID als Business Key.
+TerraMax ruft die Engine nicht auf. Den früheren `ProcessEngineClient` (Stub und
+REST-Client auf `/engine-rest`) gibt es nicht mehr, ebenso die Variablen
+`TERRAMAX_ENGINE_MODE` und `TERRAMAX_ENGINE_URL`. Die Engine ruft die Endpunkte
+oben auf; Übergabe:
+[docs/process/terramax-engine-schnittstelle.md](../docs/process/terramax-engine-schnittstelle.md).
 
 Kafka ist bewusst nicht angebunden.
 
@@ -227,7 +321,7 @@ zum Team-Keycloak. Secrets sind nicht nötig und gehören nicht ins Repository.
 ## CORS
 
 Standardmäßig ist nur der lokale Vite-Server `http://localhost:5173`
-freigegeben (Methoden `GET`, `POST`, `PUT`, `PATCH`, `OPTIONS`; Header
+freigegeben (Methoden `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`; Header
 `Authorization`, `Content-Type`). Weitere Origins kommagetrennt über
 `CORS_ORIGINS` (im Stack: `TERRAMAX_CORS_ORIGINS`). `*` ist nicht erlaubt.
 
@@ -285,14 +379,12 @@ die Datei als `.env` kopieren und befüllen. `.env` wird nicht committet.
 | `QUARKUS_DATASOURCE_JDBC_URL` | ja | z. B. `jdbc:postgresql://<host>:5432/<db>` |
 | `QUARKUS_DATASOURCE_USERNAME` | ja | Datenbank-Benutzer |
 | `QUARKUS_DATASOURCE_PASSWORD` | ja | Datenbank-Passwort |
-| `OPENAI_API_KEY` | nein | nur für `TERRAMAX_PRIORITIZER_MODE=llm` |
-| `TERRAMAX_PRIORITIZER_MODE` | nein | `stub` (Standard) oder `llm` |
-| `TERRAMAX_ENGINE_MODE` | nein | `stub` (Standard) oder `rest` |
-| `TERRAMAX_ENGINE_URL` | nein | REST-API der process-engine (Standard `http://localhost:8086/engine-rest`) |
+| `OPENAI_API_KEY` | nein | optional; nur für `TERRAMAX_PRIORITIZER_MODE=llm`, das auf Eis ist |
+| `TERRAMAX_PRIORITIZER_MODE` | nein | `stub` (Standard) oder `llm` (auf Eis) |
 | `TERRAMAX_SEED_ENABLED` | nein | Testdaten beim Start importieren (Standard `true`) |
 
-Im Portainer-Stack: `TERRAMAX_DB_PASSWORD`, `TERRAMAX_CORS_ORIGINS`,
-`OPENAI_API_KEY` und optional `TERRAMAX_SERVICE_TAG` (Standard `main`) sowie
+Im Portainer-Stack: `TERRAMAX_DB_PASSWORD`, `TERRAMAX_CORS_ORIGINS` und optional
+`OPENAI_API_KEY`, `TERRAMAX_SERVICE_TAG` (Standard `main`) sowie
 `TERRAMAX_SEED_ENABLED` (Standard `true`).
 
 ### Container lokal starten
@@ -310,11 +402,16 @@ Im Code mit `TODO(#64-meeting)` markiert (`grep -rn "TODO(#64-meeting)"`):
 | Thema | Offen | Stelle |
 | --- | --- | --- |
 | Netzwerk | Proxy-Netzwerk `nginx-proxy-manager` (wie speech-service) oder `nginx-reverse-proxy` (Issue) | `docker-compose.yml` |
-| speech-service | Ruft der speech-service `POST /tours/{id}/protocols` auf, und wie wird das Token weitergegeben? | `TourProtocolResource` |
-| Priorisierung | Kriterien (Umsatz, offene Angebote, Follow-ups, Saison) und Prompt abstimmen, dann `llm` als Standard | `VisitPrioritizer`, `LongestUnvisitedPrioritizer`, `LlmVisitPrioritizer`, `application.properties` |
+| Priorisierung (auf Eis) | Kriterien (Umsatz, offene Angebote, Follow-ups, Saison) und Prompt abstimmen, erst dann `llm` als Standard | `VisitPrioritizer`, `LongestUnvisitedPrioritizer`, `LlmVisitPrioritizer` |
 | Routen | Mapbox Optimization API für Reihenfolge und Fahrzeiten | `RoutePlanner`, `NearestNeighbourRoutePlanner` |
-| tour-service | Übernahme des tour-service aus PR #53 mit Mohamed klären; dann `GET /tours/plan` im bisherigen Format für die process-engine | `TourPlanner`, `DefaultTourPlanner` |
-| process-engine | Aufrufrichtung und Prozess-Key; CIB Seven auf dem Server kommt mit #63 | `ProcessEngineClient`, `RestProcessEngineClient`, `StubProcessEngineClient`, `application.properties` |
+| process-engine | Delegates umstellen (Lukas, CIB-Seven-Entwickler); Abbruch als `completed` oder eigener Status; wer das Protokoll speichert | [docs/process/terramax-engine-schnittstelle.md](../docs/process/terramax-engine-schnittstelle.md) |
+| Keycloak | Rolle `process_engine` und Client `terramax-process-engine` (Service-Konto) im Team-Realm anlegen | – |
+| tour-service | Nach der Umstellung der Engine kann der tour-service entfallen; `GET /tours/plan` liefert jetzt dieser Service | – |
+
+Geklärt: Der speech-service ruft `POST /tours/{id}/protocols` mit dem durchgereichten
+Nutzer-Token auf (siehe [Anmeldung der process-engine](#anmeldung-der-process-engine)).
+Die Tourplanung aus PR #53 ist übernommen ([Tourplanung](#tourplanung-get-toursplan)),
+die Aufrufrichtung ist Engine → TerraMax.
 | Stammdaten | Woher echte Händler- und Kundendaten kommen (CRM-Import, Admin-Endpunkt); bis dahin Testdaten. Mitarbeiter entstehen automatisch beim ersten Aufruf | `SeedImporter` |
 | Vorschlag: KI-Besuchsvorbereitung | Siehe unten; noch nicht umgesetzt | – |
 
@@ -340,7 +437,8 @@ Vor einer Umsetzung zu klären:
 **Vor dem Merge (Portainer):**
 
 - [ ] Variablen im Stack gesetzt: `TERRAMAX_DB_PASSWORD`, `TERRAMAX_CORS_ORIGINS`
-      (z. B. `https://terramax.winfprojekt.de`), `OPENAI_API_KEY`
+      (z. B. `https://terramax.winfprojekt.de`); `OPENAI_API_KEY` ist optional
+- [ ] Im Team-Keycloak Rolle `process_engine` und Service-Konto-Client für die Engine angelegt
 - [ ] Netzwerkname geklärt (`nginx-proxy-manager` oder `nginx-reverse-proxy`) und im
       `docker-compose.yml` angepasst
 - [ ] Proxy-Host `<subdomain>.winfprojekt.de` → `terramax-terramax-service-1:8080`
