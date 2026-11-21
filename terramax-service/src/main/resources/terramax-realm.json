@@ -106,6 +106,14 @@
             "sales_professional"
           ]
         }
+      },
+      {
+        "name": "process_engine",
+        "description": "TerraMax: Service-Konto der process-engine (CIB Seven), ohne dealer_id",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "8b1bb181-6898-4b8e-b189-60ce32d83a36",
+        "attributes": {}
       }
     ],
     "client": {
@@ -500,6 +508,23 @@
     ]
   },
   "clients": [
+    {
+      "clientId": "terramax-process-engine",
+      "name": "Service-Konto der process-engine (nur lokal)",
+      "description": "Client Credentials für Engine-Schritte ohne Nutzer. Das Secret gilt nur für den lokalen Dev-Services-Keycloak; auf dem Team-Keycloak ein eigenes Secret anlegen.",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "local-dev-process-engine-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "defaultClientScopes": [
+        "roles",
+        "basic"
+      ]
+    },
     {
       "clientId": "terramax-dev-ui",
       "name": "Lokale Quarkus Dev UI",
@@ -2588,6 +2613,14 @@
     "policies": []
   },
   "users": [
+    {
+      "username": "service-account-terramax-process-engine",
+      "enabled": true,
+      "serviceAccountClientId": "terramax-process-engine",
+      "realmRoles": [
+        "process_engine"
+      ]
+    },
     {
       "username": "testuser",
       "enabled": true,

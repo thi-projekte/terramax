@@ -19,7 +19,17 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
  * <li>{@code sales_professional} sieht die Kunden seines Händlers, aber nur eigene Touren (über {@code tour_employee})
  * und deren Protokolle.</li>
  * <li>Ohne {@code dealer_id} im Token: 403.</li>
+ * <li>Ausnahme Service-Konto ({@link #isServiceAccount()}, Rolle {@code process_engine}): Es hat kein
+ * {@code dealer_id}, sieht jede Tour und deren Protokolle. Der Händler kommt aus der Tour, nie aus dem Token; deshalb
+ * rufen Tour-Endpunkte für Service-Konten {@link #requireDealerId()} nicht auf.</li>
  * </ul>
+ * Zwei Wege, wie die process-engine aufruft:
+ * <ol>
+ * <li><b>Nutzer-Token (Token Propagation):</b> Die Engine reicht das Token des Sales Professional durch, solange der
+ * Schritt im Request des Nutzers läuft. Es gelten die Regeln des Nutzers.</li>
+ * <li><b>Service-Konto:</b> Für Schritte ohne Nutzer (asynchron, Timer, Wiederholung) holt sich die Engine per Client
+ * Credentials ein eigenes Token mit Rolle {@code process_engine}.</li>
+ * </ol>
  */
 @RequestScoped
 public class CurrentUser {
@@ -61,6 +71,11 @@ public class CurrentUser {
 
     public boolean isDealerPrincipal() {
         return identity.hasRole(Roles.DEALER_PRINCIPAL);
+    }
+
+    /** Service-Konto der process-engine (Rolle {@code process_engine}), ohne Händlerbezug. */
+    public boolean isServiceAccount() {
+        return identity.hasRole(Roles.PROCESS_ENGINE);
     }
 
     /** Fachrolle für den Mitarbeiter-Eintrag: dealer_principal vor sales_professional, sonst leer. */

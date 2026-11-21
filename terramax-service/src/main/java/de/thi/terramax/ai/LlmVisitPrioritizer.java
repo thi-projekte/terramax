@@ -14,13 +14,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Priorisierung per OpenAI. Noch nicht Standard, Auswahl über {@code terramax.prioritizer.mode=llm}.
+ * Priorisierung per OpenAI. <b>Auf Eis:</b> vorbereitet und getestet, aber nicht im Einsatz; Standard bleibt
+ * {@code terramax.prioritizer.mode=stub}. Einschalten nur über {@code terramax.prioritizer.mode=llm} mit
+ * {@code OPENAI_API_KEY}.
  * <p>
  * Datensparsamkeit: An das LLM gehen nur Kunden-ID, Region, Segment und das Datum des letzten Besuchs, keine Namen,
  * Kontaktdaten oder Koordinaten. Die Antwort wird geprüft: unbekannte und doppelte IDs fallen weg, höchstens
  * {@code maxCustomers} Kunden.
  * <p>
- * TODO(#64-meeting): Prompt und Kriterien mit dem Team abstimmen, dann als Standard aktivieren
+ * TODO(#64-meeting): Auf Eis. Prompt und Kriterien mit dem Team abstimmen, erst dann als Standard aktivieren
  */
 @ApplicationScoped
 @Typed(LlmVisitPrioritizer.class)

@@ -1,18 +1,16 @@
 package de.thi.terramax.tour;
 
 import de.thi.terramax.ai.VisitPrioritizer.PlanningConstraints;
+import de.thi.terramax.tour.RoutePlanner.Coordinates;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Erstellt einen Planvorschlag für eine Tour: erst {@link de.thi.terramax.ai.VisitPrioritizer}, dann
- * {@link RoutePlanner}. Der Vorschlag wird nicht gespeichert. Platzhalter: {@link DefaultTourPlanner}.
- * <p>
- * Es gibt bewusst noch keinen Endpunkt {@code GET /tours/plan}.
- * <p>
- * TODO(#64-meeting): Übernahme des tour-service aus PR #53 mit Mohamed klären; dann GET /tours/plan im bisherigen
- * Format für die process-engine anbieten
+ * Erstellt einen Planvorschlag für eine Tour: erst {@link de.thi.terramax.ai.VisitPrioritizer} (Auswahl), dann
+ * {@link RoutePlanner} (Reihenfolge). Der Vorschlag wird nicht gespeichert; {@code GET /tours/plan} liefert ihn im
+ * Format von {@code TourPlan} der process-engine. Umsetzung: {@link DefaultTourPlanner} (Regel aus dem tour-service, PR
+ * #53).
  */
 public interface TourPlanner {
 
@@ -22,14 +20,23 @@ public interface TourPlanner {
      */
     TourPlanProposal propose(String dealerId, PlanningConstraints constraints);
 
-    record TourPlanProposal(LocalDate date, List<ProposedStop> stops) {
+    /**
+     * @param start
+     *            Startpunkt (Standort des Händlers); {@code null}, wenn der Händler keine Koordinaten hat
+     */
+    record TourPlanProposal(LocalDate date, Coordinates start, List<ProposedStop> stops) {
     }
 
     /**
      * Ein Kunde im Vorschlag. {@code position} ist die Fahrreihenfolge, {@code rank} die Wichtigkeit laut
      * Priorisierung.
+     *
+     * @param lastVisit
+     *            letzter dokumentierter Besuch oder letztes Protokoll; {@code null}, wenn nie besucht
+     * @param distanceKm
+     *            Luftlinie zum vorherigen Halt (beim ersten zum Start); {@code null} ohne Startpunkt
      */
-    record ProposedStop(long customerId, int position, int rank, String reason, Double distanceKm,
-            Duration driveTime) {
+    record ProposedStop(long customerId, int position, int rank, String reason, LocalDate lastVisit,
+            Double distanceKm, Duration driveTime) {
     }
 }

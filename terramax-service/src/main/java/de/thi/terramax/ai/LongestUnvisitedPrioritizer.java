@@ -8,8 +8,9 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Platzhalter für die Priorisierung: Wer am längsten nicht besucht wurde, kommt zuerst; nie besuchte Kunden ganz vorne.
- * Bei Gleichstand entscheidet die Kunden-ID, damit das Ergebnis stabil ist.
+ * Priorisierung (Standard, Grundlage von {@code GET /tours/plan}): Wer am längsten nicht besucht wurde, kommt zuerst;
+ * nie besuchte Kunden ganz vorne. Bei Gleichstand entscheidet die Kunden-ID, damit das Ergebnis stabil ist. Das ist die
+ * MVP-Regel aus dem tour-service (PR #53, {@code VisitPlanner}).
  * <p>
  * TODO(#64-meeting): durch die abgestimmte Priorisierung ersetzen (siehe {@link VisitPrioritizer})
  */

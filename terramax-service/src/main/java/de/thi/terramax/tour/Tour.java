@@ -82,6 +82,16 @@ public class Tour extends PanacheEntityBase {
                 + "order by t.tourDate desc, t.id desc", dealerId, employeeId);
     }
 
+    /** Die Tour zu einer Prozessinstanz in CIB Seven (eindeutig, Unique-Index). */
+    public static Optional<Tour> findByProcessInstanceId(String processInstanceId) {
+        return find("processInstanceId", processInstanceId).firstResultOptional();
+    }
+
+    /** Ein Halt der Tour. */
+    public Optional<TourCustomer> stop(long customerId) {
+        return stops.stream().filter(s -> s.customer.id == customerId).findFirst();
+    }
+
     /** Eine Tour, aber nur, wenn sie zum Händler gehört. */
     public static Optional<Tour> findForDealer(long id, String dealerId) {
         return find("id = ?1 and dealer.id = ?2", id, dealerId).firstResultOptional();

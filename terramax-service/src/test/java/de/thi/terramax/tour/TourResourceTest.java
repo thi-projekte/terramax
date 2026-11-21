@@ -148,13 +148,12 @@ class TourResourceTest {
     @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
     @OidcSecurity(claims = { @Claim(key = "sub", value = TestData.SALES_SUB),
             @Claim(key = "dealer_id", value = TestData.DEALER) })
-    void patchChangesStatusOrderAndVisited() {
+    void patchChangesStatusAndOrder() {
         given().contentType("application/json")
-                .body(Map.of("status", "in_progress", "customerOrder", List.of(f.maier(), f.huber()), "visited",
-                        Map.of(String.valueOf(f.maier()), true)))
-                .when().patch("/tours/{id}", f.ownTour()).then().statusCode(200).body("status", is("in_progress"))
-                .body("customers.name", contains("Hof Maier", "Hof Huber")).body("customers.visited",
-                        contains(true, false));
+                .body(Map.of("status", "in_progress", "customerOrder", List.of(f.maier(), f.huber()))).when()
+                .patch("/tours/{id}", f.ownTour()).then().statusCode(200).body("status", is("in_progress"))
+                .body("customers.name", contains("Hof Maier", "Hof Huber"))
+                .body("customers.status", contains("OFFEN", "OFFEN"));
 
         given().when().get("/tours/{id}", f.ownTour()).then().body("customers.name", contains("Hof Maier", "Hof Huber"))
                 .body("customers.position", contains(1, 2));

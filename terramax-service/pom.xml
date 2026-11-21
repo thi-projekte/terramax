@@ -103,16 +103,7 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest</artifactId>
         </dependency>
-        <!-- REST-Client zur process-engine (CIB Seven), reicht das Token des Aufrufers weiter -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-client-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-client-oidc-token-propagation</artifactId>
-        </dependency>
-        <!-- OpenAI-LLM über LangChain4j (wie im speech-service) -->
+        <!-- OpenAI-LLM über LangChain4j (wie im speech-service). Auf Eis: terramax.prioritizer.mode bleibt stub -->
         <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-openai</artifactId>

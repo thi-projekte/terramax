@@ -31,6 +31,36 @@ public record CreateProtocolRequest(@Schema(required = true, example = "1") Long
         }
     }
 
+    /** Prüfung für PUT und PATCH: customerId ist dort optional. */
+    void validateUpdate() {
+        if (transcript != null && transcript.length() > MAX_TRANSCRIPT_LENGTH) {
+            throw ApiErrors.badRequest("Das Transkript ist zu lang.");
+        }
+    }
+
+    /** PATCH: nur gesetzte Felder übernehmen; eine leere Liste oder ein leerer Text löscht den Wert. */
+    void mergeInto(VisitorProtocol protocol) {
+        if (contactPerson != null) {
+            protocol.contactPerson = blankToNull(contactPerson);
+        }
+        if (topics != null) {
+            protocol.topics = joinLines(topics);
+        }
+        if (outcome != null) {
+            protocol.outcome = blankToNull(outcome);
+        }
+        if (nextSteps != null) {
+            protocol.nextSteps = joinLines(nextSteps);
+        }
+        if (followUpDate != null) {
+            protocol.followUpDate = followUpDate;
+        }
+        if (transcript != null) {
+            protocol.transcript = blankToNull(transcript);
+        }
+    }
+
+    /** POST und PUT: alle Inhaltsfelder setzen, fehlende werden leer. */
     void applyTo(VisitorProtocol protocol) {
         protocol.contactPerson = blankToNull(contactPerson);
         protocol.topics = joinLines(topics);

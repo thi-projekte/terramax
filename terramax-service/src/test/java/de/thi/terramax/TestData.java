@@ -5,17 +5,22 @@ import de.thi.terramax.dealer.Dealer;
 import de.thi.terramax.dealer.DealerEmployee;
 import de.thi.terramax.protocol.VisitorProtocol;
 import de.thi.terramax.security.Roles;
+import de.thi.terramax.tour.StopStatus;
 import de.thi.terramax.tour.Tour;
 import de.thi.terramax.tour.TourCustomer;
+import de.thi.terramax.tour.TourStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
  * Feste Testdaten in der Dev-Services-Datenbank. Die Standorte (Tabelle location) bleiben unangetastet.
+ * <p>
+ * Service-Konto der process-engine: {@value #ENGINE_SUB} (Rolle process_engine, ohne dealer_id).
  * <p>
  * Händler D-100 mit Sales Professional {@value #SALES_SUB}, Kollege {@value #COLLEAGUE_SUB} und Dealer Principal
  * {@value #PRINCIPAL_SUB}; Händler D-200 mit {@value #OTHER_SUB}.
@@ -35,6 +40,7 @@ public class TestData {
     public static final String COLLEAGUE_SUB = "sub-colleague";
     public static final String PRINCIPAL_SUB = "sub-principal";
     public static final String OTHER_SUB = "sub-other";
+    public static final String ENGINE_SUB = "sub-process-engine";
 
     public record Fixture(long salesId, long colleagueId, long principalId, long otherEmployeeId, long huber,
             long maier, long ohneKoordinaten, long fremd, long ownTour, long colleagueTour, long foreignTour,
@@ -78,6 +84,35 @@ public class TestData {
         return new Fixture(sales.id, colleague.id, principal.id, otherEmployee.id, huber.id, maier.id,
                 ohneKoordinaten.id, fremd.id, ownTour.id, colleagueTour.id, foreignTour.id, ownProtocol.id,
                 colleagueProtocol.id);
+    }
+
+    /** Weiterer Kunde mit Koordinaten bei D-100, z. B. für Pläne mit mehr Besuchen. */
+    @Transactional
+    public long addCustomer(String externalId, String name, double latitude, double longitude) {
+        return customer(Dealer.findById(DEALER), externalId, name, latitude, longitude).id;
+    }
+
+    /** Setzt einen Halt direkt in der Datenbank auf DOKUMENTIERT (ohne API). */
+    @Transactional
+    public void documentStop(long tourId, long customerId) {
+        Tour tour = Tour.findById(tourId);
+        TourCustomer stop = tour.stop(customerId).orElseThrow();
+        stop.status = StopStatus.DOKUMENTIERT;
+        stop.finishedAt = OffsetDateTime.now();
+    }
+
+    /** Setzt den Status einer Tour direkt in der Datenbank. */
+    @Transactional
+    public void setTourStatus(long tourId, TourStatus status) {
+        Tour tour = Tour.findById(tourId);
+        tour.status = status;
+    }
+
+    /** Setzt die Prozessinstanz einer Tour direkt in der Datenbank. */
+    @Transactional
+    public void setProcessInstanceId(long tourId, String processInstanceId) {
+        Tour tour = Tour.findById(tourId);
+        tour.processInstanceId = processInstanceId;
     }
 
     private static Dealer dealer(String id, String name, double latitude, double longitude) {

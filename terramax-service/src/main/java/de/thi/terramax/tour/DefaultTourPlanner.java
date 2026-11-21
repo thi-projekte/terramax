@@ -22,11 +22,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Platzhalter für die Tourplanung: lädt die Kunden des Händlers mit dem Datum des letzten Besuchs, priorisiert sie und
- * plant die Route ab dem Händler. Letzter Besuch ist das spätere Datum aus besuchten Tour-Stopps und
- * Besuchsprotokollen.
- * <p>
- * TODO(#64-meeting): Übernahme des tour-service aus PR #53 mit Mohamed klären (siehe {@link TourPlanner})
+ * Tourplanung nach der MVP-Regel des tour-service ({@code VisitPlanner} aus PR #53, Service Task "Besuchsplan
+ * erzeugen"), jetzt mit den Kunden aus der Datenbank statt Mock-Kunden:
+ * <ol>
+ * <li><b>Kandidaten:</b> Kunden des Händlers mit Koordinaten. Wer am Tourtag oder danach schon besucht wurde, fällt
+ * heraus. Letzter Besuch ist das spätere Datum aus dokumentierten Halten (Tourdatum) und Besuchsprotokollen.</li>
+ * <li><b>Auswahl:</b> {@link VisitPrioritizer}, Standard {@code LongestUnvisitedPrioritizer}: nie besuchte zuerst, dann
+ * am längsten nicht besuchte.</li>
+ * <li><b>Reihenfolge:</b> {@link RoutePlanner}, Standard {@link NearestNeighbourRoutePlanner}: Luftlinie ab dem
+ * Standort des Händlers, immer zum nächstgelegenen offenen Kunden.</li>
+ * </ol>
+ * Kunden ohne Koordinaten kommen nicht in den Plan, weil sich für sie keine Route berechnen lässt.
  */
 @ApplicationScoped
 @DefaultBean
@@ -49,8 +55,10 @@ public class DefaultTourPlanner implements TourPlanner {
         if (dealer == null) {
             throw new IllegalArgumentException("Unbekannter Händler: " + dealerId);
         }
-        List<Customer> customers = Customer.listByDealer(dealerId);
         Map<Long, LocalDate> lastVisits = lastVisits(dealerId);
+        List<Customer> customers = Customer.listByDealer(dealerId).stream()
+                .filter(c -> c.latitude != null && c.longitude != null)
+                .filter(c -> isDue(lastVisits.get(c.id), constraints.date())).toList();
         List<Candidate> candidates = customers.stream()
                 .map(c -> new Candidate(c.id, c.region, c.segment, lastVisits.get(c.id))).toList();
 
@@ -61,25 +69,32 @@ public class DefaultTourPlanner implements TourPlanner {
         Coordinates start = dealer.latitude == null || dealer.longitude == null ? null
                 : new Coordinates(dealer.latitude, dealer.longitude);
 
-        return combine(constraints.date(), prioritized, routePlanner.plan(start, stops));
+        return combine(constraints.date(), start, prioritized, lastVisits, routePlanner.plan(start, stops));
+    }
+
+    /** Noch nie besucht oder zuletzt vor dem Tourtag. */
+    static boolean isDue(LocalDate lastVisit, LocalDate tourDate) {
+        return lastVisit == null || lastVisit.isBefore(tourDate);
     }
 
     /** Führt Priorisierung (Rang, Begründung) und Route (Position, Entfernung, Fahrzeit) zusammen. */
-    static TourPlanProposal combine(LocalDate date, List<PrioritizedCustomer> prioritized, List<PlannedStop> route) {
+    static TourPlanProposal combine(LocalDate date, Coordinates start, List<PrioritizedCustomer> prioritized,
+            Map<Long, LocalDate> lastVisits, List<PlannedStop> route) {
         Map<Long, PrioritizedCustomer> byId = prioritized.stream()
                 .collect(Collectors.toMap(PrioritizedCustomer::customerId, Function.identity()));
         List<ProposedStop> stops = route.stream().map(s -> {
             PrioritizedCustomer p = byId.get(s.customerId());
-            return new ProposedStop(s.customerId(), s.position(), p.rank(), p.reason(), s.distanceKm(), s.driveTime());
+            return new ProposedStop(s.customerId(), s.position(), p.rank(), p.reason(),
+                    lastVisits.get(s.customerId()), s.distanceKm(), s.driveTime());
         }).toList();
-        return new TourPlanProposal(date, stops);
+        return new TourPlanProposal(date, start, stops);
     }
 
     private Map<Long, LocalDate> lastVisits(String dealerId) {
         Map<Long, LocalDate> result = new HashMap<>();
         em.createQuery("select tc.customer.id, max(tc.tour.tourDate) from TourCustomer tc "
-                + "where tc.visited = true and tc.customer.dealer.id = ?1 group by tc.customer.id", Object[].class)
-                .setParameter(1, dealerId).getResultList()
+                + "where tc.status = ?2 and tc.customer.dealer.id = ?1 group by tc.customer.id", Object[].class)
+                .setParameter(1, dealerId).setParameter(2, StopStatus.DOKUMENTIERT).getResultList()
                 .forEach(row -> result.merge((Long) row[0], (LocalDate) row[1], DefaultTourPlanner::later));
         em.createQuery("select p.customer.id, max(p.createdAt) from VisitorProtocol p "
                 + "where p.customer.dealer.id = ?1 group by p.customer.id", Object[].class).setParameter(1, dealerId)

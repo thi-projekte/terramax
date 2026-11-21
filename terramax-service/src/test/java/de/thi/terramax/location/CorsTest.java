@@ -3,7 +3,6 @@ package de.thi.terramax.location;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -24,7 +23,7 @@ class CorsTest {
                 .options("/locations").then().statusCode(200)
                 .header("Access-Control-Allow-Origin", is(FRONTEND_ORIGIN))
                 .header("Access-Control-Allow-Methods", containsString("GET"))
-                .header("Access-Control-Allow-Methods", not(containsString("DELETE")))
+                .header("Access-Control-Allow-Methods", containsString("DELETE"))
                 .header("Access-Control-Allow-Headers", containsString("Authorization"))
                 .header("Access-Control-Allow-Headers", containsString("Content-Type"));
     }

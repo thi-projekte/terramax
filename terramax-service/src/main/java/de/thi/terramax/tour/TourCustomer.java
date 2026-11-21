@@ -6,16 +6,20 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
- * Ein Kunde auf einer Tour: Position in der Reihenfolge und ob er schon besucht wurde.
+ * Ein Halt: Kunde auf einer Tour mit Position, Status ({@link StopStatus}), Grund fürs Überspringen und Zeiten.
+ * Statusübergänge laufen nur über {@link StopTransitions}.
  */
 @Entity
 @Table(name = "tour_customer")
@@ -37,8 +41,21 @@ public class TourCustomer extends PanacheEntityBase {
     @Column(name = "position", nullable = false)
     public int position;
 
-    @Column(name = "visited", nullable = false)
-    public boolean visited;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    public StopStatus status = StopStatus.OFFEN;
+
+    /** Pflicht bei {@link StopStatus#UEBERSPRUNGEN}. */
+    @Column(name = "skip_reason")
+    public String skipReason;
+
+    /** Besuch begonnen; {@code null}, solange nicht begonnen (oder ohne Start abgeschlossen). */
+    @Column(name = "started_at")
+    public OffsetDateTime startedAt;
+
+    /** Halt erledigt (dokumentiert oder übersprungen). */
+    @Column(name = "finished_at")
+    public OffsetDateTime finishedAt;
 
     public static TourCustomer of(Tour tour, Customer customer, int position) {
         TourCustomer stop = new TourCustomer();
