@@ -190,7 +190,7 @@ services:
   # Entwickler-UI (Topics, Nachrichten, Consumer-Gruppen), über den Nginx Proxy Manager
   # erreichbar (kafka-ui:8080), nur mit Login
   kafka-ui:
-    image: ghcr.io/kafbat/kafka-ui:v1.5.0
+    image: ghcr.io/kafbat/kafka-ui:v1.5.1
     restart: unless-stopped
     environment:
       KAFKA_CLUSTERS_0_NAME: terramax
