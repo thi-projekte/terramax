@@ -12,7 +12,6 @@ import {
 } from './locationLayer'
 import { addTerritoryLayers } from './territoryLayers'
 import { addCustomerLayers } from './customerLayers'
-import { addWhiteSpotLayers } from './whiteSpotLayers'
 import { addCustomerPopups } from './customerPopups'
 import DealerLayerToggles from './DealerLayerToggles'
 import { fetchLocations } from './locationLayer'
