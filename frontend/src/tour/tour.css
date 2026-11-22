@@ -170,3 +170,25 @@
   justify-content: flex-end;
   margin-top: 12px;
 }
+
+/* Sprachnotiz */
+
+.tour-recording {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.tour-audio {
+  width: 100%;
+}
+
+.tour-card details summary {
+  cursor: pointer;
+  color: var(--text);
+}
+
+.tour-transkript {
+  margin-top: 8px;
+  white-space: pre-wrap;
+  color: var(--text-h);
+}
