@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { KiHinweis } from '../ki/KiHinweis'
 import type { Kunde, Protokoll, Touruebersicht } from './engineApi'
 
 // Je Aufgabe (User Task) im BPMN-Modell "Besuchstour" ein Bildschirm.
@@ -251,7 +252,12 @@ export function ProtokollPruefen({
       }}
     >
       <h3>Protokoll – {kunde.name}</h3>
-      {entwurf && <p className="tour-hint">KI-Entwurf – bitte prüfen und bei Bedarf korrigieren.</p>}
+      {entwurf && (
+        <div className="tour-hint">
+          <KiHinweis text="KI-Entwurf" quelle="deiner Sprachnotiz" />
+          <div>Bitte prüfen und bei Bedarf korrigieren.</div>
+        </div>
+      )}
       {PROTOKOLL_FELDER.map((feld) => (
         <label key={feld.name}>
           {feld.label}

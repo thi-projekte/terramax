@@ -1,0 +1,109 @@
+/* KI-Kennzeichnung (#27). Bewusst im Akzent-Violett mit gestricheltem Rand und Stern:
+   keine Ampelfarben, damit sie nicht mit den ML-Konfidenzstufen (#20) verwechselt wird. */
+
+.ki-hinweis {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 0.85em;
+  line-height: 1.3;
+}
+
+.ki-hinweis-anker {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Doppelte Klasse, damit allgemeine Button-Stile (z. B. .tour-card button, .role-sections button) nicht greifen */
+.ki-hinweis .ki-hinweis-marke {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 0;
+  margin: 0;
+  padding: 2px 8px;
+  border: 1px dashed var(--accent-border);
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  line-height: inherit;
+  cursor: help;
+}
+
+/* größere Trefferfläche für den Finger, ohne die Marke größer zu zeichnen */
+.ki-hinweis .ki-hinweis-marke::after {
+  content: '';
+  position: absolute;
+  inset: -10px -4px;
+}
+
+.ki-hinweis .ki-hinweis-marke:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ki-hinweis-icon {
+  font-size: 1.1em;
+}
+
+.ki-hinweis-quelle {
+  color: var(--text);
+  font-style: italic;
+}
+
+.ki-hinweis-tooltip {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 10;
+  width: max-content;
+  /* auf dem Handy nicht über den Bildschirmrand hinaus */
+  max-width: min(260px, calc(100vw - 48px));
+  white-space: normal;
+  text-align: left;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  color: var(--text-h);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.95em;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+/* überbrückt die Lücke zur Marke, damit die Maus auf den Tooltip wechseln kann (WCAG 1.4.13) */
+.ki-hinweis-tooltip::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -8px;
+  height: 8px;
+}
+
+.ki-hinweis-anker:hover .ki-hinweis-tooltip,
+.ki-hinweis-anker:focus-within .ki-hinweis-tooltip,
+.ki-hinweis-anker.ki-hinweis-offen .ki-hinweis-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* nach Escape ausgeblendet, bis Maus oder Fokus neu auf die Marke kommen */
+.ki-hinweis-anker.ki-hinweis-zu .ki-hinweis-tooltip {
+  visibility: hidden;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ki-hinweis-tooltip {
+    transition: none;
+  }
+}

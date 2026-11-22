@@ -1,4 +1,5 @@
 import { useId, useState, type FormEvent } from 'react'
+import { KiHinweis } from '../ki/KiHinweis'
 import type { VisitProtocol } from './protocol'
 
 interface VisitProtocolFormProps {
@@ -47,7 +48,12 @@ function VisitProtocolForm({ initial, transcript, aiGenerated, onConfirm, onDisc
 
     return (
         <form className="protocol-form" onSubmit={handleSubmit}>
-            {aiGenerated && <p className="protocol-hint">Von der AI vorausgefüllt. Bitte prüfen und korrigieren.</p>}
+            {aiGenerated && (
+                <div className="protocol-hint">
+                    <KiHinweis text="KI-Entwurf" quelle="deiner Sprachnotiz" />
+                    <div>Bitte prüfen und korrigieren.</div>
+                </div>
+            )}
             {transcript && (
                 <details>
                     <summary>Transkript anzeigen</summary>
