@@ -15,6 +15,9 @@ import { addCustomerLayers } from './customerLayers'
 import { addWhiteSpotLayers } from './whiteSpotLayers'
 import { addCustomerPopups } from './customerPopups'
 import DealerLayerToggles from './DealerLayerToggles'
+import { DATENQUELLEN, ohneWert, type Datenquelle } from './konfidenz/datenquellen'
+import { konfidenzElement } from './konfidenz/konfidenzElement'
+import { Konfidenz } from './konfidenz/Konfidenz'
 
 type LocationState = { status: 'loading' } | LocationLoadResult
 import type { Feature, FeatureCollection, Polygon, MultiPolygon, Point } from 'geojson'
@@ -57,6 +60,16 @@ type CoverageStatus = {
   outsideCells: number | null
   outsideCropHectares: number | null
   outsideCustomers: number | null
+}
+
+// #20: Quellen der Fahrzeitauswertung; die Testkunden nur, wenn sie geladen wurden
+function coverageSources(status: CoverageStatus): Datenquelle[] {
+  return [
+    DATENQUELLEN.mapboxFahrzeit,
+    DATENQUELLEN.johnDeereStandorte,
+    DATENQUELLEN.invekosWeizenSoja,
+    ...(status.outsideCustomers === null ? [] : [DATENQUELLEN.crmTestkunden])
+  ]
 }
 
 function insideRing(point: number[], ring: number[][]): boolean {
@@ -518,11 +531,12 @@ export default function AustriaMap() {
                   }
                 )} ha`
 
-          const source = document.createElement('p')
-          source.textContent =
+          // #20: Datenquelle und Konfidenzstufe, ohne Flächenwert „unbekannt“
+          const source = konfidenzElement([
             hektar === null
-              ? 'Datenquelle: kein Flächenwert vorhanden'
-              : 'Datenquelle: INVEKOS Österreich 2024 (vorläufig)'
+              ? ohneWert(DATENQUELLEN.invekosWeizenSoja, 'Für diese Zelle liegt kein Flächenwert vor')
+              : DATENQUELLEN.invekosWeizenSoja
+          ])
 
           popup.append(title, id, area, source)
 
@@ -659,6 +673,7 @@ export default function AustriaMap() {
               H3-Zellen über Mittelpunkt klassifiziert (Näherung).
               Hektar beziehen sich nur auf bekannte Weizen- und Sojaflächen.
             </p>
+            <Konfidenz quellen={coverageSources(coverageStatus)} />
           </>
         )}
         <button type="button" onClick={() => {
