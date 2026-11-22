@@ -15,6 +15,7 @@ import { addCustomerLayers } from './customerLayers'
 import { addWhiteSpotLayers } from './whiteSpotLayers'
 import { addCustomerPopups } from './customerPopups'
 import DealerLayerToggles from './DealerLayerToggles'
+import { fetchLocations } from './locationLayer'
 
 type LocationState = { status: 'loading' } | LocationLoadResult
 import type { Feature, FeatureCollection, Polygon, MultiPolygon, Point } from 'geojson'
@@ -212,9 +213,32 @@ async function simulateLocation(
 async function loadCoverage(context: CoverageContext): Promise<void> {
   const { map, token, isDisposed, isSimulationMode, setStatus } = context
   try {
-    const sitesResponse = await fetch('/john_deere_at.geojson')
-    if (!sitesResponse.ok) throw new Error('john_deere_at.geojson nicht gefunden')
-    const sites = (await sitesResponse.json()) as SiteCollection
+    const locations = await fetchLocations()
+
+    console.log('Location-Service: Standorte insgesamt:', locations.features.length)
+    console.log('John-Deere-Standorte:', locations.features.filter(
+        (feature) => feature.properties?.category === 'john_deere'
+    ).length)
+
+const sites: SiteCollection = {
+  type: 'FeatureCollection',
+  features: locations.features
+    .filter(
+      (feature) =>
+        feature.properties?.category === 'john_deere' &&
+        feature.geometry?.type === 'Point' &&
+        feature.geometry.coordinates.length >= 2
+    )
+    .map((feature, index) => ({
+      type: 'Feature' as const,
+      geometry: feature.geometry,
+      properties: {
+  ...feature.properties,
+  id: String(feature.properties?.id ?? index),
+  name: String(feature.properties?.name ?? 'John Deere Standort')
+}
+    }))
+}
     if (!sites.features.length) throw new Error('Keine Teststandorte vorhanden')
 
     const validSites = sites.features.filter((site) =>
@@ -255,13 +279,26 @@ async function loadCoverage(context: CoverageContext): Promise<void> {
 
     styleLayerSource(map, 'ticket19-areas', originalAreas)
     map.addLayer({
-      id: 'ticket19-isochrones', type: 'fill', source: 'ticket19-areas',
-      paint: { 'fill-color': '#3b82f6', 'fill-opacity': 0.20 }
-    }, 'ticket19-sites-points')
+  id: 'ticket19-isochrones',
+  type: 'fill',
+  source: 'ticket19-areas',
+  layout: { visibility: 'none' },
+  paint: {
+    'fill-color': '#3b82f6',
+    'fill-opacity': 0.20
+  }
+}, 'ticket19-sites-points')
+
     map.addLayer({
-      id: 'ticket19-borders', type: 'line', source: 'ticket19-areas',
-      paint: { 'line-color': '#1d4ed8', 'line-width': 2 }
-    }, 'ticket19-sites-points')
+  id: 'ticket19-borders',
+  type: 'line',
+  source: 'ticket19-areas',
+  layout: { visibility: 'none' },
+  paint: {
+    'line-color': '#1d4ed8',
+    'line-width': 2
+  }
+}, 'ticket19-sites-points')
 
     // Kunden nur aus vorhandenen Testdaten laden; keine Schätzwerte.
     let customers: FeatureCollection<Point> | null = null
@@ -298,8 +335,26 @@ async function loadCoverage(context: CoverageContext): Promise<void> {
 }
 
 export default function AustriaMap() {
+  const [showIsochrones, setShowIsochrones] = useState(false)
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
+  useEffect(() => {
+  const map = mapRef.current
+  if (!map) return
+
+  const visibility = showIsochrones ? 'visible' : 'none'
+
+  for (const id of [
+    'ticket19-isochrones',
+    'ticket19-borders',
+    'ticket19-gap-fill'
+  ]) {
+    if (map.getLayer(id)) {
+      map.setLayoutProperty(id, 'visibility', visibility)
+    }
+  }
+}, [showIsochrones])
+
   const [locations, setLocations] = useState<LocationState>({
     status: 'loading'
   })
@@ -606,7 +661,7 @@ export default function AustriaMap() {
 
       // Eigene Ebenen (Dealer Principal) vor den Standorten laden, damit die Standorte oben liegen
       await addTerritoryLayers(map)
-      await addWhiteSpotLayers(map)
+      // await addWhiteSpotLayers(map)
       await addCustomerLayers(map)
       addCustomerPopups(map)
       // Standorte nach dem H3-Raster laden, damit sie darüber liegen.
@@ -626,68 +681,39 @@ export default function AustriaMap() {
   return (
     <div style={{ position: 'relative', width: '100%' }}>
       <div
-        ref={mapContainer}
-        style={{
-          width: '100%',
-          height: '600px',
-          background: '#101827'
-        }}
-      />
+  ref={mapContainer}
+  style={{
+    width: '100%',
+    height: '600px',
+    background: '#101827'
+  }}
+/>
 
-      <div
+<div
         style={{
-          position: 'absolute', top: '12px', left: '12px', zIndex: 3,
-          background: 'rgba(255,255,255,0.96)', color: '#222',
-          borderRadius: '8px', padding: '12px', fontSize: '12px',
-          maxWidth: '280px', boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
-        }}
-      >
-        <strong>Ticket #19 – Fahrzeitabdeckung (60 Min.)</strong>
-        <p style={{ margin: '8px 0' }}>{coverageStatus.text}</p>
-        {coverageStatus.outsideCells !== null && (
-          <>
-            <div>H3-Zellen außerhalb: <strong>{coverageStatus.outsideCells}</strong></div>
-            <div>Weizen + Soja in diesen Zellen: <strong>{
-              coverageStatus.outsideCropHectares?.toLocaleString('de-DE', {
-                maximumFractionDigits: 0
-              }) ?? '–'} ha</strong></div>
-            <div>Kunden außerhalb: <strong>{
-              coverageStatus.outsideCustomers === null
-                ? 'Noch keine Kundendaten' : coverageStatus.outsideCustomers
-            }</strong></div>
-            <p style={{ fontSize: '10px', color: '#555' }}>
-              H3-Zellen über Mittelpunkt klassifiziert (Näherung).
-              Hektar beziehen sich nur auf bekannte Weizen- und Sojaflächen.
-            </p>
-          </>
-        )}
-        <button type="button" onClick={() => {
-          simulationModeRef.current = !simulationModeRef.current
-          setSimulationMode(simulationModeRef.current)
-        }} style={{ marginTop: '6px', padding: '8px', cursor: 'pointer' }}>
-          {simulationMode ? 'Simulation abbrechen' : 'Neuen Standort auf Karte setzen'}
-        </button>
-        {simulationMode && <p>Jetzt auf die Karte klicken.</p>}
-        {candidateLocation && <p>Teststandort: {candidateLocation}</p>}
-      </div>
+  position: 'absolute',
+  top: '12px',
+  left: '15px',
+  bottom: '12px',
+  zIndex: 3,
+  background: 'rgba(255,255,255,0.96)',
+  color: '#222',
+  padding: '12px',
+  borderRadius: '8px',
+  boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+  fontSize: '12px',
+  textAlign: 'left',
+  width: '280px',
+  maxWidth: 'calc(100% - 30px)',
+  boxSizing: 'border-box',
+  overflowY: 'auto'
+}}
 
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '20px',
-          left: '15px',
-          zIndex: 2,
-          background: 'rgba(255,255,255,0.95)',
-          color: '#222',
-          padding: '12px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-          fontSize: '12px',
-          textAlign: 'left',
-          maxWidth: '230px'
-        }}
       >
-        <strong>Weizen + Sojabohnen pro H3-Zelle</strong>
+                <details>
+  <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
+    Weizen + Sojabohnen pro H3-Zelle
+  </summary>
 
         {AREA_CLASSES.map((item) => (
           <div
@@ -743,21 +769,126 @@ export default function AustriaMap() {
         >
           INVEKOS 2024 – vorläufige Auswertung
         </div>
+        </details>
 
-        <div style={{ marginTop: '12px' }}>
+        {/* Ticket #19 */}
+        <details style={{
+  marginTop: '16px',
+  paddingTop: '12px',
+  borderTop: '1px solid #ddd'
+}}>
+  <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
+    Fahrzeitabdeckung (60 Min.)
+  </summary>
+  <label style={{ display: 'block', margin: '10px 0' }}>
+  <input
+    type="checkbox"
+    checked={showIsochrones}
+    onChange={(e) => setShowIsochrones(e.target.checked)}
+  />
+  {' '}Fahrzeitzonen auf Karte anzeigen
+</label>
+
+          {coverageStatus.outsideCells !== null && (
+            <>
+              <div>
+                H3-Zellen außerhalb:{' '}
+                <strong>{coverageStatus.outsideCells}</strong>
+              </div>
+
+              <div>
+                Weizen + Soja in diesen Zellen:{' '}
+                <strong>
+                  {coverageStatus.outsideCropHectares?.toLocaleString(
+                    'de-DE',
+                    { maximumFractionDigits: 0 }
+                  ) ?? '–'}{' '}
+                  ha
+                </strong>
+              </div>
+
+              <div>
+                Kunden außerhalb:{' '}
+                <strong>
+                  {coverageStatus.outsideCustomers === null
+                    ? 'Noch keine Kundendaten'
+                    : coverageStatus.outsideCustomers}
+                </strong>
+              </div>
+
+              <p style={{ fontSize: '10px', color: '#555' }}>
+                H3-Zellen über Mittelpunkt klassifiziert (Näherung).
+                Hektar beziehen sich nur auf bekannte Weizen- und
+                Sojaflächen.
+              </p>
+            </>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              simulationModeRef.current = !simulationModeRef.current
+              setSimulationMode(simulationModeRef.current)
+            }}
+            style={{
+  marginTop: '10px',
+  padding: '10px 12px',
+  width: '100%',
+  backgroundColor: '#2563eb',
+  color: '#ffffff',
+  border: 'none',
+  borderRadius: '6px',
+  fontSize: '12px',
+  fontWeight: 'bold',
+  cursor: 'pointer'
+}}
+          >
+            {simulationMode
+              ? 'Simulation abbrechen'
+              : 'Neuen Standort auf Karte setzen'}
+          </button>
+
+          {simulationMode && (
+            <p>Jetzt auf die Karte klicken.</p>
+          )}
+
+          {candidateLocation && (
+            <p>Teststandort: {candidateLocation}</p>
+          )}
+        </details>
+
+        {/* Händlerstandorte */}
+        <div
+          style={{
+            marginTop: '16px',
+            paddingTop: '12px',
+            borderTop: '1px solid #ddd'
+          }}
+        >
           <strong>Händlerstandorte</strong>
         </div>
 
         {locations.status === 'error' ? (
-          <div style={{ marginTop: '7px', color: '#b91c1c' }}>
+          <div
+            style={{
+              marginTop: '7px',
+              color: '#b91c1c'
+            }}
+          >
             Standorte konnten nicht geladen werden
           </div>
         ) : (
           LOCATION_CATEGORIES.map((category) => {
             const { color, label, suffix } = CATEGORY_STYLE[category]
+
             const count =
-              locations.status === 'ok' ? locations.counts[category] : null
-            const details = [count, suffix].filter((v) => v !== null && v !== undefined)
+              locations.status === 'ok'
+                ? locations.counts[category]
+                : null
+
+            const details = [count, suffix].filter(
+              (v) => v !== null && v !== undefined
+            )
 
             return (
               <label
@@ -779,6 +910,7 @@ export default function AustriaMap() {
                   }
                   style={{ margin: 0 }}
                 />
+
                 <span
                   style={{
                     display: 'inline-block',
@@ -791,13 +923,17 @@ export default function AustriaMap() {
                     boxShadow: '0 0 0 1px #aaa'
                   }}
                 />
-                {details.length > 0 ? `${label} (${details.join(', ')})` : label}
+
+                {details.length > 0
+                  ? `${label} (${details.join(', ')})`
+                  : label}
               </label>
             )
           })
         )}
 
         <DealerLayerToggles mapRef={mapRef} />
+
         <div
           style={{
             marginTop: '10px',
@@ -805,7 +941,8 @@ export default function AustriaMap() {
             color: '#666'
           }}
         >
-          Datenquellen: OpenStreetMap-Mitwirkende (ODbL), Firmenwebseiten
+          Datenquellen: OpenStreetMap-Mitwirkende (ODbL),
+          Firmenwebseiten
         </div>
       </div>
     </div>
