@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { submitProtocol, toVisitProtocol } from '../speech/tourProtocol'
 import {
   abschliessen,
   aktuelleAufgabe,
@@ -8,6 +9,8 @@ import {
   tourAbbrechen,
   tourStarten,
   variablen,
+  type Kunde,
+  type Protokoll,
   type Task,
   type TourVariablen,
 } from './engineApi'
@@ -38,6 +41,15 @@ const SCHRITTE: Record<string, string> = {
 
 const jetzt = () => new Date().toISOString()
 
+/**
+ * Kennung des Besuchs für den speech-service: "<tourId>:<kundeId>", wie beim Speichern des Protokolls, damit alle
+ * Speech-Events eines Besuchs zusammengehören. Ohne tourId (Engine legt die Tour noch nicht in TerraMax an) die
+ * Prozessinstanz.
+ */
+function visitId(tourId: number | undefined, task: Task, kunde: Kunde): string {
+  return `${tourId ?? task.processInstanceId}:${kunde.kundeId}`
+}
+
 async function ladeZustand(): Promise<Zustand> {
   const task = await aktuelleAufgabe()
   return task ? { task, vars: await variablen(task.id) } : null
@@ -49,6 +61,8 @@ export default function Besuchstour() {
   const [busy, setBusy] = useState(false)
   const [fehler, setFehler] = useState<string | null>(null)
   const [hinweis, setHinweis] = useState<string | null>(null)
+  // Tasks, deren Protokoll TerraMax schon hat
+  const anTerraMaxUebergeben = useRef(new Set<string>())
 
   const aktualisieren = useCallback(async () => {
     const naechster = await ladeZustand()
@@ -90,6 +104,27 @@ export default function Besuchstour() {
         if (!naechste && text) setHinweis(text)
       },
     )
+
+  // Bestätigtes Protokoll erst über den speech-service an TerraMax übergeben, dann den Task abschließen.
+  // Scheitert danach nur die Engine, schickt ein erneuter Klick das Protokoll nicht noch einmal (TerraMax würde es
+  // sonst doppelt speichern).
+  const protokollBestaetigen = (task: Task, kunde: Kunde, vars: TourVariablen, protokoll: Protokoll) => {
+    const kundeId = Number(kunde.kundeId)
+    const anTerraMax = vars.tourId != null && Number.isInteger(kundeId)
+    return ausfuehren(
+      async () => {
+        if (anTerraMax && !anTerraMaxUebergeben.current.has(task.id)) {
+          await submitProtocol(vars.tourId!, kundeId, toVisitProtocol(protokoll), vars.transkript ?? null)
+          anTerraMaxUebergeben.current.add(task.id)
+        }
+        await abschliessen(task.id, { protokoll: json(protokoll) })
+      },
+      () => {
+        // Bis die Engine die Tour im terramax-service anlegt (#64), gibt es keine tourId
+        if (!anTerraMax) setHinweis('Protokoll nur in der Tour gespeichert: Die Tour ist noch nicht in TerraMax angelegt.')
+      },
+    )
+  }
 
   if (laden) return <section className="tour">Besuchstour wird geladen …</section>
 
@@ -174,8 +209,22 @@ export default function Besuchstour() {
         />
       )}
 
-      {task?.taskDefinitionKey === 'Task_SprachnotizAufnehmen' && (
-        <SprachnotizAufnehmen busy={busy} onSubmit={() => fertig(task, { sprachnotizVorhanden: boolean(false) })} />
+      {task?.taskDefinitionKey === 'Task_SprachnotizAufnehmen' && kunde && (
+        <SprachnotizAufnehmen
+          key={task.id}
+          visitId={visitId(vars.tourId, task, kunde)}
+          busy={busy}
+          onSubmit={(entwurf, transkript) =>
+            fertig(task, {
+              // Bewusst false: Bei true wartet das Modell auf die External Tasks "sprachnotiz-transkribieren" und
+              // "protokollentwurf-erstellen", für die es keinen Worker gibt. Transkription und Entwurf erledigt die
+              // SPA direkt beim speech-service; der Entwurf kommt als protokollEntwurf in den nächsten Schritt.
+              sprachnotizVorhanden: boolean(false),
+              ...(entwurf ? { protokollEntwurf: json(entwurf) } : {}),
+              ...(transkript ? { transkript: string(transkript) } : {}),
+            })
+          }
+        />
       )}
 
       {task?.taskDefinitionKey === 'Task_ProtokollPruefen' && kunde && (
@@ -183,8 +232,9 @@ export default function Besuchstour() {
           key={task.id}
           kunde={kunde}
           entwurf={vars.protokollEntwurf}
+          transkript={vars.transkript}
           busy={busy}
-          onSubmit={(protokoll) => fertig(task, { protokoll: json(protokoll) })}
+          onSubmit={(protokoll) => protokollBestaetigen(task, kunde, vars, protokoll)}
         />
       )}
 
