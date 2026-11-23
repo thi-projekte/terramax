@@ -3,7 +3,7 @@ package de.thi.terramax.speech;
 import java.nio.file.Path;
 
 /**
- * Wandelt eine Audiodatei in Text um. Die Resource kennt nur dieses Interface, damit der Dienst (Whisper, Cloud)
+ * Wandelt eine Audiodatei in Text um. Die Resource kennt nur dieses Interface, damit der Dienst (OpenAI, Cloud)
  * austauschbar bleibt.
  */
 public interface SpeechToTextClient {

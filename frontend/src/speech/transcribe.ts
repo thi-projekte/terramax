@@ -4,7 +4,8 @@ export interface Transcription {
     visitId: string
     transcript: string
     language: string
-    durationSeconds: number
+    // Liefert die Spracherkennung (gpt-transcribe) nicht immer
+    durationSeconds: number | null
 }
 
 const FILE_EXTENSIONS: Record<string, string> = {

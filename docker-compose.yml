@@ -1,49 +1,97 @@
 # Gemeinsamer Portainer-Stack für das gesamte TerraMax-Projekt.
 # Jeder Service bekommt hier einen Eintrag. Für die lokale Entwicklung gilt die
-# Konfiguration im jeweiligen Service-Ordner (z. B. speech-service/compose-devservices.yml).
+# Konfiguration im jeweiligen Service-Ordner (z. B. speech-service/src/main/resources/application.properties).
 # Keycloak läuft in einem eigenen Stack (eigenes Repo) und ist über
 # https://terramax-keycloak.winfprojekt.de erreichbar.
 #
 # Variablen in Portainer (Geheimnisse nie in diese Datei schreiben):
-#   OPENAI_API_KEY            Pflicht für Besuchsprotokolle (ohne Key antwortet /protocols mit 502)
-#   SPEECH_SERVICE_TAG        optional, Standard latest, z. B. sha-abc1234
+#   OPENAI_API_KEY            Pflicht für Spracherkennung und Besuchsprotokolle im speech-service
+#                             (ohne Key antworten /transcriptions und /protocols mit 502);
+#                             im terramax-service optional (LLM-Priorisierung ist auf Eis)
+#   SPEECH_SERVICE_TAG        optional, Standard main, z. B. sha-<commit>
+#   SPEECH_TERRAMAX_URL       optional, Adresse des terramax-service für den speech-service,
+#                             Standard http://terramax-service:8080
 #   KAFKA_UI_PASSWORD         Pflicht, Passwort für die Kafka-Entwickler-UI (ohne startet der Stack nicht)
 #   KAFKA_UI_USER             optional, Standard terramax
+#   TERRAMAX_DB_PASSWORD      Pflicht, Passwort der TerraMax-Datenbank (ohne startet der Stack nicht)
+#   TERRAMAX_CORS_ORIGINS     erlaubte Frontend-Origins des terramax-service, kommagetrennt
+#   TERRAMAX_SERVICE_TAG      optional, Standard main, z. B. sha-abc1234
+#   TERRAMAX_SEED_ENABLED     optional, Standard true; false, sobald echte CRM-Daten kommen (Testdaten-Import)
 
 services:
-  # --- Spracherkennung (speech-service/README.md) ---
+  # --- TerraMax-Service: fachlicher Kern (terramax-service/README.md) ---
+  # Nginx Proxy Manager: <subdomain>.winfprojekt.de -> terramax-terramax-service-1:8080, Let's-Encrypt-Zertifikat
 
-  speech-service:
-    # Image aus .github/workflows/speech-service.yml
-    image: ghcr.io/thi-projekte/terramax-speech-service:${SPEECH_SERVICE_TAG:-latest}
+  terramax-service:
+    # Image aus .github/workflows/terramax-service.yml
+    image: ghcr.io/thi-projekte/terramax-terramax-service:${TERRAMAX_SERVICE_TAG:-main}
     restart: unless-stopped
     environment:
       # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
       QUARKUS_OIDC_AUTH_SERVER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
       # Falls Keycloak beim Start dieses Stacks gerade nicht erreichbar ist
       QUARKUS_OIDC_CONNECTION_DELAY: 3M
-      QUARKUS_REST_CLIENT_WHISPER_URL: http://whisper:8000
-      # Modell beim Start laden; bis dahin antwortet /transcriptions mit 503
-      WHISPER_PRELOAD_MODEL: "true"
-      # Besuchsprotokoll per LLM (LangChain4j mit OpenAI); Wert nur in Portainer setzen
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      # Nur nötig, wenn Frontend und Service auf verschiedenen Domains laufen:
-      # QUARKUS_HTTP_CORS_ENABLED: "true"
-      # QUARKUS_HTTP_CORS_ORIGINS: https://terramax.winfprojekt.de
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://terramax-db:5432/terramax
+      QUARKUS_DATASOURCE_USERNAME: terramax
+      QUARKUS_DATASOURCE_PASSWORD: ${TERRAMAX_DB_PASSWORD:?TERRAMAX_DB_PASSWORD in Portainer setzen}
+      CORS_ORIGINS: ${TERRAMAX_CORS_ORIGINS}
+      # Optional, die LLM-Priorisierung ist auf Eis. Wert nur in Portainer setzen. Ohne Wert käme ein leerer String
+      # an, an dem Quarkus beim Start scheitert; deshalb der Platzhalter (wird im Modus stub nie benutzt)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-not-configured}
+      # Testhändler und Mock-Kunden beim Start anlegen (legt nur Fehlendes an)
+      TERRAMAX_SEED_ENABLED: ${TERRAMAX_SEED_ENABLED:-true}
     depends_on:
-      - whisper
+      terramax-db:
+        condition: service_healthy
     networks:
+      # TODO(#64-meeting): Netzwerkname nginx-proxy-manager vs. nginx-reverse-proxy klären
       - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
-      - speech-intern         # erreicht Whisper
+      - terramax-intern       # erreicht die Datenbank
 
-  whisper:
-    # Gleicher, getesteter Stand wie in speech-service/compose-devservices.yml
-    image: ghcr.io/speaches-ai/speaches:latest-cpu@sha256:21e3df06d842fb7802ab470dd77c25f0e8c0d22950e8d8c6ae886e851af53ef8
+  terramax-db:
+    # Feste Hauptversion, gleich wie die Dev Services in Tests und lokal
+    image: postgres:17
     restart: unless-stopped
+    environment:
+      POSTGRES_DB: terramax
+      POSTGRES_USER: terramax
+      POSTGRES_PASSWORD: ${TERRAMAX_DB_PASSWORD:?TERRAMAX_DB_PASSWORD in Portainer setzen}
     volumes:
-      - whisper_models:/home/ubuntu/.cache/huggingface/hub
+      - terramax_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U terramax -d terramax"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
-      - speech-intern         # nur intern: nur der speech-service erreicht Whisper
+      - terramax-intern       # nur intern, kein Port nach außen
+
+  # --- Spracherkennung (speech-service/README.md) ---
+
+  speech-service:
+    # Image aus .github/workflows/speech-service.yml
+    image: ghcr.io/thi-projekte/terramax-speech-service:${SPEECH_SERVICE_TAG:-main}
+    restart: unless-stopped
+    environment:
+      # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
+      QUARKUS_OIDC_AUTH_SERVER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
+      # Falls Keycloak beim Start dieses Stacks gerade nicht erreichbar ist
+      QUARKUS_OIDC_CONNECTION_DELAY: 3M
+      # Spracherkennung (gpt-transcribe) und Besuchsprotokoll (LangChain4j) bei OpenAI; Wert nur in Portainer setzen
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # Bestätigte Protokolle gehen mit dem Token der SPA an den terramax-service (Container-Port 8080)
+      QUARKUS_REST_CLIENT_TERRAMAX_URL: ${SPEECH_TERRAMAX_URL:-http://terramax-service:8080}
+      # Events auf terramax.speech.events (docs/kafka/README.md)
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      # Frontend (terramax.winfprojekt.de) und Service (terramax-speech.winfprojekt.de) laufen auf
+      # verschiedenen Domains, deshalb CORS für die SPA freigeben
+      QUARKUS_HTTP_CORS_ENABLED: "true"
+      QUARKUS_HTTP_CORS_ORIGINS: https://terramax.winfprojekt.de
+    depends_on:
+      - kafka
+    networks:
+      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager; erreicht darüber auch den terramax-service
+      - kafka-intern          # publiziert Events
 
   # --- Frontend (frontend/README.md) ---
   # Nginx Proxy Manager: terramax.winfprojekt.de -> terramax-frontend-1:80
@@ -54,6 +102,27 @@ services:
     restart: unless-stopped
     networks:
       - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
+
+  # --- Benachrichtigungen (notification-service/README.md) ---
+  # Nginx Proxy Manager: terramax-notifications.winfprojekt.de -> terramax-notification-service-1:8080
+
+  notification-service:
+    # Image aus .github/workflows/notification-service.yml; zum Ausrollen auf :sha-<commit> pinnen
+    image: ghcr.io/thi-projekte/terramax-notification-service:main
+    restart: unless-stopped
+    environment:
+      # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
+      QUARKUS_OIDC_AUTH_SERVER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
+      # Falls Keycloak beim Start dieses Stacks gerade nicht erreichbar ist
+      QUARKUS_OIDC_CONNECTION_DELAY: 3M
+      # Kafka aus diesem Stack (docs/kafka/README.md)
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
+      - kafka-intern          # erreicht Kafka
 
   # --- Kafka-Event-Bus (Topics, Schemas und Betrieb: docs/kafka/README.md) ---
   # Single Node im KRaft-Modus (Broker und Controller in einem Prozess, kein ZooKeeper).
@@ -180,16 +249,17 @@ services:
 networks:
   nginx-proxy-manager:
     external: true            # existiert bereits auf dem Host
-  speech-intern:
-    driver: bridge            # vom Stack verwaltet, Whisper ist von außen nicht erreichbar
   kafka-intern:
     name: terramax-kafka      # fester Name für Testbefehle (docker run --network terramax-kafka)
-    driver: bridge   
+    driver: bridge
   geo-intern:
-    driver: bridge           # vom Stack verwaltet, Kafka ist von außen nicht erreichbar
+    driver: bridge
+  terramax-intern:
+    driver: bridge
 
 volumes:
-  whisper_models:             # heruntergeladene Whisper-Modelle
   kafka_data:
     name: terramax-kafka-data # Topics und Offsets, überleben einen Redeploy
   geo_db_data:
+  terramax_db_data:
+    name: terramax-db-data    # Händler-, Kunden-, Tour- und Protokolldaten, überleben einen Redeploy
