@@ -15,6 +15,8 @@ import { addCustomerLayers } from './customerLayers'
 import { addCustomerPopups } from './customerPopups'
 import DealerLayerToggles from './DealerLayerToggles'
 import { fetchLocations } from './locationLayer'
+import { addWhiteSpotLayers } from './whiteSpotLayers'
+import { addCellColourLayer } from './cellColourLayer'
 
 type LocationState = { status: 'loading' } | LocationLoadResult
 import type { Feature, FeatureCollection, Polygon, MultiPolygon, Point } from 'geojson'
@@ -257,6 +259,13 @@ const sites: SiteCollection = {
       ))
     ))
     if (isDisposed()) return
+    const isochroneCells = new Set<string>()
+    for (const feature of context.features) {
+      if (covered(cellCenter(feature), originalAreas)) {
+        isochroneCells.add(String(feature.properties?.h3Index ?? ''))
+      }
+    }
+    await addCellColourLayer(context.map, context.features, isochroneCells)
 
     styleLayerSource(map, 'ticket19-sites', {
       type: 'FeatureCollection', features: validSites
@@ -362,6 +371,12 @@ export default function AustriaMap() {
     mixed_competitor: true,
     john_deere: true
   })
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !map.getLayer('ticket19-sites-points')) return
+    const visibility = visible.john_deere ? 'visible' : 'none'
+    map.setLayoutProperty('ticket19-sites-points', 'visibility', visibility)
+  }, [visible.john_deere])
 
   const toggleCategory = (category: LocationCategory, checked: boolean) => {
     setVisible((current) => ({ ...current, [category]: checked }))
@@ -533,6 +548,7 @@ export default function AustriaMap() {
         // Pop-up mit echten Hektarwerten
         map.on('click', 'h3-fill', (event) => {
           if (simulationModeRef.current) return
+          if (map.getLayer('cell-colours-fill') && map.getLayoutProperty('cell-colours-fill', 'visibility') !== 'none') return
           const cell = event.features?.[0]
           if (!cell) return
           // Standort an dieser Stelle hat Vorrang (dessen Popup öffnet locationLayer)
@@ -660,12 +676,12 @@ export default function AustriaMap() {
 
       // Eigene Ebenen (Dealer Principal) vor den Standorten laden, damit die Standorte oben liegen
       await addTerritoryLayers(map)
-      // await addWhiteSpotLayers(map)
+      await addWhiteSpotLayers(map)
       await addCustomerLayers(map)
       addCustomerPopups(map)
       // Standorte nach dem H3-Raster laden, damit sie darüber liegen.
       // Ein Fehler hier betrifft nur die Standorte, nicht die übrige Karte
-      await loadLocationLayers(map, () => disposed, setLocations)
+        await loadLocationLayers(map, () => disposed, setLocations)
     })
 
     return () => {

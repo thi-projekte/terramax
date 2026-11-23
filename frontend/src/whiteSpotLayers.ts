@@ -61,13 +61,13 @@ export async function addWhiteSpotLayers(map: MapboxMap) {
             id: 'white-spots-fill',
             type: 'fill',
             source: 'white-spots',
-            paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.3 }
+            paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.45 }
         })
         map.addLayer({
             id: 'white-spots-lines',
             type: 'line',
             source: 'white-spots',
-            paint: { 'line-color': '#ffffff', 'line-width': 1.5 }
+            paint: { 'line-color': '#ffffff', 'line-width': 2 }
         })
 
         console.log(

@@ -19,13 +19,13 @@ const GROUPS: Group[] = [
         key: 'customers',
         label: 'Kunden (CRM-Export)',
         color: '#facc15',
-        layers: ['customer-cells-fill', 'customer-cells-lines', 'customers-circles']
+        layers: ['customer-cells-fill', 'customer-cells-lines', 'customers-circles', 'ticket19-customer-points']
     },
     {
         key: 'whiteSpots',
-        label: 'Weiße Flecken (Ackerfläche ohne Kunden)',
+        label: 'Weiße Flecken und Empfehlungen',
         color: '#ffffff',
-        layers: ['white-spots-fill', 'white-spots-lines']
+        layers: ['white-spots-fill', 'white-spots-lines', 'cell-colours-fill', 'cell-colours-lines']
     }
 ]
 
