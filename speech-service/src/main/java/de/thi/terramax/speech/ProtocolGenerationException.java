@@ -7,13 +7,24 @@ public class ProtocolGenerationException extends RuntimeException {
 
     public enum Reason {
         /** Kein oder ungültiger API-Key */
-        NOT_CONFIGURED,
+        NOT_CONFIGURED(502),
         /** Kontingent oder Anfragelimit beim Anbieter erreicht */
-        RATE_LIMITED,
+        RATE_LIMITED(503),
         /** Anbieter nicht erreichbar, Zeitüberschreitung oder Serverfehler */
-        UNAVAILABLE,
+        UNAVAILABLE(502),
         /** Antwort passt nicht zum Protokoll-Schema */
-        INVALID_RESPONSE
+        INVALID_RESPONSE(502);
+
+        private final int status;
+
+        Reason(int status) {
+            this.status = status;
+        }
+
+        /** HTTP-Status der Antwort; steht auch im Event protocol.failed. */
+        public int status() {
+            return status;
+        }
     }
 
     private final Reason reason;

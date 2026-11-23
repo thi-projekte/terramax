@@ -105,24 +105,25 @@ Beispiel `data` für `tour.completed`:
 
 ## Speech-Events (`terramax.speech.events`)
 
-Producer ist der `speech-service`. Key und `subject` sind die `visitId` aus der Anfrage. Damit ordnet `notifications` das Ergebnis dem laufenden Besuch zu, auch wenn die SPA zwischendurch geschlossen wurde.
+Producer ist der `speech-service`. Key und `subject` sind die `visitId`. Die SPA bildet sie als `<tourId>:<customerId>` (IDs aus dem terramax-service) und schickt sie bei `/transcriptions` und `/protocols` mit; bei `POST /tours/{tourId}/protocols` bildet der speech-service sie selbst so. Damit ordnet `notifications` das Ergebnis dem laufenden Besuch zu, auch wenn die SPA zwischendurch geschlossen wurde.
 
 | `type` (Präfix `de.thi.terramax.speech.`) | Wann | `data` |
 |---|---|---|
-| `transcription.completed` | `POST /transcriptions` erfolgreich | `visitId`, `language`, `durationSeconds` |
+| `transcription.completed` | `POST /transcriptions` erfolgreich | `visitId`, `language`, `durationSeconds` (Länge der Aufnahme; `null`, wenn die Spracherkennung sie nicht liefert, bei `gpt-transcribe` immer) |
 | `transcription.failed` | `POST /transcriptions` fehlgeschlagen | `visitId`, `status` |
 | `protocol.drafted` | `POST /protocols` erfolgreich | `visitId` |
 | `protocol.failed` | `POST /protocols` fehlgeschlagen | `visitId`, `status` |
+| `protocol.submitted` | Bestätigtes Protokoll an TerraMax übergeben (`POST /tours/{tourId}/protocols`) | `visitId`, `tourId`, `customerId`, `protocolId` |
 
-`status` ist der HTTP-Status, mit dem der Service geantwortet hat (z. B. `503`, solange das Whisper-Modell lädt, oder `502` ohne OpenAI-Key). Die Fehlermeldung selbst steht nicht im Event.
+`status` ist der HTTP-Status, mit dem der Service geantwortet hat (z. B. `503` beim Anfragelimit von OpenAI oder `502` ohne gültigen OpenAI-Key). Die Fehlermeldung selbst steht nicht im Event.
 
 Beispiel `data` für `transcription.completed`:
 
 ```json
 {
-  "visitId": "tour-2026-11-12-kunde-4711",
+  "visitId": "7:5",
   "language": "de",
-  "durationSeconds": 42.7
+  "durationSeconds": null
 }
 ```
 
@@ -144,5 +145,5 @@ Die Daten von `kafka` liegen im Volume `terramax-kafka-data` und überleben eine
 
 ## Offen
 
-- Die Producer in `process-engine` und `speech-service` und der `notifications`-Service selbst sind noch nicht umgesetzt; dieses Dokument ist der Vertrag dafür.
+- Der Producer im `speech-service` ist umgesetzt (#66). Der Producer in der `process-engine` und der `notifications`-Service selbst fehlen noch; dieses Dokument ist der Vertrag dafür.
 - Fehlgeschlagene Verarbeitung im Consumer (Dead-Letter-Topic) wird festgelegt, sobald `notifications` steht.

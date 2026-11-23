@@ -59,9 +59,10 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.IMAGE_NAME }}
+          # main (Stand von main) und sha-<voller Commit-Hash>, wie in Issue #66 gefordert
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
+            type=ref,event=branch
+            type=sha,format=long
             type=ref,event=pr
 
       - name: Build and push image
