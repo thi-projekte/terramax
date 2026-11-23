@@ -17,6 +17,9 @@ import DealerLayerToggles from './DealerLayerToggles'
 import { fetchLocations } from './locationLayer'
 import { addWhiteSpotLayers } from './whiteSpotLayers'
 import { addCellColourLayer } from './cellColourLayer'
+import RecommendationList from './RecommendationList'
+import type { Recommendation } from './recommendationData'
+import { cellToLatLng, cellToParent } from 'h3-js'
 
 type LocationState = { status: 'loading' } | LocationLoadResult
 import type { Feature, FeatureCollection, Polygon, MultiPolygon, Point } from 'geojson'
@@ -129,6 +132,7 @@ type CoverageContext = {
   isSimulationMode: () => boolean
   stopSimulation: () => void
   setStatus: (status: CoverageStatus | ((current: CoverageStatus) => CoverageStatus)) => void
+  setRecommendations: (items: Recommendation[]) => void
   setCandidateLocation: (location: string) => void
   replaceMarker: (lng: number, lat: number) => void
 }
@@ -262,10 +266,20 @@ const sites: SiteCollection = {
     const isochroneCells = new Set<string>()
     for (const feature of context.features) {
       if (covered(cellCenter(feature), originalAreas)) {
-        isochroneCells.add(String(feature.properties?.h3Index ?? ''))
+        isochroneCells.add(cellToParent(String(feature.properties?.h3Index ?? ''), 5))
       }
     }
-    await addCellColourLayer(context.map, context.features, isochroneCells)
+      const highlightsResult = await addCellColourLayer(context.map, context.features, isochroneCells)
+      context.setRecommendations(highlightsResult.map((h, index) => ({
+          rank: index + 1,
+          h3Index: h.h3Index,
+          hectares: h.hectares,
+          points: h.potentialPoints,
+          weighted: h.weightedPotential,
+          distanceKm: h.distanceKm,
+          lat: cellToLatLng(h.h3Index)[0],
+          lng: cellToLatLng(h.h3Index)[1]
+      })))
 
     styleLayerSource(map, 'ticket19-sites', {
       type: 'FeatureCollection', features: validSites
@@ -366,6 +380,45 @@ export default function AustriaMap() {
   const [locations, setLocations] = useState<LocationState>({
     status: 'loading'
   })
+  const [recommendations, setRecommendations] = useState<Recommendation[] | null>(null)
+    const selectRecommendation = (item: Recommendation) => {
+        const map = mapRef.current
+        if (!map) return
+
+        for (const id of ['white-spots-fill', 'white-spots-lines', 'cell-colours-fill']) {
+            if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'visible')
+        }
+
+        map.flyTo({ center: [item.lng, item.lat], zoom: 8, essential: true })
+
+        map.once('moveend', () => {
+            const box = document.createElement('div')
+            box.style.cssText = 'color:#222;padding:6px;text-align:left;font-size:13px;line-height:1.4'
+
+            const title = document.createElement('strong')
+            title.textContent = 'Empfehlung ' + String(item.rank)
+            box.append(title)
+
+            const rows = [
+                'Ackerflaeche: ' + String(Math.round(item.hectares)) + ' ha',
+                'Punkte: ' + item.points.toFixed(1),
+                'Entfernung zum Outlet: ' + (item.distanceKm === null ? 'unbekannt' : String(Math.round(item.distanceKm)) + ' km (Zellmitte)'),
+                'Datenquelle: Ackerflaeche (QGIS-Auswertung, Herkunft unbestaetigt), Kunden und Gebiete: Testdaten',
+        'Konfidenz: ▮▯▯ niedrig',
+        'H3-Zelle: ' + item.h3Index
+            ]
+            for (const text of rows) {
+                const p = document.createElement('p')
+                p.textContent = text
+                box.append(p)
+            }
+
+            new mapboxgl.Popup({ closeButton: true, maxWidth: '300px' })
+                .setLngLat([item.lng, item.lat])
+                .setDOMContent(box)
+                .addTo(map)
+        })
+    }
   const [visible, setVisible] = useState<Record<LocationCategory, boolean>>({
     competitor: true,
     mixed_competitor: true,
@@ -626,6 +679,7 @@ export default function AustriaMap() {
             setSimulationMode(false)
           },
           setStatus: setCoverageStatus,
+          setRecommendations,
           setCandidateLocation,
           replaceMarker: (lng, lat) => {
             marker?.remove()
@@ -872,6 +926,7 @@ export default function AustriaMap() {
           )}
         </details>
 
+        <RecommendationList items={recommendations} onSelect={selectRecommendation} />
         {/* Händlerstandorte */}
         <div
           style={{
