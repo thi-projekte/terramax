@@ -84,7 +84,6 @@ Der Hinweis „(KI-gestützt)“ steht zusätzlich sichtbar im Text, damit er au
 | Stelle | Datei | Was |
 |---|---|---|
 | Besuchstour, Schritt „Protokoll prüfen“ | `src/tour/Schritte.tsx` | KI-Entwurf aus der Sprachnotiz |
-| Protokollformular des Speech-Service | `src/speech/VisitProtocolForm.tsx` | KI-Entwurf aus der Sprachnotiz, ersetzt „Von der AI vorausgefüllt“ |
 | Standort-Popup der Karte | `src/locationLayer.ts` | Herkunft „✦ Web-Recherche (KI-gestützt)“ mit Tooltip: Standort von einer KI recherchiert, Quelle und Prüfstatus stehen schon im Popup |
 
 Bewusst nicht gekennzeichnet:

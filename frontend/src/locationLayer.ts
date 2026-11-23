@@ -6,7 +6,7 @@ import keycloak from './keycloak'
 // Händlerstandorte aus dem location-service als geclusterte Kreis-Layer (eine Source pro Kategorie)
 
 const LOCATION_SERVICE_URL: string = stripTrailingSlashes(
-  import.meta.env.VITE_LOCATION_SERVICE_URL || 'http://localhost:8082'
+  import.meta.env.VITE_LOCATION_SERVICE_URL || 'http://localhost:8088'
 )
 
 /** Entfernt abschließende Schrägstriche (ohne Regex, damit kein Backtracking möglich ist). */

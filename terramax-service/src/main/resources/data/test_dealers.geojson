@@ -1,0 +1,20 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "D-100",
+        "name": "Testhändler (fiktiv)",
+        "street": "Musterstraße 1",
+        "postcode": "3100",
+        "city": "St. Pölten",
+        "note": "Fiktiver Händler für die Testnutzer sales und dealer (Claim dealer_id = D-100 im Realm)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [15.6256, 48.2047]
+      }
+    }
+  ]
+}

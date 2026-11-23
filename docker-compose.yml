@@ -6,14 +6,66 @@
 #
 # Variablen in Portainer (Geheimnisse nie in diese Datei schreiben):
 #   OPENAI_API_KEY            Pflicht für Spracherkennung und Besuchsprotokolle im speech-service
-#                             (ohne Key antworten /transcriptions und /protocols mit 502)
+#                             (ohne Key antworten /transcriptions und /protocols mit 502);
+#                             im terramax-service optional (LLM-Priorisierung ist auf Eis)
 #   SPEECH_SERVICE_TAG        optional, Standard main, z. B. sha-<commit>
 #   SPEECH_TERRAMAX_URL       optional, Adresse des terramax-service für den speech-service,
 #                             Standard http://terramax-service:8080
 #   KAFKA_UI_PASSWORD         Pflicht, Passwort für die Kafka-Entwickler-UI (ohne startet der Stack nicht)
 #   KAFKA_UI_USER             optional, Standard terramax
+#   TERRAMAX_DB_PASSWORD      Pflicht, Passwort der TerraMax-Datenbank (ohne startet der Stack nicht)
+#   TERRAMAX_CORS_ORIGINS     erlaubte Frontend-Origins des terramax-service, kommagetrennt
+#   TERRAMAX_SERVICE_TAG      optional, Standard main, z. B. sha-abc1234
+#   TERRAMAX_SEED_ENABLED     optional, Standard true; false, sobald echte CRM-Daten kommen (Testdaten-Import)
 
 services:
+  # --- TerraMax-Service: fachlicher Kern (terramax-service/README.md) ---
+  # Nginx Proxy Manager: <subdomain>.winfprojekt.de -> terramax-terramax-service-1:8080, Let's-Encrypt-Zertifikat
+
+  terramax-service:
+    # Image aus .github/workflows/terramax-service.yml
+    image: ghcr.io/thi-projekte/terramax-terramax-service:${TERRAMAX_SERVICE_TAG:-main}
+    restart: unless-stopped
+    environment:
+      # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
+      QUARKUS_OIDC_AUTH_SERVER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
+      # Falls Keycloak beim Start dieses Stacks gerade nicht erreichbar ist
+      QUARKUS_OIDC_CONNECTION_DELAY: 3M
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://terramax-db:5432/terramax
+      QUARKUS_DATASOURCE_USERNAME: terramax
+      QUARKUS_DATASOURCE_PASSWORD: ${TERRAMAX_DB_PASSWORD:?TERRAMAX_DB_PASSWORD in Portainer setzen}
+      CORS_ORIGINS: ${TERRAMAX_CORS_ORIGINS}
+      # Optional, die LLM-Priorisierung ist auf Eis. Wert nur in Portainer setzen. Ohne Wert käme ein leerer String
+      # an, an dem Quarkus beim Start scheitert; deshalb der Platzhalter (wird im Modus stub nie benutzt)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-not-configured}
+      # Testhändler und Mock-Kunden beim Start anlegen (legt nur Fehlendes an)
+      TERRAMAX_SEED_ENABLED: ${TERRAMAX_SEED_ENABLED:-true}
+    depends_on:
+      terramax-db:
+        condition: service_healthy
+    networks:
+      # TODO(#64-meeting): Netzwerkname nginx-proxy-manager vs. nginx-reverse-proxy klären
+      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
+      - terramax-intern       # erreicht die Datenbank
+
+  terramax-db:
+    # Feste Hauptversion, gleich wie die Dev Services in Tests und lokal
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: terramax
+      POSTGRES_USER: terramax
+      POSTGRES_PASSWORD: ${TERRAMAX_DB_PASSWORD:?TERRAMAX_DB_PASSWORD in Portainer setzen}
+    volumes:
+      - terramax_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U terramax -d terramax"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - terramax-intern       # nur intern, kein Port nach außen
+
   # --- Spracherkennung (speech-service/README.md) ---
 
   speech-service:
@@ -160,7 +212,11 @@ networks:
   kafka-intern:
     name: terramax-kafka      # fester Name für Testbefehle (docker run --network terramax-kafka)
     driver: bridge            # vom Stack verwaltet, Kafka ist von außen nicht erreichbar
+  terramax-intern:
+    driver: bridge            # vom Stack verwaltet, die TerraMax-Datenbank ist von außen nicht erreichbar
 
 volumes:
   kafka_data:
     name: terramax-kafka-data # Topics und Offsets, überleben einen Redeploy
+  terramax_db_data:
+    name: terramax-db-data    # Händler-, Kunden-, Tour- und Protokolldaten, überleben einen Redeploy

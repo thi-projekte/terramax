@@ -56,6 +56,10 @@ export type TourVariablen = {
   besuchsplan?: Kunde[]
   kunde?: Kunde
   besuchBegonnenAm?: string
+  /** ID der Tour im terramax-service; setzt die Engine, sobald sie die Tour dort anlegt (#64). */
+  tourId?: number
+  /** Transkript der Sprachnotiz, gesetzt im Schritt "Sprachnotiz". */
+  transkript?: string
   protokollEntwurf?: Partial<Protokoll>
   touruebersicht?: Touruebersicht
 }
