@@ -11,7 +11,7 @@
         Dadurch sind keine Zugangsdaten für das Enterprise-Repository nötig.
     -->
     <properties>
-        <cibseven.version>2.2.0</cibseven.version>
+        <cibseven.version>3.0.0</cibseven.version>
         <spring-boot.version>3.5.14</spring-boot.version>
         <formatter-plugin.version>2.29.0</formatter-plugin.version>
         <maven.compiler.release>25</maven.compiler.release>
