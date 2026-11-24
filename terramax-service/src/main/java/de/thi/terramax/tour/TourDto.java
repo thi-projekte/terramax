@@ -3,6 +3,7 @@ package de.thi.terramax.tour;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 /**
@@ -31,16 +32,24 @@ public record TourDto(@Schema(example = "1") Long id,
             @Schema(description = "Grund fürs Überspringen, nur bei UEBERSPRUNGEN", example = "Betrieb nicht erreichbar") String skipReason,
             @Schema(description = "Besuch begonnen, null wenn nicht begonnen") OffsetDateTime startedAt,
             @Schema(description = "Halt erledigt (dokumentiert oder übersprungen)") OffsetDateTime finishedAt,
-            @Schema(example = "48.235") Double latitude, @Schema(example = "16.65") Double longitude){
+            @Schema(example = "48.235") Double latitude, @Schema(example = "16.65") Double longitude,
+            @Schema(description = "Region des Kunden", example = "Marchfeld") String region,
+            @Schema(description = "Letzter Besuch (JJJJ-MM-TT): spätester dokumentierter Halt oder spätestes Protokoll, null wenn nie besucht", example = "2026-09-02") LocalDate lastVisit){
 
         static Stop from(TourCustomer s) {
+            return from(s, LastVisits.byCustomer(Tour.getEntityManager(), s.tour.dealer.id));
+        }
+
+        static Stop from(TourCustomer s, Map<Long, LocalDate> lastVisits) {
             return new Stop(s.customer.id, s.customer.externalId, s.customer.name, s.position, s.status.name(),
-                    s.skipReason, s.startedAt, s.finishedAt, s.customer.latitude, s.customer.longitude);
+                    s.skipReason, s.startedAt, s.finishedAt, s.customer.latitude, s.customer.longitude,
+                    s.customer.region, lastVisits.get(s.customer.id));
         }
     }
 
     public static TourDto from(Tour tour) {
-        List<Stop> stops = tour.stops.stream().map(Stop::from).toList();
+        Map<Long, LocalDate> lastVisits = LastVisits.byCustomer(Tour.getEntityManager(), tour.dealer.id);
+        List<Stop> stops = tour.stops.stream().map(s -> Stop.from(s, lastVisits)).toList();
         List<Long> employeeIds = tour.employees.stream().map(e -> e.id).sorted().toList();
         return new TourDto(tour.id, tour.dealer.id, tour.tourDate, tour.status.getDbValue(),
                 tour.processInstanceId, tour.createdAt, tour.abortReason, tour.abortedAt, employeeIds, stops);

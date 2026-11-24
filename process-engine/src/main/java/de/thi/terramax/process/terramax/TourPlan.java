@@ -1,9 +1,9 @@
-package de.thi.terramax.process.tour;
+package de.thi.terramax.process.terramax;
 
 import java.util.List;
 
 /**
- * Antwort von {@code GET /tours/plan} des tour-service (nur die Felder, die die Engine braucht).
+ * Antwort von {@code GET /tours/plan} des terramax-service (nur die Felder, die die Engine braucht).
  */
 public record TourPlan(String date, List<Visit> visits, double totalDistanceKm) {
 

@@ -81,7 +81,7 @@ im Format `{"error": "…"}`.
 | `GET /customers/{id}/protocols` | beide | Besuchsprotokolle des Kunden, neueste zuerst |
 | `GET /tours` | beide | Touren, neueste zuerst |
 | `GET /tours/plan` | `sales_professional` | Besuchsplan für `?date=JJJJ-MM-TT` (Standard heute) und `maxVisits` (2–10, Standard 5), exakt im Format von `TourPlan` der process-engine |
-| `GET /tours/{id}` | beide, Engine | Tour mit Halten in Reihenfolge (Status, Grund, Zeiten je Halt) |
+| `GET /tours/{id}` | beide, Engine | Tour mit Halten in Reihenfolge (Status, Grund, Zeiten, Region und letzter Besuch je Halt) |
 | `GET /tours/by-process/{processInstanceId}` | beide, Engine | Tour zur Prozessinstanz |
 | `GET /tours/{id}/status` | beide, Engine | kompakter Stand für Gateways: `anzahlHalte`, `offeneHalte`, `naechsterHalt`, `alleErledigt` |
 | `GET /tours/{id}/overview` | beide, Engine | Tourübersicht (ersetzt die Prozessvariable `touruebersicht`) |

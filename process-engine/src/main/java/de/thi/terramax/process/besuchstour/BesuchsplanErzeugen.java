@@ -1,58 +1,59 @@
 package de.thi.terramax.process.besuchstour;
 
-import de.thi.terramax.process.tour.TourPlan;
-import de.thi.terramax.process.tour.TourPlanClient;
+import de.thi.terramax.process.terramax.TerraMaxClient;
+import de.thi.terramax.process.terramax.TerraMaxFachlicherFehler;
+import de.thi.terramax.process.terramax.TourPlan;
 import org.cibseven.bpm.engine.delegate.DelegateExecution;
 import org.cibseven.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import static de.thi.terramax.process.besuchstour.BesuchstourVariablen.BESUCHSERGEBNISSE;
-import static de.thi.terramax.process.besuchstour.BesuchstourVariablen.BESUCHSPLAN;
+import static de.thi.terramax.process.besuchstour.BesuchstourFehler.BESUCHSPLAN_FEHLGESCHLAGEN;
+import static de.thi.terramax.process.besuchstour.BesuchstourVariablen.ANZAHL_HALTE;
 import static de.thi.terramax.process.besuchstour.BesuchstourVariablen.TOUR_DATUM;
+import static de.thi.terramax.process.besuchstour.BesuchstourVariablen.TOUR_ID;
 
 /**
- * Service Task "Besuchsplan erzeugen" ({@code ${besuchsplanErzeugen}}): holt den Plan vom tour-service (#29, Teil 2)
- * und legt ihn als {@code besuchsplan} ab. Über diese Liste läuft danach die Schleife "Kunden nacheinander besuchen".
+ * Service Task "Besuchsplan erzeugen" ({@code ${besuchsplanErzeugen}}).
+ * <ol>
+ * <li>{@code GET /tours/plan} beim terramax-service (Token des Sales Professional).</li>
+ * <li>Bei mindestens zwei Kunden: {@code POST /tours} mit den Kunden-IDs und der Prozessinstanz (idempotent).</li>
+ * </ol>
+ * Im Prozess stehen danach nur {@code tourId}, {@code kundenIds} und {@code anzahlHalte}, nicht der Plan selbst.
+ * Fachlicher Fehler von TerraMax: BPMN-Fehler {@code BESUCHSPLAN_FEHLGESCHLAGEN} (Ende "Keine Tour möglich").
  */
 @Component("besuchsplanErzeugen")
 public class BesuchsplanErzeugen implements JavaDelegate {
 
-    private final TourPlanClient tourPlanClient;
+    /** Unter dieser Zahl gibt es keine Tour (Gateway "Mindestens zwei Kunden?"). */
+    static final int MINDESTANZAHL_KUNDEN = 2;
 
-    public BesuchsplanErzeugen(TourPlanClient tourPlanClient) {
-        this.tourPlanClient = tourPlanClient;
+    private final TerraMaxClient terraMax;
+
+    public BesuchsplanErzeugen(TerraMaxClient terraMax) {
+        this.terraMax = terraMax;
     }
 
     @Override
     public void execute(DelegateExecution execution) {
-        TourPlan plan = tourPlanClient.fetchPlan((String) execution.getVariable(TOUR_DATUM));
+        try {
+            TourPlan plan = terraMax.planHolen(BesuchstourVariablen.text(execution, TOUR_DATUM));
+            List<Long> kundenIds = plan.visits().stream()
+                    .map(visit -> BesuchstourVariablen.alsLong(visit.customer().id(), "customer.id")).toList();
+            execution.setVariable(TOUR_DATUM, plan.date());
 
-        List<Map<String, Object>> besuchsplan = new ArrayList<>();
-        for (TourPlan.Visit visit : plan.visits()) {
-            besuchsplan.add(eintrag(visit));
+            if (kundenIds.size() < MINDESTANZAHL_KUNDEN) {
+                // Keine Tour in TerraMax anlegen, die sofort wieder verworfen würde
+                execution.setVariable(ANZAHL_HALTE, kundenIds.size());
+                return;
+            }
+
+            TerraMaxClient.Tour tour = terraMax.tourAnlegen(plan.date(), kundenIds, execution.getProcessInstanceId());
+            execution.setVariable(TOUR_ID, tour.id());
+            BesuchstourVariablen.halteSetzen(execution, tour.kundenIds());
+        } catch (TerraMaxFachlicherFehler e) {
+            throw BesuchstourFehler.bpmnFehler(BESUCHSPLAN_FEHLGESCHLAGEN, e);
         }
-
-        execution.setVariable(TOUR_DATUM, plan.date());
-        execution.setVariable(BESUCHSPLAN, besuchsplan);
-        execution.setVariable(BESUCHSERGEBNISSE, new ArrayList<Map<String, Object>>());
-    }
-
-    private static Map<String, Object> eintrag(TourPlan.Visit visit) {
-        TourPlan.Customer customer = visit.customer();
-        Map<String, Object> eintrag = new LinkedHashMap<>();
-        eintrag.put("position", visit.position());
-        eintrag.put("kundeId", customer.id());
-        eintrag.put("name", customer.name());
-        eintrag.put("ort", customer.location());
-        eintrag.put("latitude", customer.position() == null ? null : customer.position().latitude());
-        eintrag.put("longitude", customer.position() == null ? null : customer.position().longitude());
-        eintrag.put("letzterBesuch", customer.lastVisit());
-        eintrag.put("entfernungKm", visit.distanceFromPreviousKm());
-        return eintrag;
     }
 }

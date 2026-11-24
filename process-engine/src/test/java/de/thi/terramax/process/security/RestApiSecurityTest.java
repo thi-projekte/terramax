@@ -1,12 +1,12 @@
 package de.thi.terramax.process.security;
 
-import de.thi.terramax.process.TestPlans;
-import de.thi.terramax.process.tour.TourPlanClient;
+import de.thi.terramax.process.FakeTerraMax;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +33,7 @@ import static org.mockito.Mockito.when;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@Import(FakeTerraMax.Config.class)
 class RestApiSecurityTest {
 
     private static final String SALES_TOKEN = "sales-token";
@@ -45,8 +45,8 @@ class RestApiSecurityTest {
     @MockitoBean
     JwtDecoder jwtDecoder;
 
-    @MockitoBean
-    TourPlanClient tourPlanClient;
+    @Autowired
+    FakeTerraMax terraMax;
 
     @BeforeEach
     void tokens() {
@@ -55,7 +55,8 @@ class RestApiSecurityTest {
             case NO_ROLE_TOKEN -> jwt(NO_ROLE_TOKEN, "testuser", List.of());
             default -> throw new BadJwtException("ungültig");
         });
-        when(tourPlanClient.fetchPlan(any())).thenReturn(TestPlans.withCustomers(2));
+        terraMax.reset();
+        terraMax.planSetzen(FakeTerraMax.planMitKunden(2));
     }
 
     @Test
@@ -116,7 +117,7 @@ class RestApiSecurityTest {
     }
 
     @Test
-    void startedTourBelongsToLoggedInUserAndPlanIsReadableAsJson() {
+    void startedTourBelongsToLoggedInUserAndPlanIsLoadedFromTerraMax() {
         HttpHeaders headers = bearer(SALES_TOKEN);
         headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, Object> body = Map.of("variables",
@@ -137,12 +138,16 @@ class RestApiSecurityTest {
             assertThat(task).containsEntry("assignee", "sales");
         });
 
-        ResponseEntity<Map<String, Object>> plan = rest.exchange(
-                "/engine-rest/process-instance/" + instanceId + "/variables/besuchsplan", HttpMethod.GET,
-                new HttpEntity<>(bearer(SALES_TOKEN)), new ParameterizedTypeReference<>() {
+        String taskId = (String) tasks.getBody().get(0).get("id");
+        ResponseEntity<Map<String, Map<String, Object>>> variablen = rest.exchange(
+                "/engine-rest/task/" + taskId + "/variables", HttpMethod.GET, new HttpEntity<>(bearer(SALES_TOKEN)),
+                new ParameterizedTypeReference<>() {
                 });
-        assertThat(plan.getBody().get("value")).asInstanceOf(
-                org.assertj.core.api.InstanceOfAssertFactories.LIST).hasSize(2);
+        // Im Prozess steht nur die Referenz auf die Tour; den Plan lädt der Listener per tourId aus TerraMax
+        assertThat(((Number) variablen.getBody().get("tourId").get("value")).longValue())
+                .isEqualTo(terraMax.einzigeTour().id);
+        assertThat(variablen.getBody().get("besuchsplan").get("value"))
+                .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.LIST).hasSize(2);
     }
 
     private ResponseEntity<String> get(String path, String token) {
