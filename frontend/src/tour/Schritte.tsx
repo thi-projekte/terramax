@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import { generateProtocol } from '../speech/protocol'
+import { toProtokoll } from '../speech/tourProtocol'
+import { transcribe } from '../speech/transcribe'
+import { MAX_RECORDING_SECONDS, useVoiceRecorder } from '../speech/useVoiceRecorder'
 import type { Kunde, Protokoll, Touruebersicht } from './engineApi'
 
 // Je Aufgabe (User Task) im BPMN-Modell "Besuchstour" ein Bildschirm.
@@ -28,8 +32,12 @@ function KundeInfo({ kunde }: Readonly<{ kunde: Kunde }>) {
       <dd>{kunde.ort}</dd>
       <dt>Letzter Besuch</dt>
       <dd>{datum(kunde.letzterBesuch)}</dd>
-      <dt>Anfahrt</dt>
-      <dd>{kunde.entfernungKm} km Luftlinie vom vorherigen Halt</dd>
+      {kunde.entfernungKm != null && (
+        <>
+          <dt>Anfahrt</dt>
+          <dd>{kunde.entfernungKm} km Luftlinie vom vorherigen Halt</dd>
+        </>
+      )}
     </dl>
   )
 }
@@ -201,18 +209,108 @@ export function BesuchDurchfuehren({
 
 // --- Sprachnotiz aufnehmen (terramax:sprachnotiz) ---
 
-export function SprachnotizAufnehmen({ onSubmit, busy }: Readonly<{ onSubmit: () => void } & Busy>) {
+type Verarbeitung = 'bereit' | 'transkribieren' | 'entwerfen'
+
+const VERARBEITUNG_TEXT: Record<Verarbeitung, string> = {
+  bereit: 'Protokoll erstellen',
+  transkribieren: 'Wird transkribiert …',
+  entwerfen: 'KI erstellt den Entwurf …',
+}
+
+function dauer(sekunden: number): string {
+  return `${Math.floor(sekunden / 60)}:${String(sekunden % 60).padStart(2, '0')}`
+}
+
+/**
+ * Aufnahme → Transkription (speech-service, POST /transcriptions) → KI-Entwurf (POST /protocols). Geprüft und
+ * bestätigt wird der Entwurf im nächsten Schritt. Ohne Aufnahme (oder wenn der speech-service ausfällt) geht es mit
+ * "Ohne Sprachnotiz weiter" und einem leeren Protokoll weiter.
+ */
+export function SprachnotizAufnehmen({
+  visitId,
+  onSubmit,
+  busy,
+}: Readonly<{ visitId: string; onSubmit: (entwurf?: Protokoll, transkript?: string) => void } & Busy>) {
+  const { isRecording, elapsedSeconds, audio, audioUrl, error, start, stop } = useVoiceRecorder()
+  const [verarbeitung, setVerarbeitung] = useState<Verarbeitung>('bereit')
+  const [fehler, setFehler] = useState<string | null>(null)
+  // Bleibt bei einem Fehler der KI erhalten, damit ein neuer Versuch nicht noch einmal transkribiert
+  const [transkript, setTranskript] = useState<string | null>(null)
+  const beschaeftigt = busy || verarbeitung !== 'bereit'
+
+  const neuAufnehmen = async () => {
+    setFehler(null)
+    setTranskript(null)
+    await start()
+  }
+
+  const erstellen = async () => {
+    if (!audio) return
+    setFehler(null)
+    try {
+      let text = transkript
+      if (text === null) {
+        setVerarbeitung('transkribieren')
+        text = (await transcribe(audio, visitId)).transcript
+        setTranskript(text)
+      }
+      setVerarbeitung('entwerfen')
+      const entwurf = await generateProtocol(visitId, text)
+      onSubmit(toProtokoll(entwurf), text)
+    } catch (e) {
+      setFehler(e instanceof Error ? e.message : 'Protokoll konnte nicht erstellt werden')
+    } finally {
+      setVerarbeitung('bereit')
+    }
+  }
+
   return (
     <div className="tour-card">
       <h3>Sprachnotiz</h3>
       <p>
-        Die Aufnahme mit Speech-to-Text und KI-Protokoll wird mit dem speech-service angebunden. Bis dahin schreibst du das
-        Protokoll im nächsten Schritt selbst.
+        Sprich kurz ein, was beim Besuch besprochen wurde (höchstens {dauer(MAX_RECORDING_SECONDS)} Minuten). Die KI
+        erstellt daraus einen Protokollentwurf, den du im nächsten Schritt prüfst.
       </p>
+
+      {isRecording ? (
+        <p className="tour-recording" role="status">
+          Aufnahme läuft: {dauer(elapsedSeconds)} / {dauer(MAX_RECORDING_SECONDS)}
+        </p>
+      ) : (
+        audioUrl && <audio className="tour-audio" controls src={audioUrl} />
+      )}
+
+      {verarbeitung !== 'bereit' && <p role="status">{VERARBEITUNG_TEXT[verarbeitung]}</p>}
+      {(error ?? fehler) && (
+        <p className="tour-error" role="alert">
+          {error ?? fehler}
+        </p>
+      )}
+      {transkript !== null && (
+        <details>
+          <summary>Transkript</summary>
+          <p className="tour-transkript">{transkript}</p>
+        </details>
+      )}
+
       <div className="tour-actions">
-        <button type="button" className="primary" disabled={busy} onClick={onSubmit}>
+        <button type="button" disabled={beschaeftigt || isRecording} onClick={() => onSubmit()}>
           Ohne Sprachnotiz weiter
         </button>
+        {isRecording ? (
+          <button type="button" className="primary" onClick={stop}>
+            Aufnahme beenden
+          </button>
+        ) : (
+          <button type="button" className={audio ? undefined : 'primary'} disabled={beschaeftigt} onClick={neuAufnehmen}>
+            {audio ? 'Neu aufnehmen' : 'Aufnahme starten'}
+          </button>
+        )}
+        {audio && !isRecording && (
+          <button type="button" className="primary" disabled={beschaeftigt} onClick={erstellen}>
+            {fehler ? 'Erneut versuchen' : VERARBEITUNG_TEXT[verarbeitung]}
+          </button>
+        )}
       </div>
     </div>
   )
@@ -231,9 +329,17 @@ const PROTOKOLL_FELDER: { name: keyof Protokoll; label: string; mehrzeilig?: boo
 export function ProtokollPruefen({
   kunde,
   entwurf,
+  transkript,
   onSubmit,
   busy,
-}: Readonly<{ kunde: Kunde; entwurf?: Partial<Protokoll>; onSubmit: (protokoll: Protokoll) => void } & Busy>) {
+}: Readonly<
+  {
+    kunde: Kunde
+    entwurf?: Partial<Protokoll>
+    transkript?: string
+    onSubmit: (protokoll: Protokoll) => void
+  } & Busy
+>) {
   const [protokoll, setProtokoll] = useState<Protokoll>({
     gespraechspartner: entwurf?.gespraechspartner ?? '',
     themen: entwurf?.themen ?? '',
@@ -252,6 +358,12 @@ export function ProtokollPruefen({
     >
       <h3>Protokoll – {kunde.name}</h3>
       {entwurf && <p className="tour-hint">KI-Entwurf – bitte prüfen und bei Bedarf korrigieren.</p>}
+      {transkript && (
+        <details>
+          <summary>Transkript der Sprachnotiz</summary>
+          <p className="tour-transkript">{transkript}</p>
+        </details>
+      )}
       {PROTOKOLL_FELDER.map((feld) => (
         <label key={feld.name}>
           {feld.label}
@@ -302,7 +414,7 @@ export function TourAbschliessen({
             <span className="tour-plan-name">
               <strong>{besuch.name}</strong> · {besuch.ort}
               {besuch.grund && <small>Grund: {besuch.grund}</small>}
-              {besuch.protokoll?.ergebnis && <small>Ergebnis: {besuch.protokoll.ergebnis}</small>}
+              {besuch.protokollIds.length > 0 && <small>Protokoll gespeichert</small>}
             </span>
             <span className={`tour-status ${besuch.status.toLowerCase()}`}>{STATUS_TEXT[besuch.status]}</span>
           </li>

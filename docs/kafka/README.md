@@ -145,5 +145,5 @@ Die Daten von `kafka` liegen im Volume `terramax-kafka-data` und überleben eine
 
 ## Offen
 
-- Der Producer im `speech-service` ist umgesetzt (#66). Der Producer in der `process-engine` und der `notifications`-Service selbst fehlen noch; dieses Dokument ist der Vertrag dafür.
+- Die Producer im `speech-service` (#66) und in der `process-engine` (#63, siehe `process-engine/README.md`, Abschnitt „Prozess-Events“; jedes Prozess-Event enthält zusätzlich die `tourId` aus TerraMax) sind umgesetzt. Der `notifications`-Service selbst fehlt noch; dieses Dokument ist der Vertrag dafür.
 - Fehlgeschlagene Verarbeitung im Consumer (Dead-Letter-Topic) wird festgelegt, sobald `notifications` steht.

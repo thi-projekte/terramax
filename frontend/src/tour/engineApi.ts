@@ -13,7 +13,8 @@ export type Kunde = {
   latitude: number | null
   longitude: number | null
   letzterBesuch: string | null
-  entfernungKm: number
+  /** Luftlinie zum vorherigen Halt; null beim ersten Halt */
+  entfernungKm: number | null
 }
 
 export type Protokoll = {
@@ -31,7 +32,8 @@ export type Besuch = {
   ort: string
   status: 'DOKUMENTIERT' | 'UEBERSPRUNGEN' | 'OFFEN'
   grund?: string
-  protokoll?: Partial<Protokoll>
+  /** Protokolle liegen in TerraMax (GET /protocols/{id}); die Engine liefert nur die IDs. */
+  protokollIds: number[]
 }
 
 export type Touruebersicht = {
@@ -50,12 +52,20 @@ export type Task = {
   assignee: string
 }
 
-/** Prozessvariablen, die die Oberfläche liest (Namen wie im BPMN-Modell). */
+/**
+ * Prozessvariablen, die die Oberfläche liest (Namen wie im BPMN-Modell). Die Tour liegt im terramax-service; die Engine
+ * hält nur tourId und Kunden-IDs. besuchsplan, kunde und touruebersicht lädt sie zu Beginn einer Aufgabe per tourId
+ * aus TerraMax und entfernt sie danach wieder.
+ */
 export type TourVariablen = {
   tourDatum?: string
   besuchsplan?: Kunde[]
   kunde?: Kunde
   besuchBegonnenAm?: string
+  /** ID der Tour im terramax-service; setzt die Engine in "Besuchsplan erzeugen". */
+  tourId?: number
+  /** Transkript der Sprachnotiz, gesetzt im Schritt "Sprachnotiz". */
+  transkript?: string
   protokollEntwurf?: Partial<Protokoll>
   touruebersicht?: Touruebersicht
 }

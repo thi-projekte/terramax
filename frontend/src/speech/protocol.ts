@@ -9,14 +9,6 @@ export interface VisitProtocol {
     followUpDate: string | null
 }
 
-export const EMPTY_PROTOCOL: VisitProtocol = {
-    contactPerson: null,
-    topics: [],
-    outcome: null,
-    nextSteps: [],
-    followUpDate: null,
-}
-
 interface ProtocolResponse {
     visitId: string
     protocol: VisitProtocol

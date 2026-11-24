@@ -1,5 +1,5 @@
 # --- Server ---
-# 8086, damit der Service lokal neben hello-service (8080), speech-service (8082) und tour-service (8084) läuft
+# 8086, damit der Service lokal neben hello-service (8080), speech-service (8082) und terramax-service (8088) läuft
 server:
   port: 8086
 
@@ -20,21 +20,33 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URL:http://localhost:8180/realms/terramax}
+  # Prozess-Events (docs/kafka/README.md). Nur aktiv mit KAFKA_ENABLED=true, sonst werden sie nur geloggt.
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      properties:
+        # Nicht lange blockieren, wenn Kafka fehlt: Events werden nach dem Commit im Request-Thread gesendet
+        max.block.ms: 5000
 
 camunda.bpm:
   # Tabellen beim Start anlegen bzw. aktualisieren
   database:
     schema-update: true
-  # Listen und Maps (z. B. besuchsplan) als JSON speichern, damit das Frontend sie über die REST-API lesen kann
+  # Listen und Maps (z. B. kundenIds, die geladenen Anzeigedaten) als JSON speichern, damit das Frontend sie über die REST-API lesen kann
   default-serialization-format: application/json
   history-level: audit
   # Kein Admin-Benutzer und keine Webapps: Anmeldung läuft ausschließlich über Keycloak (siehe SecurityConfig)
 
 terramax:
-  tour-service:
-    url: ${TOUR_SERVICE_URL:http://localhost:8084}
+  # Single Source of Truth für die Tourdaten; im Stack http://terramax-service:8080
+  terramax-service:
+    url: ${TERRAMAX_SERVICE_URL:http://localhost:8088}
   cors:
     origins: ${CORS_ORIGINS:http://localhost:5173}
+  events:
+    kafka-enabled: ${KAFKA_ENABLED:false}
+    topic: terramax.process.events
 
 management:
   endpoint:

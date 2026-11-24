@@ -2,8 +2,6 @@ import { useState } from 'react'
 import { apiGet, type ApiResult } from './api'
 import { ROLES, ROLE_LABELS, currentRoles, hasRole } from './roles'
 import './RoleSections.css'
-import type { VisitProtocol } from './speech/protocol'
-import VoiceNoteRecorder from './speech/VoiceNoteRecorder'
 
 const STATUS_TEXT: Record<number, string> = {
   200: 'OK',
@@ -30,45 +28,6 @@ function FeatureCard({ title, description, path }: { title: string; description:
       <p>{description}</p>
       <button onClick={async () => setResult(await apiGet(path))}>Laden</button>
       <ResultBox result={result} />
-    </section>
-  )
-}
-
-function ProtocolSummary({ protocol }: { protocol: VisitProtocol }) {
-  const empty = '–'
-  return (
-    <dl className="protocol-summary">
-      <dt>Gesprächspartner</dt>
-      <dd>{protocol.contactPerson ?? empty}</dd>
-      <dt>Themen</dt>
-      <dd>{protocol.topics.join(', ') || empty}</dd>
-      <dt>Ergebnis</dt>
-      <dd>{protocol.outcome ?? empty}</dd>
-      <dt>Nächste Schritte</dt>
-      <dd>{protocol.nextSteps.join(', ') || empty}</dd>
-      <dt>Follow-up</dt>
-      <dd>{protocol.followUpDate ? new Date(protocol.followUpDate).toLocaleDateString('de-DE') : empty}</dd>
-    </dl>
-  )
-}
-
-// Vorläufig mit fester Besuchs-ID, bis der Besuchsschritt der Tour existiert.
-// Das bestätigte Protokoll wird noch nicht gespeichert: Die Zuordnung zum Kunden folgt mit dem Tour-Prozess.
-function VoiceNoteCard() {
-  const [confirmed, setConfirmed] = useState<VisitProtocol | null>(null)
-  return (
-    <section className="role-card">
-      <h2>Besuchsprotokoll</h2>
-      <p>Besuch per Sprachnotiz protokollieren (max. 2 Minuten).</p>
-      {confirmed ? (
-        <>
-          <p role="status">Protokoll bestätigt. Die Zuordnung zum Kunden folgt mit der Besuchstour.</p>
-          <ProtocolSummary protocol={confirmed} />
-          <button onClick={() => setConfirmed(null)}>Neues Protokoll</button>
-        </>
-      ) : (
-        <VoiceNoteRecorder visitId="demo-visit" onConfirmed={setConfirmed} />
-      )}
     </section>
   )
 }
@@ -136,8 +95,6 @@ export default function RoleSections() {
           path="/sales"
         />
       )}
-
-      {hasRole(ROLES.SALES_PROFESSIONAL) && <VoiceNoteCard />}
 
       {hasRole(ROLES.DEALER_PRINCIPAL) && (
         <FeatureCard
