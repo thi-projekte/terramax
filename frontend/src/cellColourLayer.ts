@@ -1,7 +1,7 @@
 import mapboxgl from 'mapbox-gl'
 import type { Map as MapboxMap } from 'mapbox-gl'
 import type { Feature, Polygon } from 'geojson'
-import { cellToParent, cellToLatLng } from 'h3-js'
+import { cellToLatLng } from 'h3-js'
 import { computePotential } from './potentialLayer'
 import { classifyCell, CELL_COLOURS, type CellColour } from './cellColors'
 import { haversineKm, reachFactor, potentialPoints, type Highlight } from './potentialScore'
@@ -9,8 +9,8 @@ import { haversineKm, reachFactor, potentialPoints, type Highlight } from './pot
 const STATUS_TEXT: Record<CellColour, string> = {
   yellow: 'Empfehlung',
   green: 'Kunde vorhanden',
-  white: 'Ackerflaeche ohne Kunde',
-  red: 'keine Ackerflaeche'
+  white: 'Weizen- und Sojafläche ohne Kunde',
+  red: 'Keine bekannten Weizen- und Sojaflächen'
 }
 
 export async function addCellColourLayer(
@@ -27,12 +27,11 @@ export async function addCellColourLayer(
       const h3Index = String(feature.properties?.h3Index ?? '')
       if (!h3Index) continue
 
-      const parent = cellToParent(h3Index, 5)
-      const hectares = farmland.get(parent)
+      const hectares = farmland.get(h3Index)
       const hasFarmland = hectares !== undefined
-      const hasCustomer = customerCells.has(parent)
+      const hasCustomer = customerCells.has(h3Index)
       const colour = classifyCell({
-        isRecommendation: recommended.has(parent),
+        isRecommendation: recommended.has(h3Index),
         hasCustomer,
         hasFarmland
       })
@@ -45,8 +44,8 @@ export async function addCellColourLayer(
         if (distanceKm === null || d < distanceKm) distanceKm = d
       }
       const factor = reachFactor(distanceKm)
-      const coverage = coverageByCell.get(parent)
-      const rank = rankByCell.get(parent)
+      const coverage = coverageByCell.get(h3Index)
+      const rank = rankByCell.get(h3Index)
 
       features.push({
         type: 'Feature' as const,
@@ -59,7 +58,7 @@ export async function addCellColourLayer(
           weighted: hasFarmland ? Math.round(potentialPoints(hectares) * factor * 100) / 100 : -1,
           distanceKm: distanceKm === null ? -1 : Math.round(distanceKm),
           customer: hasCustomer ? 1 : 0,
-          territory: territoryCells.has(parent) ? 1 : 0,
+          territory: territoryCells.has(h3Index) ? 1 : 0,
           coverage: coverage ? coverage.total : 0,
           isochrone: coverage ? coverage.isochrone : 0,
           rank: rank ?? -1
@@ -95,14 +94,14 @@ export async function addCellColourLayer(
       const rank = Number(props.rank)
 
       const rows = [
-        ['Ackerflaeche', noFarmland ? 'unbekannt' : String(props.hectares) + ' ha'],
+        ['Weizen- und Sojafläche', noFarmland ? 'unbekannt' : String(props.hectares) + ' ha'],
         ['Gewichtetes Potenzial', noFarmland ? 'unbekannt' : String(props.weighted) + ' Punkte'],
         ['Entfernung zum Outlet', Number(props.distanceKm) < 0 ? 'unbekannt' : String(props.distanceKm) + ' km (Zellmitte)'],
-        ['Abdeckung', String(props.coverage) + ' von 3 (Kunde ' + String(props.customer) + ', Vertriebsgebiet ' + String(props.territory) + ', Outlet-Naehe ' + String(props.isochrone) + ')'],
-        ['Rang', rank < 0 ? 'nicht bewertet (keine Ackerflaeche)' : 'Rang ' + String(rank) + ' nach Potenzial'],
-        ['Datenquelle', noFarmland ? 'kein Wert vorhanden' : 'Ackerflaeche (QGIS-Auswertung, Herkunft unbestaetigt)'],
+        ['Abdeckung', String(props.coverage) + ' von 3 (Kunde ' + String(props.customer) + ', Vertriebsgebiet ' + String(props.territory) + ', Fahrzeitabdeckung ' + String(props.isochrone) + ')'],
+        ['Rang', rank < 0 ? 'nicht bewertet (kein positiver Flächenwert)' : 'Rang ' + String(rank) + ' nach Potenzial'],
+        ['Datenquelle', noFarmland ? 'kein Wert vorhanden' : 'INVEKOS Österreich 2024 (vorläufig)'],
           ['Konfidenz', noFarmland ? 'unbekannt' : (Number(props.coverage) > 0 || (Number(props.rank) >= 1 && Number(props.rank) <= 10) ? '▮▯▯ niedrig' : '▮▮▯ mittel')],
-          ['Begruendung', noFarmland ? 'kein Flaechenwert vorhanden' : (Number(props.coverage) > 0 || (Number(props.rank) >= 1 && Number(props.rank) <= 10) ? 'schwächste Quelle sind die Testdaten (Kunden, Gebiete)' : 'Ackerflaeche, vorlaeufige Auswertung')],
+          ['Begruendung', noFarmland ? 'kein Flaechenwert vorhanden' : (Number(props.coverage) > 0 || (Number(props.rank) >= 1 && Number(props.rank) <= 10) ? 'schwächste Quelle sind die Testdaten (Kunden, Gebiete)' : 'Weizen- und Sojafläche, vorläufige Auswertung')],
         ['H3-Zelle', String(props.h3Index)]
       ]
       for (const [label, value] of rows) {

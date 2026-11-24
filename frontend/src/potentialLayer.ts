@@ -2,9 +2,10 @@ import type { Feature, FeatureCollection, Polygon } from 'geojson'
 import { cellToLatLng, latLngToCell } from 'h3-js'
 import { fetchLocations } from './locationLayer'
 import { loadCustomers } from './crmExport'
+import { fetchGeoCells } from './geoLayer'
 import { coverageScore, pickHighlights, scoreCell, type Coverage, type Highlight, type Outlet, type CellScore } from './potentialScore'
 
-const FARMLAND_RESOLUTION = 5
+const FARMLAND_RESOLUTION = 6
 
 export type PotentialResult = {
   farmland: Map<string, number>
@@ -17,21 +18,23 @@ export type PotentialResult = {
 }
 
 async function loadFarmland(): Promise<Map<string, number>> {
-  const response = await fetch('/TerraMax_H3_Ackerflaeche.csv')
-  if (!response.ok) throw new Error('Ackerflaeche konnte nicht geladen werden')
-  const lines = (await response.text()).trim().split(/\r?\n/)
-  const headers = lines[0].replace(/^\uFEFF/, '').split(',').map((h) => h.trim())
-  const h3Column = headers.indexOf('h3Index')
-  const sumColumn = headers.indexOf('sum')
-  if (h3Column === -1 || sumColumn === -1) throw new Error('CSV-Spalten h3Index oder sum fehlen')
+  const data = await fetchGeoCells()
   const farmland = new Map<string, number>()
-  for (const line of lines.slice(1)) {
-    if (!line.trim()) continue
-    const values = line.split(',')
-    const h3Index = values[h3Column]?.trim()
-    const hectares = Number(values[sumColumn])
-    if (h3Index && Number.isFinite(hectares) && hectares > 0) farmland.set(h3Index, hectares)
+
+  for (const feature of data.features) {
+    const { h3Index, areaHa, cropType } = feature.properties
+
+    if (
+      h3Index &&
+      cropType === 'wheat_soy_combined' &&
+      typeof areaHa === 'number' &&
+      Number.isFinite(areaHa) &&
+      areaHa > 0
+    ) {
+      farmland.set(h3Index, areaHa)
+    }
   }
+
   return farmland
 }
 

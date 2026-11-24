@@ -19,7 +19,8 @@ import { addWhiteSpotLayers } from './whiteSpotLayers'
 import { addCellColourLayer } from './cellColourLayer'
 import RecommendationList from './RecommendationList'
 import type { Recommendation } from './recommendationData'
-import { cellToLatLng, cellToParent } from 'h3-js'
+import { cellToLatLng } from 'h3-js'
+import { fetchGeoCells } from './geoLayer'
 
 type LocationState = { status: 'loading' } | LocationLoadResult
 import type { Feature, FeatureCollection, Polygon, MultiPolygon, Point } from 'geojson'
@@ -266,7 +267,7 @@ const sites: SiteCollection = {
     const isochroneCells = new Set<string>()
     for (const feature of context.features) {
       if (covered(cellCenter(feature), originalAreas)) {
-        isochroneCells.add(cellToParent(String(feature.properties?.h3Index ?? ''), 5))
+        isochroneCells.add(String(feature.properties?.h3Index ?? ''))
       }
     }
       const highlightsResult = await addCellColourLayer(context.map, context.features, isochroneCells)
@@ -400,10 +401,10 @@ export default function AustriaMap() {
             box.append(title)
 
             const rows = [
-                'Ackerflaeche: ' + String(Math.round(item.hectares)) + ' ha',
+                'Weizen- und Sojafläche: ' + String(Math.round(item.hectares)) + ' ha',
                 'Punkte: ' + item.points.toFixed(1),
                 'Entfernung zum Outlet: ' + (item.distanceKm === null ? 'unbekannt' : String(Math.round(item.distanceKm)) + ' km (Zellmitte)'),
-                'Datenquelle: Ackerflaeche (QGIS-Auswertung, Herkunft unbestaetigt), Kunden und Gebiete: Testdaten',
+                'Datenquelle: INVEKOS Österreich 2024 (vorläufig), Kunden und Gebiete: Testdaten',
         'Konfidenz: ▮▯▯ niedrig',
         'H3-Zelle: ' + item.h3Index
             ]
@@ -475,79 +476,51 @@ export default function AustriaMap() {
     mapRef.current = map
     map.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
-    map.on('load', async () => {
+        map.on('load', async () => {
       try {
-        // H3-Raster mit Auflösung 6 laden
-        const gridResponse = await fetch(
-          '/austria_h3_resolution6.geojson'
-        )
-
-        if (!gridResponse.ok) {
-          throw new Error('H3-Raster konnte nicht geladen werden')
-        }
-
-        const grid: FeatureCollection<Polygon> =
-          await gridResponse.json()
-
-        // Echte Weizen- und Sojabohnenwerte laden
-        const csvResponse = await fetch(
-          '/TerraMax_H3_Weizen_Soja_Res6.csv'
-        )
-
-        if (!csvResponse.ok) {
-          throw new Error('CSV-Datei konnte nicht geladen werden')
-        }
-
-        const csvText = await csvResponse.text()
-        const rows = csvText.trim().split(/\r?\n/)
-        const headers = rows[0]
-          .replace(/^\uFEFF/, '')
-          .split(',')
-          .map((header) => header.trim().replace(/^"|"$/g, ''))
-
-        const h3Column = headers.indexOf('h3Index')
-        const sumColumn = headers.indexOf('sum')
-
-        if (h3Column === -1 || sumColumn === -1) {
-          throw new Error('CSV-Spalten h3Index oder sum fehlen')
-        }
-
-        const hectares = new Map<string, number>()
-
-        for (const row of rows.slice(1)) {
-          if (!row.trim()) continue
-
-          const values = row.split(',')
-          const h3Index = values[h3Column]
-            ?.trim()
-            .replace(/^"|"$/g, '')
-
-          const rawSum = values[sumColumn]
-            ?.trim()
-            .replace(/^"|"$/g, '')
-
-          if (!h3Index || !rawSum) continue
-
-          const value = Number(rawSum)
-
-          if (Number.isFinite(value) && value >= 0) {
-            hectares.set(h3Index, value)
-          }
-        }
+        // H3-Raster und Agrardaten direkt vom Geo-Service laden
+        const grid = await fetchGeoCells()
 
         if (disposed) return
 
-        // Raster und Agrardaten miteinander verbinden
+        const hectares = new Map<string, number>()
+
         const features: Feature<Polygon>[] = grid.features.map(
           (feature) => {
-            const h3Index = String(
-              feature.properties?.h3Index ?? ''
-            )
+            const { h3Index, areaHa, cropType } = feature.properties
 
-            const hektar = hectares.get(h3Index)
+            const hektar =
+              cropType === 'wheat_soy_combined' &&
+              typeof areaHa === 'number' &&
+              Number.isFinite(areaHa) &&
+              areaHa >= 0
+                ? areaHa
+                : undefined
+
+            if (hektar !== undefined) {
+              hectares.set(h3Index, hektar)
+            }
+
+            let geometry: Polygon
+
+            if (feature.geometry.type === 'MultiPolygon') {
+              if (feature.geometry.coordinates.length !== 1) {
+                throw new Error(
+                  `Unerwartete Geometrie für H3-Zelle ${h3Index}`
+                )
+              }
+
+              geometry = {
+                type: 'Polygon',
+                coordinates: feature.geometry.coordinates[0]
+              }
+            } else {
+              geometry = feature.geometry
+            }
 
             return {
-              ...feature,
+              type: 'Feature',
+              geometry,
               properties: {
                 ...feature.properties,
                 h3Index,
