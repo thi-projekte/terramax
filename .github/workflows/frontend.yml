@@ -65,7 +65,7 @@ jobs:
       # Image-Tags nach https://winfprojekt.de/docs/technik/semver (Git-Tag v1.2.0 -> 1.2.0, 1.2, latest)
       - name: Docker metadata
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ghcr.io/thi-projekte/terramax-frontend
           tags: |
