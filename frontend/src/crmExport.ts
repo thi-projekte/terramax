@@ -8,44 +8,34 @@ export type Customer = {
   crmUrl: string | null
 }
 
-const CRM_EXPORT_URL = '/crm_export_mock.csv'
+type CustomerFeature = {
+  properties?: Record<string, unknown>
+  geometry?: { type?: string; coordinates?: number[] }
+}
+
+const CUSTOMER_URL = '/kunden.geojson'
 
 export async function loadCustomers(): Promise<Customer[]> {
-  const response = await fetch(CRM_EXPORT_URL)
-  if (!response.ok) throw new Error('CRM-Export konnte nicht geladen werden')
+  const response = await fetch(CUSTOMER_URL)
+  if (!response.ok) throw new Error('Kundendaten konnten nicht geladen werden')
 
-  const text = (await response.text()).replace(/^\uFEFF/, '').trim()
-  const lines = text.split(/\r?\n/)
-  const headers = lines[0].split(';').map((h) => h.trim())
-
-  const idCol = headers.indexOf('customer_id')
-  const nameCol = headers.indexOf('name')
-  const regionCol = headers.indexOf('region')
-  const latCol = headers.indexOf('lat')
-  const lonCol = headers.indexOf('lon')
-  const segmentCol = headers.indexOf('segment')
-  const urlCol = headers.indexOf('crm_url')
-
-  if (idCol === -1 || latCol === -1 || lonCol === -1) {
-    throw new Error('CRM-Export: Spalten customer_id, lat oder lon fehlen')
-  }
-
+  const data = (await response.json()) as { features?: CustomerFeature[] }
   const customers: Customer[] = []
-  for (const line of lines.slice(1)) {
-    if (!line.trim()) continue
-    const values = line.split(';').map((v) => v.trim())
-    const lat = Number(values[latCol])
-    const lng = Number(values[lonCol])
-    if (!values[idCol] || !Number.isFinite(lat) || !Number.isFinite(lng)) continue
+
+  for (const feature of data.features ?? []) {
+    const [lng, lat] = feature.geometry?.coordinates ?? []
+    const props = feature.properties ?? {}
+    const id = String(props.customer_id ?? props.id ?? '')
+    if (!id || typeof lat !== 'number' || typeof lng !== 'number') continue
 
     customers.push({
-      id: values[idCol],
-      name: values[nameCol] ?? '',
-      region: values[regionCol] ?? '',
-      segment: values[segmentCol] ?? '',
+      id,
+      name: String(props.name ?? ''),
+      region: String(props.region ?? ''),
+      segment: String(props.segment ?? ''),
       lat,
       lng,
-      crmUrl: values[urlCol] || null
+      crmUrl: typeof props.crm_url === 'string' && props.crm_url ? props.crm_url : null
     })
   }
   return customers
