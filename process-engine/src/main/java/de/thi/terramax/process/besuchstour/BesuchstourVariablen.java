@@ -1,100 +1,103 @@
 package de.thi.terramax.process.besuchstour;
 
-import org.cibseven.bpm.engine.delegate.DelegateExecution;
+import org.cibseven.bpm.engine.delegate.VariableScope;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Namen und Zugriff auf die Prozessvariablen der Besuchstour. Die Namen kommen aus dem BPMN-Modell (Dokumentation der
- * einzelnen Schritte in docs/process/besuchstour.bpmn). Listen und Maps werden als JSON gespeichert und sind so auch
- * über die REST-API lesbar.
+ * Prozessvariablen der Besuchstour.
+ * <p>
+ * Grundsatz: <b>Die Tour liegt in TerraMax, die Engine speichert nur die Ausführung.</b> Dauerhaft im Prozess stehen
+ * nur Referenzen ({@code tourId}, {@code kundenIds}, {@code kundeId}), Flags für Gateways und Eingaben des Nutzers, bis
+ * sie an TerraMax übergeben sind. Wer die Tour wann gestartet hat, hält die Engine selbst fest ({@code initiator},
+ * Historie). Fachliche Daten (Kunden, Status je Halt, Gründe, Protokolle) kommen per ID aus dem terramax-service.
+ * <p>
+ * Die Variablen unter "Nur während einer Aufgabe" lädt ein ExecutionListener am {@code start} der User Task, damit das
+ * Frontend sie anzeigen kann, und entfernt sie am {@code end} wieder ({@link GeladeneDatenEntfernen}).
  */
 public final class BesuchstourVariablen {
 
-    // --- aus dem Modell ---
+    // --- Referenzen und Ausführung (dauerhaft im Prozess) ---
+    /** ID der Tour im terramax-service, gesetzt von "Besuchsplan erzeugen". */
+    public static final String TOUR_ID = "tourId";
+    /** Gewünschter Tag der Tour (Eingabe beim Start), JJJJ-MM-TT. */
     public static final String TOUR_DATUM = "tourDatum";
-    public static final String BESUCHSPLAN = "besuchsplan";
-    public static final String KUNDE = "kunde";
+    /** Kunden-IDs der Tour in Besuchsreihenfolge; Collection der Schleife "Kunden nacheinander besuchen". */
+    public static final String KUNDEN_IDS = "kundenIds";
+    /** Element-Variable der Schleife: Kunde des aktuellen Besuchs. */
+    public static final String KUNDE_ID = "kundeId";
+    /** Anzahl der Halte für die Gateways "Mindestens zwei Kunden?" und "Noch mindestens zwei Kunden?". */
+    public static final String ANZAHL_HALTE = "anzahlHalte";
+
+    // --- Eingaben aus den User Tasks (lokal je Besuch, bis sie an TerraMax übergeben sind) ---
+    public static final String PLAN_BESTAETIGT = "planBestaetigt";
     public static final String UEBERSPRINGEN_GRUND = "ueberspringenGrund";
-    public static final String PROTOKOLL = "protokoll";
-    public static final String PROTOKOLL_ENTWURF = "protokollEntwurf";
-    public static final String TRANSKRIPT = "transkript";
-    public static final String SPRACHNOTIZ_ID = "sprachnotizId";
     public static final String BESUCH_BEGONNEN_AM = "besuchBegonnenAm";
     public static final String BESUCH_ABGESCHLOSSEN_AM = "besuchAbgeschlossenAm";
+    /** Vom Frontend beim Abbrechen mitgeschickter Grund (optional). */
+    public static final String ABBRUCH_GRUND = "abbruchGrund";
 
-    // --- von der Engine ergänzt ---
-    /** Ergebnis je Kunde (dokumentiert oder übersprungen), Grundlage für die Tourübersicht. */
-    public static final String BESUCHSERGEBNISSE = "besuchsergebnisse";
-    /** Zusammenfassung für den Schritt "Tour abschließen". */
+    // --- Nur während einer Aufgabe (per tourId geladen, danach wieder entfernt) ---
+    /** Kunden der Tour für die Anzeige, Felder wie bisher im Frontend ({@code Kunde} in engineApi.ts). */
+    public static final String BESUCHSPLAN = "besuchsplan";
+    /** Kunde des aktuellen Besuchs für die Anzeige. */
+    public static final String KUNDE = "kunde";
+    /** Tourübersicht für "Tour abschließen". */
     public static final String TOURUEBERSICHT = "touruebersicht";
 
-    public static final String STATUS_DOKUMENTIERT = "DOKUMENTIERT";
-    public static final String STATUS_UEBERSPRUNGEN = "UEBERSPRUNGEN";
-    public static final String STATUS_OFFEN = "OFFEN";
+    /** Variablen, die nur während einer Aufgabe im Prozess stehen. */
+    public static final List<String> GELADENE_DATEN = List.of(BESUCHSPLAN, KUNDE, TOURUEBERSICHT);
 
     private BesuchstourVariablen() {
     }
 
-    /** Aktueller Kunde im Schleifendurchlauf (Element aus {@code besuchsplan}). */
-    @SuppressWarnings("unchecked")
-    public static Map<String, Object> kunde(DelegateExecution execution) {
-        Object kunde = execution.getVariable(KUNDE);
-        if (!(kunde instanceof Map<?, ?>)) {
-            throw new IllegalStateException("Prozessvariable 'kunde' fehlt");
+    /** {@code tourId}; fehlt sie, ist das ein Fehler im Ablauf. */
+    public static long tourId(VariableScope scope) {
+        Long tourId = tourIdOderNull(scope);
+        if (tourId == null) {
+            throw new IllegalStateException("Prozessvariable '" + TOUR_ID + "' fehlt");
         }
-        return (Map<String, Object>) kunde;
+        return tourId;
     }
 
-    public static List<Map<String, Object>> besuchsplan(DelegateExecution execution) {
-        return listOfMaps(execution.getVariable(BESUCHSPLAN));
+    /** {@code tourId} oder {@code null}, wenn noch keine Tour angelegt ist. */
+    public static Long tourIdOderNull(VariableScope scope) {
+        return alsLong(scope.getVariable(TOUR_ID), TOUR_ID);
     }
 
-    public static List<Map<String, Object>> besuchsergebnisse(DelegateExecution execution) {
-        return listOfMaps(execution.getVariable(BESUCHSERGEBNISSE));
-    }
-
-    /**
-     * Hängt ein Ergebnis an {@code besuchsergebnisse} an. Die Variable liegt auf Prozessebene (angelegt in "Besuchsplan
-     * erzeugen"), daher landet das Ergebnis dort und nicht nur im einzelnen Schleifendurchlauf.
-     */
-    public static void ergebnisHinzufuegen(DelegateExecution execution, Map<String, Object> ergebnis) {
-        List<Map<String, Object>> ergebnisse = besuchsergebnisse(execution);
-        ergebnisse.add(ergebnis);
-        execution.setVariable(BESUCHSERGEBNISSE, ergebnisse);
-    }
-
-    /**
-     * Entfernt Variablen eines abgeschlossenen Besuchs, damit sie nicht im nächsten Besuch auftauchen. Behebt in der
-     * Engine den offenen Punkt aus docs/process/README.md ("Daten laufen in den nächsten Besuch über").
-     */
-    public static void besuchsdatenEntfernen(DelegateExecution execution) {
-        for (String name : List.of(UEBERSPRINGEN_GRUND, PROTOKOLL, PROTOKOLL_ENTWURF, TRANSKRIPT, SPRACHNOTIZ_ID,
-                BESUCH_BEGONNEN_AM, BESUCH_ABGESCHLOSSEN_AM)) {
-            execution.removeVariable(name);
+    /** Kunde des aktuellen Schleifendurchlaufs. */
+    public static long kundeId(VariableScope scope) {
+        Long kundeId = alsLong(scope.getVariable(KUNDE_ID), KUNDE_ID);
+        if (kundeId == null) {
+            throw new IllegalStateException("Prozessvariable '" + KUNDE_ID + "' fehlt");
         }
+        return kundeId;
     }
 
-    /** Grunddaten eines Kunden für Ergebnis und Übersicht. */
-    public static Map<String, Object> kundeKurz(Map<String, Object> kunde) {
-        Map<String, Object> kurz = new LinkedHashMap<>();
-        kurz.put("kundeId", kunde.get("kundeId"));
-        kurz.put("name", kunde.get("name"));
-        kurz.put("ort", kunde.get("ort"));
-        return kurz;
+    /** Text oder {@code null}, wenn die Variable fehlt oder leer ist. */
+    public static String text(VariableScope scope, String name) {
+        Object value = scope.getVariable(name);
+        return value instanceof String s && !s.isBlank() ? s.strip() : null;
     }
 
-    @SuppressWarnings("unchecked")
-    private static List<Map<String, Object>> listOfMaps(Object value) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        if (value instanceof List<?> items) {
-            for (Object item : items) {
-                list.add(new LinkedHashMap<>((Map<String, Object>) item));
-            }
+    /** Setzt die Referenzen auf die Halte, wie TerraMax sie gerade kennt. */
+    public static void halteSetzen(VariableScope scope, List<Long> kundenIds) {
+        scope.setVariable(KUNDEN_IDS, new ArrayList<>(kundenIds));
+        scope.setVariable(ANZAHL_HALTE, kundenIds.size());
+    }
+
+    static Long alsLong(Object value, String name) {
+        if (value == null) {
+            return null;
         }
-        return list;
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        try {
+            return Long.parseLong(value.toString().strip());
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Prozessvariable '" + name + "' ist keine ID: " + value, e);
+        }
     }
 }

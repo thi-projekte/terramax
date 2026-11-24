@@ -1,9 +1,9 @@
 # Übergabe: process-engine → terramax-service
 
-Für Lukas und den CIB-Seven-Entwickler (Umbau der Delegates). Stand: Branch
-`feature/64-terramax-service`. Die Delegates und das BPMN-Modell sind in diesem
-Branch **nicht** geändert. Dieses Dokument beschreibt, welche Endpunkte des
-terramax-service sie künftig aufrufen.
+Für Lukas und den CIB-Seven-Entwickler. **Umgesetzt mit #63:** Delegates,
+ExecutionListener und BPMN-Modell rufen die Endpunkte so auf, wie hier
+beschrieben (siehe [process-engine/README.md](../../process-engine/README.md)).
+Die Spalte „Heute“ zeigt den Stand vor dem Umbau.
 
 ## Grundsatz
 
@@ -30,14 +30,14 @@ lokal http://localhost:8088/q/swagger-ui, auf dem Server `https://<terramax-subd
 | | Lokal | Server (Stack) |
 | --- | --- | --- |
 | Basis-URL | `http://localhost:8088` | `http://terramax-service:8080` (Container im selben Netzwerk) |
-| `TOUR_SERVICE_URL` der Engine | `http://localhost:8088` | `http://terramax-service:8080` |
+| `TERRAMAX_SERVICE_URL` der Engine | `http://localhost:8088` | `http://terramax-service:8080` |
 
 Zwei Wege, wie die Engine sich anmeldet. Beide gehen an jedem Engine-Endpunkt:
 
 1. **Nutzer-Token (Token Propagation).** Solange ein Schritt im Request des Sales
    Professional läuft (z. B. direkt nach dem Start der Tour oder beim Abschließen
    eines User Tasks), reicht die Engine dessen `Authorization`-Header durch, so wie
-   `RestTourPlanClient` es heute schon tut. Es gelten die Regeln des Nutzers: Er
+   `RestTerraMaxClient` es tut. Es gelten die Regeln des Nutzers: Er
    sieht nur eigene Touren, der Händler kommt aus `dealer_id`.
 2. **Service-Konto.** Für Schritte ohne Nutzer (asynchron, Timer, Wiederholung
    durch den Job Executor) holt sich die Engine per Client Credentials ein eigenes
@@ -72,7 +72,7 @@ Kunden-Endpunkte.
 
 | BPMN-Schritt | Heute (Prozessvariablen) | Künftig: TerraMax-Endpunkt | Ergebnis im Prozesskontext |
 | --- | --- | --- | --- |
-| **Besuchsplan erzeugen** (`besuchsplanErzeugen`) | `GET /tours/plan` beim tour-service, Plan als `besuchsplan`, `besuchsergebnisse = []` | 1. `GET /tours/plan?date={tourDatum}` (Format unverändert, nur `TOUR_SERVICE_URL` umstellen).<br>2. `POST /tours` mit `{"tourDate", "customerIds": [visits[].customer.id], "processInstanceId": execution.getProcessInstanceId()}` | `tourId`. Optional `kundenIds` (nur IDs) für die Multi-Instance-Schleife, siehe unten |
+| **Besuchsplan erzeugen** (`besuchsplanErzeugen`) | `GET /tours/plan` beim tour-service, Plan als `besuchsplan`, `besuchsergebnisse = []` | 1. `GET /tours/plan?date={tourDatum}` (Format unverändert).<br>2. `POST /tours` mit `{"tourDate", "customerIds": [visits[].customer.id], "processInstanceId": execution.getProcessInstanceId()}` | `tourId`. Optional `kundenIds` (nur IDs) für die Multi-Instance-Schleife, siehe unten |
 | Gateway **Mindestens zwei Kunden?** | Größe von `besuchsplan` | `GET /tours/{tourId}/status` → `anzahlHalte >= 2` | – |
 | **Besuchsplan prüfen** (User Task) | `besuchsplan` umsortieren oder kürzen | Reihenfolge: `PATCH /tours/{tourId}` `{"customerOrder": [...]}`. Kunde streichen: `DELETE /tours/{tourId}/stops/{kundeId}` (nur bei geplanter Tour und offenem Halt) | Flag `planBestaetigt` |
 | Gateway **Noch mindestens zwei Kunden?** | Größe von `besuchsplan` | `GET /tours/{tourId}/status` → `anzahlHalte >= 2` | – |
@@ -111,7 +111,7 @@ ohne Kundendaten im Prozess:
 | `409` | Ungültiger Statusübergang, z. B. Halt schon dokumentiert und jetzt übersprungen, oder Tour bereits abgeschlossen | BPMN-Fehler oder Incident, nicht blind wiederholen |
 
 Fehler kommen als `{"error": "…"}`. Der tour-service hat `{"message": "…"}`
-geliefert; `RestTourPlanClient` wertet den Body nicht aus, für die Engine ändert
+geliefert; `RestTerraMaxClient` liest `error` und ordnet den Status ein (400/404/409 fachlich, sonst technisch), für die Engine ändert
 sich also nichts.
 
 ## Statusmodell je Halt
@@ -155,7 +155,7 @@ abschließen). Daneben `discarded` (Plan verworfen) und `aborted` (TourAbbrechen
 
 ## Noch abzustimmen
 
-- **Netzwerk im Stack:** Die Engine muss `terramax-service:8080` erreichen, also im
-  selben Docker-Netzwerk hängen (z. B. `nginx-proxy-manager` wie der speech-service).
-- **`TourPlan` in der Engine:** Ändert sich die Klasse, muss die Testkopie in
+- ~~**Netzwerk im Stack**~~ **Geklärt (#63):** Die Engine hängt wie der speech-service
+  im Netzwerk `nginx-proxy-manager` und erreicht so `terramax-service:8080`.
+- **`TourPlan` in der Engine** (jetzt `de.thi.terramax.process.terramax.TourPlan`): Ändert sich die Klasse, muss die Testkopie in
   `terramax-service/src/test/java/de/thi/terramax/tour/TourPlanResourceTest.java` mitgehen.

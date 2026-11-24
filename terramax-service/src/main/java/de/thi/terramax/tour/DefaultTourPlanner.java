@@ -14,8 +14,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -55,7 +53,7 @@ public class DefaultTourPlanner implements TourPlanner {
         if (dealer == null) {
             throw new IllegalArgumentException("Unbekannter Händler: " + dealerId);
         }
-        Map<Long, LocalDate> lastVisits = lastVisits(dealerId);
+        Map<Long, LocalDate> lastVisits = LastVisits.byCustomer(em, dealerId);
         List<Customer> customers = Customer.listByDealer(dealerId).stream()
                 .filter(c -> c.latitude != null && c.longitude != null)
                 .filter(c -> isDue(lastVisits.get(c.id), constraints.date())).toList();
@@ -90,20 +88,4 @@ public class DefaultTourPlanner implements TourPlanner {
         return new TourPlanProposal(date, start, stops);
     }
 
-    private Map<Long, LocalDate> lastVisits(String dealerId) {
-        Map<Long, LocalDate> result = new HashMap<>();
-        em.createQuery("select tc.customer.id, max(tc.tour.tourDate) from TourCustomer tc "
-                + "where tc.status = ?2 and tc.customer.dealer.id = ?1 group by tc.customer.id", Object[].class)
-                .setParameter(1, dealerId).setParameter(2, StopStatus.DOKUMENTIERT).getResultList()
-                .forEach(row -> result.merge((Long) row[0], (LocalDate) row[1], DefaultTourPlanner::later));
-        em.createQuery("select p.customer.id, max(p.createdAt) from VisitorProtocol p "
-                + "where p.customer.dealer.id = ?1 group by p.customer.id", Object[].class).setParameter(1, dealerId)
-                .getResultList().forEach(row -> result.merge((Long) row[0],
-                        ((OffsetDateTime) row[1]).toLocalDate(), DefaultTourPlanner::later));
-        return result;
-    }
-
-    private static LocalDate later(LocalDate a, LocalDate b) {
-        return a.isAfter(b) ? a : b;
-    }
 }

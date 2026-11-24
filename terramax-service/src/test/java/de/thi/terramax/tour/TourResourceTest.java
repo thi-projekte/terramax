@@ -4,7 +4,9 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import de.thi.terramax.TestData;
 import de.thi.terramax.security.Roles;
@@ -157,6 +159,20 @@ class TourResourceTest {
 
         given().when().get("/tours/{id}", f.ownTour()).then().body("customers.name", contains("Hof Maier", "Hof Huber"))
                 .body("customers.position", contains(1, 2));
+    }
+
+    @Test
+    @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
+    @OidcSecurity(claims = { @Claim(key = "sub", value = TestData.SALES_SUB),
+            @Claim(key = "dealer_id", value = TestData.DEALER) })
+    void stopsShowRegionAndLastVisitForTheProcessEngine() {
+        // Maier: dokumentierter Halt auf der eigenen Tour (20.11.2026); Huber: Protokoll aus den Testdaten
+        testData.documentStop(f.ownTour(), f.maier());
+
+        given().when().get("/tours/{id}", f.ownTour()).then().statusCode(200)
+                .body("customers.region", everyItem(is("Hausruckviertel")))
+                .body("customers.find { it.name == 'Hof Maier' }.lastVisit", is("2026-11-20"))
+                .body("customers.find { it.name == 'Hof Huber' }.lastVisit", notNullValue());
     }
 
     @Test

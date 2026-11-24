@@ -32,8 +32,12 @@ function KundeInfo({ kunde }: Readonly<{ kunde: Kunde }>) {
       <dd>{kunde.ort}</dd>
       <dt>Letzter Besuch</dt>
       <dd>{datum(kunde.letzterBesuch)}</dd>
-      <dt>Anfahrt</dt>
-      <dd>{kunde.entfernungKm} km Luftlinie vom vorherigen Halt</dd>
+      {kunde.entfernungKm != null && (
+        <>
+          <dt>Anfahrt</dt>
+          <dd>{kunde.entfernungKm} km Luftlinie vom vorherigen Halt</dd>
+        </>
+      )}
     </dl>
   )
 }
@@ -410,7 +414,7 @@ export function TourAbschliessen({
             <span className="tour-plan-name">
               <strong>{besuch.name}</strong> · {besuch.ort}
               {besuch.grund && <small>Grund: {besuch.grund}</small>}
-              {besuch.protokoll?.ergebnis && <small>Ergebnis: {besuch.protokoll.ergebnis}</small>}
+              {besuch.protokollIds.length > 0 && <small>Protokoll gespeichert</small>}
             </span>
             <span className={`tour-status ${besuch.status.toLowerCase()}`}>{STATUS_TEXT[besuch.status]}</span>
           </li>

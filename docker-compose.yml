@@ -17,6 +17,9 @@
 #   TERRAMAX_CORS_ORIGINS     erlaubte Frontend-Origins des terramax-service, kommagetrennt
 #   TERRAMAX_SERVICE_TAG      optional, Standard main, z. B. sha-abc1234
 #   TERRAMAX_SEED_ENABLED     optional, Standard true; false, sobald echte CRM-Daten kommen (Testdaten-Import)
+#   PROCESS_ENGINE_DB_PASSWORD  Pflicht, Passwort der Engine-Datenbank (ohne startet der Stack nicht)
+#   PROCESS_ENGINE_TAG        optional, Standard latest, z. B. sha-abc1234
+#   PROCESS_ENGINE_CORS_ORIGINS erlaubte Frontend-Origins der Engine-REST-API, kommagetrennt
 
 services:
   # --- TerraMax-Service: fachlicher Kern (terramax-service/README.md) ---
@@ -44,7 +47,7 @@ services:
       terramax-db:
         condition: service_healthy
     networks:
-      # TODO(#64-meeting): Netzwerkname nginx-proxy-manager vs. nginx-reverse-proxy klären
+      # Netzwerkname geklärt (#63): auf dem Server existiert nginx-proxy-manager (Portainer → Networks), nicht nginx-reverse-proxy
       - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
       - terramax-intern       # erreicht die Datenbank
 
@@ -123,6 +126,56 @@ services:
     networks:
       - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager
       - kafka-intern          # erreicht Kafka
+
+  # --- Process Engine / CIB seven (process-engine/README.md, Abschnitt "Server") ---
+  # Nginx Proxy Manager: <subdomain>.winfprojekt.de -> terramax-process-engine-1:8086, Let's-Encrypt-Zertifikat
+  # Erreichbar sind nur /engine-rest (Keycloak-Token nötig, sonst 401) und /actuator/health.
+  # Aufrufrichtung: Frontend -> Engine (Tour starten, Aufgaben), Engine -> terramax-service (Tourdaten), nie umgekehrt.
+
+  process-engine:
+    # Image aus .github/workflows/process-engine.yml
+    image: ghcr.io/thi-projekte/terramax-process-engine:${PROCESS_ENGINE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://process-engine-db:5432/process_engine
+      SPRING_DATASOURCE_USERNAME: process_engine
+      SPRING_DATASOURCE_PASSWORD: ${PROCESS_ENGINE_DB_PASSWORD:?PROCESS_ENGINE_DB_PASSWORD in Portainer setzen}
+      # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
+      KEYCLOAK_ISSUER_URL: https://terramax-keycloak.winfprojekt.de/realms/terramax
+      # Tourdaten (Single Source of Truth), erreichbar über das gemeinsame Netzwerk nginx-proxy-manager
+      TERRAMAX_SERVICE_URL: http://terramax-service:8080
+      CORS_ORIGINS: ${PROCESS_ENGINE_CORS_ORIGINS}
+      # Prozess-Events nach docs/kafka/README.md
+      KAFKA_ENABLED: "true"
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      process-engine-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager, erreicht den terramax-service
+      - process-engine-intern # erreicht die Datenbank
+      - kafka-intern          # publiziert Prozess-Events
+
+  # Eigene PostgreSQL-Datenbank der Engine (Runtime- und History-Tabellen), nur intern erreichbar, kein ports:.
+  # Die Engine legt die Tabellen beim Start selbst an (camunda.bpm.database.schema-update).
+  process-engine-db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: process_engine
+      POSTGRES_USER: process_engine
+      POSTGRES_PASSWORD: ${PROCESS_ENGINE_DB_PASSWORD:?PROCESS_ENGINE_DB_PASSWORD in Portainer setzen}
+    volumes:
+      - process_engine_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U process_engine -d process_engine"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - process-engine-intern # nur intern
 
   # --- Kafka-Event-Bus (Topics, Schemas und Betrieb: docs/kafka/README.md) ---
   # Single Node im KRaft-Modus (Broker und Controller in einem Prozess, kein ZooKeeper).
@@ -214,9 +267,13 @@ networks:
     driver: bridge            # vom Stack verwaltet, Kafka ist von außen nicht erreichbar
   terramax-intern:
     driver: bridge            # vom Stack verwaltet, die TerraMax-Datenbank ist von außen nicht erreichbar
+  process-engine-intern:
+    driver: bridge            # vom Stack verwaltet, die Engine-Datenbank ist von außen nicht erreichbar
 
 volumes:
   kafka_data:
     name: terramax-kafka-data # Topics und Offsets, überleben einen Redeploy
   terramax_db_data:
     name: terramax-db-data    # Händler-, Kunden-, Tour- und Protokolldaten, überleben einen Redeploy
+  process_engine_db:
+    name: terramax-process-engine-db # Prozesszustand und History, überleben einen Redeploy
