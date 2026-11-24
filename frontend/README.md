@@ -104,8 +104,8 @@ Die Auswertung ist vorläufig und dient als MVP für die geografische Visualisie
 
 ## Deployment
 
-Das Image `ghcr.io/thi-projekte/terramax-frontend` wird bei jedem Push auf `main` gebaut
-(`.github/workflows/frontend.yml`). Da Vite `VITE_*` beim Build ins JS schreibt, werden die
+Das Image `ghcr.io/thi-projekte/terramax-frontend` wird bei jedem Push auf `main` (Tags `main`,
+`sha-<commit>`) und bei jedem Git-Tag `v*` gebaut (`.github/workflows/frontend.yml`). Da Vite `VITE_*` beim Build ins JS schreibt, werden die
 URLs als Build-Args übergeben. Sie kommen aus den GitHub-Repository-Variablen
 (Settings → Secrets and variables → Actions → Variables):
 
@@ -120,3 +120,16 @@ URLs als Build-Args übergeben. Sie kommen aus den GitHub-Repository-Variablen
 Betrieb: Service `frontend` im gemeinsamen Stack `terramax` (`docker-compose.yml` im Repo-Root,
 ohne `ports:`, Netzwerk `nginx-proxy-manager`); der Nginx Proxy Manager leitet die Subdomain auf
 den Container `terramax-frontend-1`, Port 80.
+
+### Neue Version veröffentlichen
+
+Versionen folgen [SemVer](https://winfprojekt.de/docs/technik/semver). Der Git-Tag bestimmt die
+Image-Version:
+
+```sh
+git checkout main && git pull
+git tag v0.2.0 && git push origin v0.2.0   # erzeugt die Image-Tags 0.2.0, 0.2, latest, sha-<commit>
+```
+
+Danach in der Root-`docker-compose.yml` beim Service `frontend` die neue Version eintragen
+(`terramax-frontend:0.2.0`), per PR mergen und in Portainer den Stack `terramax` neu deployen.
