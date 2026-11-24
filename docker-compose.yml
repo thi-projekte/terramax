@@ -100,8 +100,8 @@ services:
   # Nginx Proxy Manager: terramax.winfprojekt.de -> terramax-frontend-1:80
 
   frontend:
-    # :main = aktueller Stand von main; zum Ausrollen auf :sha-<commit> pinnen
-    image: ghcr.io/thi-projekte/terramax-frontend:main
+    # Feste Release-Version (Git-Tag v0.1.0); neue Version siehe frontend/README.md
+    image: ghcr.io/thi-projekte/terramax-frontend:0.1.0
     restart: unless-stopped
     networks:
       - nginx-proxy-manager   # erreichbar für den Nginx Proxy Manager

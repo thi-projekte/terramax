@@ -6,6 +6,8 @@ on:
     branches:
       - main
       - feature/17-h3-market-map
+    tags:
+      - "v*"
     paths:
       - "frontend/**"
       - ".github/workflows/frontend.yml"
@@ -60,13 +62,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Image-Tags nach https://winfprojekt.de/docs/technik/semver (Git-Tag v1.2.0 -> 1.2.0, 1.2, latest)
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/thi-projekte/terramax-frontend
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: ${{ github.event_name == 'push' }}
-          tags: ghcr.io/thi-projekte/terramax-frontend:sha-${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             VITE_MAPBOX_TOKEN=${{ vars.VITE_MAPBOX_TOKEN }}
             VITE_KEYCLOAK_URL=${{ vars.VITE_KEYCLOAK_URL || 'https://terramax-keycloak.winfprojekt.de' }}
@@ -74,10 +89,3 @@ jobs:
             VITE_LOCATION_SERVICE_URL=${{ vars.VITE_LOCATION_SERVICE_URL || 'http://localhost:8088' }}
             VITE_ENGINE_URL=${{ vars.VITE_ENGINE_URL || 'http://localhost:8086/engine-rest' }}
             VITE_SPEECH_API_URL=${{ vars.VITE_SPEECH_API_URL || 'https://terramax-speech.winfprojekt.de' }}
-
-      - name: Tag and push main image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          docker buildx imagetools create \
-            -t ghcr.io/thi-projekte/terramax-frontend:main \
-            ghcr.io/thi-projekte/terramax-frontend:sha-${{ github.sha }}
