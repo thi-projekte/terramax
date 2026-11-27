@@ -52,6 +52,16 @@ class CustomerResourceTest {
     }
 
     @Test
+    void leadsAreNotListedAsCustomers() {
+        testData.addLead("Messe-Lead", 48.25, 14.20);
+        given().when().get("/customers").then().statusCode(200)
+                .body("name", contains("Hof Huber", "Hof Maier", "Hof ohne Koordinaten"))
+                .body("status", everyItem(is("CUSTOMER")));
+        given().accept(CustomerResource.GEO_JSON).when().get("/customers").then().statusCode(200)
+                .body("features.properties.name", contains("Hof Huber", "Hof Maier"));
+    }
+
+    @Test
     void getOwnCustomer() {
         given().when().get("/customers/{id}", fixture.huber()).then().statusCode(200).body("name", is("Hof Huber"))
                 .body("externalId", is("CRM-1"));

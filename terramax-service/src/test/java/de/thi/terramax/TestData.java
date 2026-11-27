@@ -1,6 +1,8 @@
 package de.thi.terramax;
 
 import de.thi.terramax.customer.Customer;
+import de.thi.terramax.customer.CustomerSource;
+import de.thi.terramax.customer.CustomerStatus;
 import de.thi.terramax.dealer.Dealer;
 import de.thi.terramax.dealer.DealerEmployee;
 import de.thi.terramax.protocol.VisitorProtocol;
@@ -53,8 +55,8 @@ public class TestData {
     /** Leert alle Tabellen des Kernmodells (auch die beim Start importierten Testdaten). */
     @Transactional
     public void clear() {
-        em.createNativeQuery("TRUNCATE visitor_protocol, tour_customer, tour_employee, tour, customer, "
-                + "dealer_employee, dealer RESTART IDENTITY CASCADE").executeUpdate();
+        em.createNativeQuery("TRUNCATE lead_note, customer_contact, visitor_protocol, tour_customer, tour_employee, "
+                + "tour, customer, dealer_employee, dealer RESTART IDENTITY CASCADE").executeUpdate();
     }
 
     @Transactional
@@ -90,6 +92,15 @@ public class TestData {
     @Transactional
     public long addCustomer(String externalId, String name, double latitude, double longitude) {
         return customer(Dealer.findById(DEALER), externalId, name, latitude, longitude).id;
+    }
+
+    /** Lead (Kunde mit Status LEAD) bei D-100, ohne API. */
+    @Transactional
+    public long addLead(String name, Double latitude, Double longitude) {
+        Customer c = customer(Dealer.findById(DEALER), null, name, latitude, longitude);
+        c.status = CustomerStatus.LEAD;
+        c.source = CustomerSource.MESSE;
+        return c.id;
     }
 
     /** Setzt einen Halt direkt in der Datenbank auf DOKUMENTIERT (ohne API). */
