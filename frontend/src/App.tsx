@@ -8,18 +8,19 @@ import ProfileMenu from './ProfileMenu'
 import RoleSections from './RoleSections'
 import AustriaMap from './AustriaMap'
 import Besuchstour from './tour/Besuchstour'
+import Schnellerfassung from './lead/Schnellerfassung'
 import './AppTabs.css'
 
-type Tab = 'karte' | 'tour'
+type Tab = 'karte' | 'tour' | 'erfassung'
 
 // Reiter oben: Marktkarte und Besuchstour liegen nicht untereinander, man sieht immer nur einen Bereich.
-// Der gewählte Reiter steht im URL-Hash (#karte / #tour), damit er nach dem Neuladen erhalten bleibt.
+// Der gewählte Reiter steht im URL-Hash (#karte / #tour / #erfassung), damit er nach dem Neuladen erhalten bleibt.
 // Erst nach dem Login abfragen (App wird erst nach keycloak.init gerendert, siehe main.tsx)
 const darfTourSehen = () => keycloak.hasRealmRole('sales_professional')
 
 function startTab(): Tab {
   const hash = window.location.hash.slice(1)
-  if (hash === 'karte' || (hash === 'tour' && darfTourSehen())) return hash
+  if (hash === 'karte' || ((hash === 'tour' || hash === 'erfassung') && darfTourSehen())) return hash
   // Reine Sales Professionals starten in der Besuchstour, alle anderen auf der Karte
   return darfTourSehen() && !keycloak.hasRealmRole('dealer_principal') ? 'tour' : 'karte'
 }
@@ -62,6 +63,9 @@ function App() {
           <button type="button" aria-current={tab === 'tour'} onClick={() => wechseln('tour')}>
             Besuchstour
           </button>
+          <button type="button" aria-current={tab === 'erfassung'} onClick={() => wechseln('erfassung')}>
+            Schnellerfassung
+          </button>
         </nav>
       )}
 
@@ -73,6 +77,7 @@ function App() {
       )}
 
       {tab === 'tour' && darfTour && <Besuchstour />}
+      {tab === 'erfassung' && darfTour && <Schnellerfassung />}
     </main>
   )
 }
