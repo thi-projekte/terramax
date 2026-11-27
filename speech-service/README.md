@@ -14,6 +14,9 @@ den der Nutzer im Frontend bearbeitet und bestätigt.
 - Übergabe: Das bestätigte Protokoll gibt der Service an den
   [terramax-service](../terramax-service/README.md) weiter, mit dem Token der SPA.
 - Events: jeder Schritt landet auf Kafka (`terramax.speech.events`).
+- Schnellerfassung (#134): Foto einer Visitenkarte → Entwurf der Kontaktdaten
+  (`POST /business-cards`, OpenAI über LangChain4j) → bestätigter Lead an den
+  terramax-service (`POST /leads`).
 
 ```text
 SPA ──POST /transcriptions (oder WS)──► speech-service ──► OpenAI gpt-transcribe
@@ -162,6 +165,68 @@ liefert (`id`, `tourId`, `customerId`, `createdBy`, `createdAt`, …).
 | 404 | Tour unbekannt oder für den Nutzer nicht sichtbar |
 | 502 | TerraMax nicht erreichbar oder Serverfehler |
 
+### `POST /business-cards`
+
+Schnellerfassung (#134): liest eine fotografierte Visitenkarte und gibt einen
+**Entwurf** zurück. Gespeichert wird nichts. `multipart/form-data` mit `image`
+(`image/jpeg`, `image/png` oder `image/webp`, max. 10 MB; die SPA verkleinert
+Fotos vorher auf 1600 px) und `captureId` (von der SPA gebildet als
+`lead:<uuid>`, gilt für die ganze Erfassung).
+
+```json
+{
+  "captureId": "lead:3f2c…",
+  "card": {
+    "contactName": "Josef Maier", "company": "Hof Maier GbR", "role": "Betriebsleiter",
+    "phone": "+43 664 1234567", "email": "maier@example.at",
+    "street": "Hauptstraße 1", "postalCode": "4600", "city": "Wels"
+  }
+}
+```
+
+Nicht lesbare Felder sind `null`. Der Prompt steht in `BusinessCardAssistant`
+(gleiches Modell wie das Protokoll, `gpt-4o-mini` kann Bilder lesen).
+
+| Status | Bedeutung |
+|---|---|
+| 400 | Foto oder `captureId` fehlt, Foto leer |
+| 413 | Upload größer als 10 MB |
+| 415 | Kein JPEG, PNG oder WebP |
+| 502 | OpenAI nicht erreichbar, Key fehlt oder Karte nicht lesbar |
+| 503 | Anfragelimit bei OpenAI erreicht |
+
+Ein Kommentar kann diktiert werden: dafür `POST /transcriptions` mit der
+`captureId` als `visitId`.
+
+### `POST /leads`
+
+Übergibt den vom Nutzer bestätigten Lead an TerraMax (`POST /leads` im
+terramax-service, gleicher `Authorization`-Header). Erst hier wird gespeichert.
+Felder wie `CreateLeadRequest` im terramax-service, dazu `captureId` (Pflicht):
+
+```json
+{
+  "captureId": "lead:3f2c…",
+  "source": "MESSE",
+  "eventName": "Agraria Wels 2026",
+  "contact": { "name": "Josef Maier", "company": "Hof Maier GbR", "city": "Wels" },
+  "latitude": 48.16, "longitude": 14.03,
+  "comment": "Interesse an 8R 410, Rückruf nach der Ernte.",
+  "transcript": null,
+  "existingCustomerId": null
+}
+```
+
+Antwort `201` unverändert so, wie der terramax-service sie liefert (`LeadDto`).
+
+| Status | Bedeutung |
+|---|---|
+| 400 | `captureId` oder `contact` fehlt, Kommentar (> 2 000) oder Transkript (> 20 000) zu lang, oder TerraMax lehnt ab (Meldung von TerraMax) |
+| 401 | Token von TerraMax abgelehnt (abgelaufen) |
+| 403 | TerraMax verweigert, z. B. kein `dealer_id` im Token |
+| 404 | Händler oder `existingCustomerId` in TerraMax unbekannt |
+| 502 | TerraMax nicht erreichbar oder Serverfehler |
+
 ### WebSocket `/transcriptions/stream/{visitId}`
 
 Wie `POST /transcriptions`, aber die Aufnahme kann schon während des Sprechens
@@ -207,7 +272,9 @@ In `src/main/resources/application.properties`, per Umgebungsvariable
 Topic `terramax.speech.events`, CloudEvents mit Key `visitId`. Typen und Felder
 stehen in [docs/kafka/README.md](../docs/kafka/README.md):
 `transcription.completed`/`failed`, `protocol.drafted`/`failed`,
-`protocol.submitted`. Transkript und Protokoll stehen nie im Event. Fällt Kafka
+`protocol.submitted` und für die Schnellerfassung `business-card.read`/`failed`
+und `lead.captured` (Key `captureId`). Transkript, Protokoll und Kontaktdaten
+stehen nie im Event. Fällt Kafka
 aus, wird das nur geloggt; die Anfrage läuft weiter.
 
 ## Deployment
@@ -239,6 +306,9 @@ Weil Frontend und Service auf verschiedenen Domains laufen, ist CORS in
   gesendet. Ob das für Kundengespräche zulässig ist, ist eine offene Frage der
   Story.
 - Transkripte und Protokolle werden im Service weder gespeichert noch geloggt.
+- Fotos von Visitenkarten werden nur im Speicher verarbeitet, an OpenAI gesendet
+  und nicht gespeichert oder geloggt; ebenso die gelesenen Kontaktdaten.
+  Gespeichert wird erst der bestätigte Lead im terramax-service.
 
 ## Tests
 
@@ -248,7 +318,8 @@ Weil Frontend und Service auf verschiedenen Domains laufen, ist CORS in
 
 Anmeldung (`@TestSecurity`), Spracherkennung (`FakeSpeechToTextClient`; der echte
 OpenAI-Client läuft in `OpenAiTranscriptionClientTest` gegen `FakeOpenAi`), LLM
-(`FakeProtocolGenerator`), terramax-service (`FakeTerraMax`, eine Resource im
+(`FakeProtocolGenerator`, `FakeBusinessCardReader`), terramax-service
+(`FakeTerraMax`, `FakeTerraMaxLeads`, Resources im
 selben Prozess, damit der echte REST-Client mitläuft) und Kafka
 (In-Memory-Connector, `EventSink`) werden simuliert; Docker, Keycloak und ein
 OpenAI-Key sind nicht nötig. Die Uploadgrenze (413) ist nur manuell geprüft, weil der

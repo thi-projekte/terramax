@@ -28,9 +28,21 @@ public class RecordingChatModel implements ChatModel {
     @Override
     public ChatResponse doChat(ChatRequest request) {
         lastMessages = List.copyOf(request.messages());
-        String json = """
+        String json = schemaName(request).contains("BusinessCard") ? """
+                {"contactName": null, "company": null, "role": null, "phone": null, "email": null,
+                 "street": null, "postalCode": null, "city": null}
+                """ : """
                 {"contactPerson": null, "topics": [], "outcome": null, "nextSteps": [], "followUpDate": null}
                 """;
         return ChatResponse.builder().aiMessage(AiMessage.from(json)).build();
+    }
+
+    /** Name des JSON-Schemas der Antwort (Structured Outputs), z. B. "VisitProtocol" oder "BusinessCard". */
+    private static String schemaName(ChatRequest request) {
+        if (request.responseFormat() == null || request.responseFormat().jsonSchema() == null) {
+            return "";
+        }
+        String name = request.responseFormat().jsonSchema().name();
+        return name == null ? "" : name;
     }
 }

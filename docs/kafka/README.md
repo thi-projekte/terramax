@@ -114,6 +114,11 @@ Producer ist der `speech-service`. Key und `subject` sind die `visitId`. Die SPA
 | `protocol.drafted` | `POST /protocols` erfolgreich | `visitId` |
 | `protocol.failed` | `POST /protocols` fehlgeschlagen | `visitId`, `status` |
 | `protocol.submitted` | Bestätigtes Protokoll an TerraMax übergeben (`POST /tours/{tourId}/protocols`) | `visitId`, `tourId`, `customerId`, `protocolId` |
+| `business-card.read` | `POST /business-cards` erfolgreich (Schnellerfassung) | `captureId` |
+| `business-card.failed` | `POST /business-cards` fehlgeschlagen | `captureId`, `status` |
+| `lead.captured` | Bestätigter Lead an TerraMax übergeben (`POST /leads`) | `captureId`, `customerId`, `newCustomer` |
+
+Bei der Schnellerfassung (#134) gibt es keinen Besuch: Key und `subject` sind dann die `captureId`, die die SPA als `lead:<uuid>` bildet. Sie geht auch als `visitId` an `/transcriptions`, wenn der Kommentar diktiert wird. Kontaktdaten stehen nie im Event.
 
 `status` ist der HTTP-Status, mit dem der Service geantwortet hat (z. B. `503` beim Anfragelimit von OpenAI oder `502` ohne gültigen OpenAI-Key). Die Fehlermeldung selbst steht nicht im Event.
 
