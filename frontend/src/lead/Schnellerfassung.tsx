@@ -1,13 +1,14 @@
-import { useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { transcribe } from '../speech/transcribe'
 import { MAX_RECORDING_SECONDS, useVoiceRecorder } from '../speech/useVoiceRecorder'
 import { readBusinessCard, type BusinessCard } from './businessCard'
+import KartenScanner from './KartenScanner'
 import { geocode, newCaptureId, submitLead, type LeadContact, type SavedLead } from './lead'
 import '../tour/tour.css'
 import './lead.css'
 
 /*
- * Schnellerfassung (#134): Visitenkarte fotografieren → KI liest die Daten (speech-service, POST /business-cards) →
+ * Schnellerfassung (#134): Visitenkarte scannen (Live-Kamera, löst automatisch aus) → KI liest die Daten (speech-service, POST /business-cards) →
  * prüfen, kurzen Kommentar tippen oder diktieren → speichern (POST /leads, landet als Lead im terramax-service).
  * Gedacht für Messen: wenige Felder, nach dem Speichern sofort bereit für die nächste Karte.
  */
@@ -86,7 +87,7 @@ export default function Schnellerfassung() {
   const [phase, setPhase] = useState<Phase>('bereit')
   const [fehler, setFehler] = useState<string | null>(null)
   const [gespeichert, setGespeichert] = useState<SavedLead | null>(null)
-  const fotoInput = useRef<HTMLInputElement>(null)
+  const [scannerOffen, setScannerOffen] = useState(false)
   const recorder = useVoiceRecorder()
   // Bereits übernommene oder verworfene Aufnahme; "Diktat übernehmen" gibt es nur für eine neue
   const [erledigteAufnahme, setErledigteAufnahme] = useState<Blob | null>(null)
@@ -94,8 +95,8 @@ export default function Schnellerfassung() {
   const beschaeftigt = phase !== 'bereit'
   const hatNamen = leerZuNull(kontakt.name) !== null || leerZuNull(kontakt.company) !== null
 
-  const fotoGewaehlt = async (file: File | undefined) => {
-    if (!file) return
+  const fotoGewaehlt = async (file: Blob) => {
+    setScannerOffen(false)
     setFehler(null)
     setGespeichert(null)
     if (vorschau) URL.revokeObjectURL(vorschau)
@@ -108,10 +109,10 @@ export default function Schnellerfassung() {
       setFehler(e instanceof Error ? e.message : 'Visitenkarte konnte nicht gelesen werden')
     } finally {
       setPhase('bereit')
-      // Gleiche Datei noch einmal wählen können
-      if (fotoInput.current) fotoInput.current.value = ''
     }
   }
+
+  const scannerSchliessen = useCallback(() => setScannerOffen(false), [])
 
   const kommentarErkennen = async () => {
     if (!recorder.audio) return
@@ -162,6 +163,8 @@ export default function Schnellerfassung() {
       merkeEvent(eventName.trim())
       setGespeichert(lead)
       zuruecksetzen()
+      // Auf der Messe kommt gleich die nächste Karte: Scanner direkt wieder öffnen
+      setScannerOffen(true)
     } catch (e) {
       setFehler(e instanceof Error ? e.message : 'Lead konnte nicht gespeichert werden')
     } finally {
@@ -173,7 +176,7 @@ export default function Schnellerfassung() {
     <section className="tour lead">
       <header className="tour-header">
         <h2>Schnellerfassung</h2>
-        <p className="tour-step">Visitenkarte fotografieren, prüfen, kurz kommentieren – fertig.</p>
+        <p className="tour-step">Visitenkarte scannen, prüfen, kurz kommentieren – fertig.</p>
       </header>
 
       <form
@@ -196,21 +199,13 @@ export default function Schnellerfassung() {
 
         <div className="lead-foto">
           {vorschau && <img src={vorschau} alt="Foto der Visitenkarte" />}
-          <input
-            ref={fotoInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            hidden
-            onChange={(e) => void fotoGewaehlt(e.target.files?.[0])}
-          />
           <button
             type="button"
             className={entwurf ? undefined : 'primary'}
-            disabled={beschaeftigt}
-            onClick={() => fotoInput.current?.click()}
+            disabled={beschaeftigt || recorder.isRecording}
+            onClick={() => setScannerOffen(true)}
           >
-            {vorschau ? 'Neues Foto' : 'Visitenkarte fotografieren'}
+            {vorschau ? 'Neu scannen' : 'Visitenkarte scannen'}
           </button>
         </div>
 
@@ -281,6 +276,14 @@ export default function Schnellerfassung() {
         </div>
         {!hatNamen && <p className="tour-hint">Name oder Firma wird gebraucht.</p>}
       </form>
+
+      {scannerOffen && (
+        <KartenScanner
+          onAufnahme={(bild) => void fotoGewaehlt(bild)}
+          onDatei={(datei) => void fotoGewaehlt(datei)}
+          onSchliessen={scannerSchliessen}
+        />
+      )}
     </section>
   )
 }

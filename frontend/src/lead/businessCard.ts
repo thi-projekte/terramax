@@ -21,7 +21,7 @@ interface BusinessCardResponse {
 // das spart Upload-Zeit im Messe-WLAN und bleibt sicher unter dem Upload-Limit (10 MB).
 const MAX_EDGE = 1600
 
-async function verkleinern(file: File): Promise<Blob> {
+async function verkleinern(file: Blob): Promise<Blob> {
     try {
         const bitmap = await createImageBitmap(file)
         const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height))
@@ -39,7 +39,8 @@ async function verkleinern(file: File): Promise<Blob> {
 }
 
 // Liest die Visitenkarte über den speech-service (KI). Das Foto wird dort nicht gespeichert.
-export async function readBusinessCard(file: File, captureId: string): Promise<BusinessCard> {
+// Nimmt den Ausschnitt aus dem Live-Scanner oder ein Foto aus Kamera-App/Galerie.
+export async function readBusinessCard(file: Blob, captureId: string): Promise<BusinessCard> {
     const image = await verkleinern(file)
     const body = new FormData()
     body.append('image', image, 'visitenkarte.jpg')
