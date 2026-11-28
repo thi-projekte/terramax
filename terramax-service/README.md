@@ -1,7 +1,7 @@
 # TerraMax-Service
 
 Fachlicher Kern-Service von TerraMax (Issue #64): Händler, Kunden, Besuchstouren,
-Besuchsprotokolle und die Händlerstandorte der Marktkarte. Die SPA, der
+Besuchsprotokolle, schnell erfasste Leads (#134) und die Händlerstandorte der Marktkarte. Die SPA, der
 speech-service und die process-engine (CIB Seven) rufen ihn per REST auf. Er hat
 eine eigene PostgreSQL-Datenbank.
 
@@ -32,6 +32,7 @@ Package `de.thi.terramax.location`.
 | `de.thi.terramax.customer` | Kunden, auch als GeoJSON |
 | `de.thi.terramax.tour` | Touren, Halte mit Status (`StopTransitions`), `TourAccess` (Sichtbarkeit), Tourplanung `GET /tours/plan` (`TourPlanner`, `RoutePlanner`) |
 | `de.thi.terramax.protocol` | Besuchsprotokolle (Anlegen über die Tour, CRUD unter `/protocols/{id}`) |
+| `de.thi.terramax.lead` | Schnellerfassung von Leads (#134): Ansprechpartner (`CustomerContact`), Kommentar (`LeadNote`), `POST/GET /leads` |
 | `de.thi.terramax.ai` | `VisitPrioritizer`: Standard „am längsten nicht besucht“; OpenAI-Anbindung (LangChain4j) **auf Eis** |
 | `de.thi.terramax.security` | Rollen (auch Service-Konto `process_engine`), `CurrentUser`, `GET /me` |
 | `de.thi.terramax.seed` | Import der Testdaten für Händler und Kunden beim Start |
@@ -75,7 +76,7 @@ im Format `{"error": "…"}`.
 | --- | --- | --- |
 | `GET /me` | jeder angemeldete Nutzer | Nutzer mit Rollen, `dealerId`, Händler und Mitarbeiter-ID |
 | `GET /dealers/me` | beide | eigener Händler (`404`, wenn noch nicht angelegt) |
-| `GET /customers` | beide | Kunden des eigenen Händlers; mit `Accept: application/geo+json` als `FeatureCollection` (Eigenschaften wie `frontend/public/kunden.geojson`) |
+| `GET /customers` | beide | Bestandskunden (`status = CUSTOMER`, ohne Leads) des eigenen Händlers; mit `Accept: application/geo+json` als `FeatureCollection` (Eigenschaften wie `frontend/public/kunden.geojson`) |
 | `GET /customers/{id}` | beide | ein Kunde |
 | `POST /customers`, `PUT /customers/{id}` | beide | Kunde anlegen bzw. ändern (`409` bei vergebener Kundennummer) |
 | `GET /customers/{id}/protocols` | beide | Besuchsprotokolle des Kunden, neueste zuerst |
@@ -93,6 +94,8 @@ im Format `{"error": "…"}`.
 | `POST /tours/{id}/stops/{customerId}/complete` | beide, Engine | als `DOKUMENTIERT` abschließen; idempotent |
 | `DELETE /tours/{id}/stops/{customerId}` | beide, Engine | Kunden aus einer geplanten Tour streichen („Besuchsplan prüfen“) |
 | `GET /tours/{id}/protocols` | beide, Engine | Besuchsprotokolle der Tour |
+| `GET /leads` | beide | Leads des eigenen Händlers, zuletzt erfasste zuerst, mit Ansprechpartner und Kommentar der neuesten Erfassung |
+| `POST /leads` | beide | Lead erfassen (Aufrufer: speech-service nach `POST /business-cards`). Ohne `existingCustomerId` neuer Kunde mit `status = LEAD` (Name = Firma, sonst Person); mit ihr Ansprechpartner und Kommentar an den bestehenden Kunden (`404`, wenn fremd oder unbekannt) |
 | `POST /tours/{id}/protocols` | beide, Engine | Protokoll speichern (Aufrufer: speech-service, nicht die Engine); Format wie `VisitProtocol` im speech-service plus `customerId` und optional `transcript` (Vertrag mit `TerraMaxApi` im speech-service, unverändert) |
 | `GET /protocols/{id}` | beide, Engine | ein Protokoll |
 | `PUT /protocols/{id}`, `PATCH /protocols/{id}` | Ersteller, Engine | Protokoll ersetzen bzw. teilweise ändern |
@@ -207,6 +210,10 @@ Schema nichts.
   `DOKUMENTIERT`), dazu `skip_reason` (Pflicht bei `UEBERSPRUNGEN`), `started_at`,
   `finished_at` und der Unique-Index `uk_tour_process_instance` auf
   `tour.process_instance_id`.
+- `V5__lead_capture.sql`: `customer.status` (`CUSTOMER`/`LEAD`, Standard
+  `CUSTOMER`), `customer.source` (`MESSE`, `BESUCH`, `MANUELL`), Adresse
+  (`street`, `postal_code`, `city`), Tabellen `customer_contact` und `lead_note`.
+  Kundenliste, Karte und Tourplanung nehmen nur `CUSTOMER`; Leads einbeziehen ist #126.
 - `V4__tour_aborted.sql`: Tour-Status `aborted` (CHECK-Constraint erweitert),
   `tour.abort_reason` und `tour.aborted_at`.
 

@@ -141,6 +141,16 @@ class TourPlanResourceTest {
     @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
     @OidcSecurity(claims = { @Claim(key = "sub", value = TestData.SALES_SUB),
             @Claim(key = "dealer_id", value = TestData.DEALER) })
+    void leadsAreNotPlanned() {
+        testData.addLead("Messe-Lead", 48.25, 14.20);
+        given().queryParam("date", DATE).when().get("/tours/plan").then().statusCode(200)
+                .body("visits.customer.name", contains("Hof Huber", "Hof Maier"));
+    }
+
+    @Test
+    @TestSecurity(user = "sales", roles = Roles.SALES_PROFESSIONAL)
+    @OidcSecurity(claims = { @Claim(key = "sub", value = TestData.SALES_SUB),
+            @Claim(key = "dealer_id", value = TestData.DEALER) })
     void maxVisitsLimitsPlan() {
         for (int i = 1; i <= 12; i++) {
             testData.addCustomer("CRM-X" + i, "Zusatzhof " + i, 48.0 + i / 100.0, 14.0);

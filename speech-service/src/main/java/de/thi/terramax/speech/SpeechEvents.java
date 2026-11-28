@@ -76,6 +76,31 @@ public class SpeechEvents {
         publish("protocol.submitted", visitId, data);
     }
 
+    // --- Schnellerfassung (#134): Key und subject sind die captureId der Erfassung, nie Kontaktdaten ---
+
+    public void businessCardRead(String captureId) {
+        publish("business-card.read", captureId, captureData(captureId));
+    }
+
+    public void businessCardFailed(String captureId, int status) {
+        Map<String, Object> data = captureData(captureId);
+        data.put("status", status);
+        publish("business-card.failed", captureId, data);
+    }
+
+    public void leadCaptured(String captureId, long customerId, boolean newCustomer) {
+        Map<String, Object> data = captureData(captureId);
+        data.put("customerId", customerId);
+        data.put("newCustomer", newCustomer);
+        publish("lead.captured", captureId, data);
+    }
+
+    private static Map<String, Object> captureData(String captureId) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("captureId", captureId);
+        return data;
+    }
+
     private static Map<String, Object> data(String visitId) {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("visitId", visitId);

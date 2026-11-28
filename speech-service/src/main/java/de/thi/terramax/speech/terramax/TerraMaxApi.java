@@ -1,5 +1,6 @@
 package de.thi.terramax.speech.terramax;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
@@ -28,6 +29,24 @@ public interface TerraMaxApi {
     @Consumes(MediaType.APPLICATION_JSON)
     SavedProtocol createProtocol(@PathParam("tourId") long tourId, CreateProtocolRequest request,
             @HeaderParam(HttpHeaders.AUTHORIZATION) String authorization);
+
+    @POST
+    @Path("/leads")
+    @Consumes(MediaType.APPLICATION_JSON)
+    JsonNode createLead(CreateLeadRequest request, @HeaderParam(HttpHeaders.AUTHORIZATION) String authorization);
+
+    /**
+     * Request von {@code POST /leads} (CreateLeadRequest im terramax-service). Die Antwort (LeadDto) reicht der
+     * speech-service unverändert an die SPA weiter, deshalb {@link JsonNode}.
+     */
+    record CreateLeadRequest(String source, String eventName, LeadContact contact, Double latitude, Double longitude,
+            String comment, String transcript, Long existingCustomerId) {
+    }
+
+    /** Daten von der Visitenkarte (CreateLeadRequest.Contact im terramax-service). */
+    record LeadContact(String name, String company, String role, String phone, String email, String street,
+            String postalCode, String city) {
+    }
 
     /** Request von {@code POST /tours/{tourId}/protocols} (CreateProtocolRequest im terramax-service). */
     record CreateProtocolRequest(Long customerId, String contactPerson, List<String> topics, String outcome,

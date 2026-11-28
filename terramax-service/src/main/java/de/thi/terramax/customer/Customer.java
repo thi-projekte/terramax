@@ -5,6 +5,8 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.panache.common.Sort;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -51,9 +53,35 @@ public class Customer extends PanacheEntityBase {
     @Column(name = "crm_url")
     public String crmUrl;
 
-    /** Alle Kunden eines Händlers, sortiert nach Name. */
+    /** Bestandskunde oder Lead; neue Kunden sind Bestandskunden. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    public CustomerStatus status = CustomerStatus.CUSTOMER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source")
+    public CustomerSource source;
+
+    @Column(name = "street")
+    public String street;
+
+    @Column(name = "postal_code")
+    public String postalCode;
+
+    @Column(name = "city")
+    public String city;
+
+    /**
+     * Bestandskunden eines Händlers, sortiert nach Name. Leads fehlen: Kundenliste, Karte und Tourplanung beziehen sie
+     * erst mit #126 ein.
+     */
     public static List<Customer> listByDealer(String dealerId) {
-        return list("dealer.id", Sort.by("name").and("id"), dealerId);
+        return list("dealer.id = ?1 and status = ?2", Sort.by("name").and("id"), dealerId, CustomerStatus.CUSTOMER);
+    }
+
+    /** Leads eines Händlers, zuletzt angelegte zuerst. */
+    public static List<Customer> listLeadsByDealer(String dealerId) {
+        return list("dealer.id = ?1 and status = ?2", Sort.descending("id"), dealerId, CustomerStatus.LEAD);
     }
 
     /** Ein Kunde, aber nur, wenn er zum Händler gehört. */
