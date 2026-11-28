@@ -1,5 +1,6 @@
 import type { Feature, FeatureCollection, Point } from 'geojson'
 import mapboxgl from 'mapbox-gl'
+import { KI_ICON } from './ki/ki'
 import keycloak from './keycloak'
 
 // Händlerstandorte aus dem location-service als geclusterte Kreis-Layer (eine Source pro Kategorie)
@@ -155,10 +156,14 @@ function text(value: unknown): string | null {
   return result === '' ? null : result
 }
 
+const KI_ERKLAERUNG_RECHERCHE =
+  'Dieser Standort wurde von einer KI im Web recherchiert und kann Fehler enthalten. Bitte prüfen.'
+
 const SOURCE_TYPE_LABELS: Record<string, string> = {
   osm: 'OpenStreetMap',
-  web_research: 'Web-Recherche (KI-gestützt)',
-  'web_research+osm': 'Web-Recherche (KI-gestützt) + OpenStreetMap'
+  // KI-recherchierte Daten tragen dasselbe Icon wie alle KI-Inhalte (#27)
+  web_research: `${KI_ICON} Web-Recherche (KI-gestützt)`,
+  'web_research+osm': `${KI_ICON} Web-Recherche (KI-gestützt) + OpenStreetMap`
 }
 
 /** Übersetzt properties.source_type; unbekannte Werte bleiben unverändert, fehlende ergeben null. */
@@ -252,7 +257,14 @@ export function createPopupElement(content: PopupContent): HTMLElement {
     }
   }
 
-  if (content.origin) line(`Herkunft: ${content.origin}`)
+  if (content.origin) {
+    const origin = line(`Herkunft: ${content.origin}`)
+    // KI-recherchierte Herkunft bekommt wie alle KI-Inhalte einen Tooltip (#27)
+    if (content.origin.startsWith(KI_ICON)) {
+      origin.title = KI_ERKLAERUNG_RECHERCHE
+      origin.style.cursor = 'help'
+    }
+  }
 
   line(content.retrieved)
 

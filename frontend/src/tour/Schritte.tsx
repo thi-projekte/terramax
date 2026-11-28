@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { KiHinweis } from '../ki/KiHinweis'
 import { generateProtocol } from '../speech/protocol'
 import { toProtokoll } from '../speech/tourProtocol'
 import { transcribe } from '../speech/transcribe'
@@ -357,7 +358,12 @@ export function ProtokollPruefen({
       }}
     >
       <h3>Protokoll – {kunde.name}</h3>
-      {entwurf && <p className="tour-hint">KI-Entwurf – bitte prüfen und bei Bedarf korrigieren.</p>}
+      {entwurf && (
+        <div className="tour-hint">
+          <KiHinweis text="KI-Entwurf" quelle="deiner Sprachnotiz" />
+          <div>Bitte prüfen und bei Bedarf korrigieren.</div>
+        </div>
+      )}
       {transkript && (
         <details>
           <summary>Transkript der Sprachnotiz</summary>
