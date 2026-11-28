@@ -3,6 +3,7 @@ name: process-engine
 on:
   push:
     branches: [main]
+    tags: ["process-engine-*"]
     paths:
       - "process-engine/**"
       - "config/formatter/**"
@@ -57,11 +58,14 @@ jobs:
 
       - name: Docker metadata
         id: meta
+        # Git-Tag process-engine-1.2.3 -> Image-Tags 1.2.3, 1.2, latest (siehe README, Abschnitt Release)
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=match,pattern=process-engine-(\d+\.\d+\.\d+)$,group=1
+            type=match,pattern=process-engine-(\d+\.\d+)\.\d+$,group=1
+            type=raw,value=main,enable={{is_default_branch}}
             type=sha
             type=ref,event=pr
 

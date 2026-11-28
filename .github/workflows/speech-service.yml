@@ -3,6 +3,7 @@ name: speech-service
 on:
   push:
     branches: [main]
+    tags: ["speech-*"]
     paths:
       - "speech-service/**"
       - "config/formatter/**"
@@ -56,11 +57,14 @@ jobs:
 
       - name: Docker metadata
         id: meta
+        # Git-Tag speech-1.2.3 -> Image-Tags 1.2.3, 1.2, latest (siehe README, Abschnitt Release)
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.IMAGE_NAME }}
           # main (Stand von main) und sha-<voller Commit-Hash>, wie in Issue #66 gefordert
           tags: |
+            type=match,pattern=speech-(\d+\.\d+\.\d+)$,group=1
+            type=match,pattern=speech-(\d+\.\d+)\.\d+$,group=1
             type=ref,event=branch
             type=sha,format=long
             type=ref,event=pr

@@ -68,3 +68,27 @@ Dazu in den `<properties>` die Plugin-Version setzen, z. B.
 `<formatter-plugin.version>2.29.0</formatter-plugin.version>`.
 Der relative Pfad setzt voraus, dass der Service direkt unter dem
 Repository-Root liegt.
+
+## Release: Images versionieren
+
+Jeder Service wird einzeln versioniert ([SemVer](https://winfprojekt.de/docs/technik/semver),
+vor dem ersten stabilen Release `0.x.y`). Der Git-Tag bestimmt Service und Version:
+
+| Service | Git-Tag | Image |
+| --- | --- | --- |
+| frontend | `v1.2.3` | `terramax-frontend` (siehe [frontend/README.md](frontend/README.md)) |
+| terramax-service | `terramax-1.2.3` | `terramax-terramax-service` |
+| speech-service | `speech-1.2.3` | `terramax-speech-service` |
+| notification-service | `notification-1.2.3` | `terramax-notification-service` |
+| process-engine | `process-engine-1.2.3` | `terramax-process-engine` |
+| tour-service | `tour-1.2.3` | `terramax-tour-service` |
+| hello-service | `hello-1.2.3` | `terramax-hello-service` |
+
+```sh
+git checkout main && git pull
+git tag speech-0.2.0 && git push origin speech-0.2.0   # Image-Tags 0.2.0, 0.2, latest, sha-<commit>
+```
+
+Den Tag erst nach dem Merge auf `main` setzen („Rebase and merge“ ändert die Commit-Hashes).
+Danach in der Root-`docker-compose.yml` die neue Version eintragen, per PR mergen und in
+Portainer den Stack `terramax` neu deployen. `:main` zeigt weiter auf den letzten Stand von `main`.

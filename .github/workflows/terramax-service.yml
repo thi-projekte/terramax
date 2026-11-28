@@ -3,6 +3,7 @@ name: terramax-service
 on:
   push:
     branches: [main]
+    tags: ["terramax-*"]
     paths:
       - "terramax-service/**"
       - "config/formatter/**"
@@ -58,10 +59,13 @@ jobs:
       # Tags: main (nur auf main) und sha-<commit> (kurzer Commit-Hash, z. B. sha-7e73357)
       - name: Docker metadata
         id: meta
+        # Git-Tag terramax-1.2.3 -> Image-Tags 1.2.3, 1.2, latest (siehe README, Abschnitt Release)
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
+            type=match,pattern=terramax-(\d+\.\d+\.\d+)$,group=1
+            type=match,pattern=terramax-(\d+\.\d+)\.\d+$,group=1
             type=raw,value=main,enable={{is_default_branch}}
             type=sha
             type=ref,event=pr
