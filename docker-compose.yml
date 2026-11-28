@@ -27,7 +27,7 @@ services:
 
   terramax-service:
     # Image aus .github/workflows/terramax-service.yml
-    image: ghcr.io/thi-projekte/terramax-terramax-service:${TERRAMAX_SERVICE_TAG:-main}
+    image: ghcr.io/thi-projekte/terramax-terramax-service:${TERRAMAX_SERVICE_TAG:-0.1.0}
     restart: unless-stopped
     environment:
       # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
@@ -73,7 +73,7 @@ services:
 
   speech-service:
     # Image aus .github/workflows/speech-service.yml
-    image: ghcr.io/thi-projekte/terramax-speech-service:${SPEECH_SERVICE_TAG:-main}
+    image: ghcr.io/thi-projekte/terramax-speech-service:${SPEECH_SERVICE_TAG:-0.1.0}
     restart: unless-stopped
     environment:
       # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
@@ -110,8 +110,8 @@ services:
   # Nginx Proxy Manager: terramax-notifications.winfprojekt.de -> terramax-notification-service-1:8080
 
   notification-service:
-    # Image aus .github/workflows/notification-service.yml; zum Ausrollen auf :sha-<commit> pinnen
-    image: ghcr.io/thi-projekte/terramax-notification-service:main
+    # Image aus .github/workflows/notification-service.yml (Git-Tag notification-0.1.0)
+    image: ghcr.io/thi-projekte/terramax-notification-service:0.1.0
     restart: unless-stopped
     environment:
       # Öffentliche Adresse, weil sie als Aussteller (iss) in den Tokens steht
@@ -134,7 +134,7 @@ services:
 
   process-engine:
     # Image aus .github/workflows/process-engine.yml
-    image: ghcr.io/thi-projekte/terramax-process-engine:${PROCESS_ENGINE_TAG:-latest}
+    image: ghcr.io/thi-projekte/terramax-process-engine:${PROCESS_ENGINE_TAG:-0.1.0}
     restart: unless-stopped
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://process-engine-db:5432/process_engine
